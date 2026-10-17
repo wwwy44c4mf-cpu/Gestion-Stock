@@ -1,6 +1,6 @@
 # Gestion-Stock
 
-Application web de gestion de stocks multi-magasins. Le lot SOC-01 fournit le socle Docker et une page d’accueil provisoire ; les fonctionnalités métier sont détaillées dans [suivi.md](suivi.md). Aucun catalogue ni compte utilisateur n’est encore créé.
+Application web de gestion de stocks multi-magasins. SOC-01 fournit le socle Docker et une page d’accueil provisoire ; SOC-02 ajoute le modèle de données et les migrations explicites. Les fonctionnalités métier sont détaillées dans [suivi.md](suivi.md). Aucun catalogue ni compte utilisateur réel n’est encore créé.
 
 ## Prérequis
 
@@ -16,11 +16,18 @@ Depuis le répertoire du dépôt, préparer la configuration locale et des secre
 docker run --rm --mount "type=bind,source=$(pwd),target=/workspace" -w /workspace composer:2@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac php docker/setup.php
 docker compose config --quiet
 docker compose up -d --build --wait
+docker compose run --rm --no-deps app php bin/console doctrine:migrations:migrate --no-interaction
 ```
 
 Ouvrir [l’application locale](http://127.0.0.1:8080). Le fichier `.env` peut modifier le port si nécessaire. Le script de préparation ne remplace jamais les secrets existants. Le répertoire `.secrets` est privé sur l’hôte ; ses fichiers sont lisibles par les différents UID des conteneurs auxquels ils sont explicitement montés. Ils ne sont pas intégrés aux images ni versionnés. Les secrets Compose locaux ne constituent pas un coffre chiffré ; protéger leur stockage et utiliser le mécanisme adapté lors du déploiement.
 
-Le service ponctuel `init` prépare seulement les tables techniques Messenger, sans créer le schéma métier de SOC-02. PostgreSQL initialise un compte applicatif distinct, sans privilèges superutilisateur, et conserve ses données dans un volume dédié. La première initialisation fixe ses identifiants : changer un fichier secret ne change pas automatiquement un mot de passe dans une base existante.
+Le service ponctuel `init` prépare seulement les tables techniques Messenger. La commande de migration ci-dessus installe le schéma métier de SOC-02 explicitement. PostgreSQL initialise un compte applicatif distinct, sans privilèges superutilisateur, et conserve ses données dans un volume dédié. La première initialisation fixe ses identifiants : changer un fichier secret ne change pas automatiquement un mot de passe dans une base existante.
+
+Modèle et diagramme : [docs/modele-donnees.md](docs/modele-donnees.md). Installation, tests isolés et retour arrière protégé : [docs/migrations.md](docs/migrations.md). Contrôler les soldes sans modifier les données :
+
+```sh
+docker compose exec app php bin/console app:stock:reconcile
+```
 
 ## Services et réseau
 
@@ -55,7 +62,7 @@ docker compose ps
 
 Les tests vérifient le rendu français, l’accès réel à PostgreSQL, les sondes, les erreurs 404 et la persistance/acquittement d’une sonde dans la file Messenger. Le test de file utilise une queue dédiée `soc01_test`, distincte de la queue métier `async`, pour ne pas interférer avec le worker. Les lancer dans l’environnement local de développement.
 
-Composer signale l’absence de licence : ce choix reste volontairement ouvert dans DOC-01 ; aucune licence n’est attribuée sans décision du propriétaire. La validation du schéma reste possible avec cet avertissement. Le rapport de vérification SOC-01 est dans [docs/validation-soc01.md](docs/validation-soc01.md).
+Composer signale l’absence de licence : ce choix reste volontairement ouvert dans DOC-01 ; aucune licence n’est attribuée sans décision du propriétaire. La validation du schéma reste possible avec cet avertissement. Rapports : [SOC-01](docs/validation-soc01.md), [SOC-02](docs/validation-soc02.md).
 
 ## Arrêt, diagnostic et persistance
 

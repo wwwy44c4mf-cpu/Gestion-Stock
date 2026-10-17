@@ -1,0 +1,7 @@
+doctrine_migrations:
+  migrations_paths:
+    DoctrineMigrations: '%kernel.project_dir%/migrations'
+  connection: default
+  all_or_nothing: true
+  transactional: true
+  enable_profiler: false
