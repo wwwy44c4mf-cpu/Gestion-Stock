@@ -6,6 +6,7 @@
         "php": ">=8.4",
         "doctrine/dbal": "^4.3",
         "doctrine/doctrine-bundle": "^3.0",
+        "doctrine/doctrine-migrations-bundle": "^3.7",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-intl": "*",

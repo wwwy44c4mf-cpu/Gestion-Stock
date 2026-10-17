@@ -6,6 +6,6 @@
         <env name="KERNEL_CLASS" value="App\Kernel"/>
     </php>
     <testsuites>
-        <testsuite name="SOC-01"><directory>tests</directory></testsuite>
+        <testsuite name="Gestion-Stock"><directory>tests</directory></testsuite>
     </testsuites>
 </phpunit>

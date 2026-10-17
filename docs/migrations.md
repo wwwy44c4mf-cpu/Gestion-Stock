@@ -1,0 +1,43 @@
+# Migrations et retour arrière
+
+Les migrations sont explicites et transactionnelles sous PostgreSQL. Le service `init` de SOC-01 continue de préparer uniquement Messenger ; aucun démarrage web ni worker ne modifie implicitement le schéma métier.
+
+## Installation et mise à jour
+
+Après préparation des secrets et construction décrites dans le README :
+
+```sh
+docker compose run --rm --no-deps app php bin/console doctrine:migrations:status
+docker compose run --rm --no-deps app php bin/console doctrine:migrations:migrate --no-interaction
+docker compose run --rm --no-deps app php bin/console app:stock:reconcile
+```
+
+La base doit être démarrée et saine. Exécuter une seule opération de déploiement/migration à la fois. Avant une mise à jour avec données réelles : sauvegarde vérifiée, arrêt des écritures web et workers selon la procédure d’exploitation, examen du SQL et des dépendances de version. Ne pas utiliser de synchronisation de schéma automatique à la place des migrations.
+
+Une première migration crée 17 tables métier, les rôles, le domaine de quantités, les index/triggers et les vues. La table de versions Doctrine s’ajoute à la table technique Messenger existante. Aucun compte réel ni stock initial n’est créé ; les exemples de test restent dans leurs transactions isolées. Rejouer `migrate` ne recrée pas les objets et ne duplique pas les rôles.
+
+## Tests isolés
+
+```sh
+docker compose --profile test build test
+docker compose run --rm test
+```
+
+Chaque test de schéma crée un nom aléatoire dans la base locale, exécute la vraie commande Doctrine sur cette connexion et termine par un rollback de sa transaction d’isolation. Les données applicatives, la table de versions publique et la queue métier sont préservées. Le compte utilisé doit pouvoir créer un schéma dans la base de développement ; ne pas lancer cette suite sur une base de production.
+
+La suite teste la migration vierge, sa réexécution, le retour à zéro et la réapplication, les erreurs de contraintes, l’historique immuable, les quantités fractionnaires, les références de retours, la déduplication, les comptages zéro et la réconciliation.
+
+## Retour arrière
+
+Sur un environnement de test sans données métier :
+
+```sh
+docker compose run --rm --no-deps app php bin/console doctrine:migrations:migrate 0 --no-interaction
+docker compose run --rm --no-deps app php bin/console doctrine:migrations:migrate --no-interaction
+```
+
+Le retour à zéro refuse toute table métier contenant des données, à l’exception des rôles de référence fournis à l’installation. Le refus est transactionnel : aucun objet ni enregistrement n’est supprimé. Messenger et ses messages restent hors de cette migration. Un retour arrière avec données réelles nécessite une migration corrective préservant les données, ou une restauration testée selon OPS-01 ; ne pas forcer la suppression des tables/triggers.
+
+La restauration complète et les sauvegardes automatiques ne sont pas remplacées par ce mécanisme et restent dans OPS-01. Après un retour de version applicative, vérifier également sa compatibilité avec le schéma restant et la file de messages.
+
+Référence technique : [configuration transactionnelle de Doctrine Migrations](https://www.doctrine-project.org/projects/doctrine-migrations/en/3.9/reference/configuration.html).
