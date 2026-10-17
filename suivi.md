@@ -139,7 +139,7 @@ Sources : §4,8; DOCK-09.
 
 Critères d’acceptation : Une base vierge migre sans erreur ; références et couples article/magasin uniques ; aucune quantité fractionnaire.
 
-Livraison : branche `codex/soc-02-data-model`, issue #2. [Modèle et diagramme](docs/modele-donnees.md), [migrations et retour arrière](docs/migrations.md), [rapport de validation](docs/validation-soc02.md). 17 tables métier, 18 tests / 92 assertions, réconciliation sans écart sur la base locale.
+Livraison : [PR #52](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/52), branche `codex/soc-02-data-model`, issue #2. [Modèle et diagramme](docs/modele-donnees.md), [migrations et retour arrière](docs/migrations.md), [rapport de validation](docs/validation-soc02.md). 17 tables métier, 18 tests / 92 assertions, réconciliation sans écart sur la base locale.
 
 ### SOC-03 — Contrats API REST et erreurs normalisées
 
