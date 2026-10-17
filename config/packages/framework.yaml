@@ -1,0 +1,37 @@
+framework:
+  secret: '%env(trim:file:APP_SECRET_FILE)%'
+  default_locale: fr
+  router:
+    utf8: true
+  php_errors:
+    log: true
+  handle_all_throwables: true
+  messenger:
+    failure_transport: failed
+    transports:
+      async:
+        dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+        options:
+          queue_name: async
+        retry_strategy:
+          max_retries: 3
+          delay: 1000
+          multiplier: 2
+      failed:
+        dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+        options:
+          queue_name: failed
+    routing:
+      App\Message\InfrastructureProbe: async
+
+when@test:
+  framework:
+    test: true
+    messenger:
+      transports:
+        async:
+          options:
+            queue_name: soc01_test
+        failed:
+          options:
+            queue_name: soc01_test_failed

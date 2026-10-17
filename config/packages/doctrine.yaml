@@ -1,0 +1,10 @@
+doctrine:
+  dbal:
+    driver: pdo_pgsql
+    host: '%env(DATABASE_HOST)%'
+    port: '%env(int:DATABASE_PORT)%'
+    dbname: '%env(DATABASE_NAME)%'
+    user: '%env(DATABASE_USER)%'
+    password: '%env(trim:file:DATABASE_PASSWORD_FILE)%'
+    server_version: '18'
+    charset: UTF8

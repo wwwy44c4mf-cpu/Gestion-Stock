@@ -1,0 +1,160 @@
+name: ${COMPOSE_PROJECT_NAME:-gestion-stock}
+
+x-app: &app
+  image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-app:soc-01
+  environment: &app-env
+    APP_ENV: ${APP_ENV:-prod}
+    APP_DEBUG: ${APP_DEBUG:-0}
+    APP_SECRET_FILE: /run/secrets/app_secret
+    DATABASE_PASSWORD_FILE: /run/secrets/db_password
+    DATABASE_HOST: db
+    DATABASE_PORT: 5432
+    DATABASE_NAME: ${POSTGRES_DB:-gestion_stock}
+    DATABASE_USER: ${POSTGRES_USER:-gestion_stock}
+    MESSENGER_TRANSPORT_DSN: doctrine://default?auto_setup=false
+  secrets:
+    - app_secret
+    - db_password
+  networks:
+    - backend
+    - outbound
+  read_only: true
+  tmpfs:
+    - /tmp:uid=10001,gid=10001,mode=1770
+    - /app/var:uid=10001,gid=10001,mode=0770
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  init: true
+  restart: unless-stopped
+  stop_grace_period: 30s
+
+services:
+  web:
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-web:soc-01
+    build:
+      context: .
+      target: web
+    ports:
+      - "${HTTP_BIND:-127.0.0.1}:${HTTP_PORT:-8080}:8080"
+    networks: [edge, frontend]
+    read_only: true
+    tmpfs: ["/tmp:uid=101,gid=101,mode=1770"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    stop_grace_period: 30s
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, wget, -q, --spider, "http://127.0.0.1:8080/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  app:
+    <<: *app
+    build:
+      context: .
+      target: runtime
+    networks: [frontend, backend, outbound]
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, php, docker/healthcheck.php, fpm]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  db:
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-db:soc-01
+    build:
+      context: .
+      target: database
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-gestion_stock}
+      POSTGRES_USER: postgres
+      APP_DB_USER: ${POSTGRES_USER:-gestion_stock}
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_admin_password
+      POSTGRES_INITDB_ARGS: --encoding=UTF8 --locale=C
+    secrets: [db_password, db_admin_password]
+    networks: [backend]
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./docker/postgres/init-app.sh:/docker-entrypoint-initdb.d/10-app.sh:ro
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    stop_grace_period: 30s
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  init:
+    <<: *app
+    command: [php, bin/console, messenger:setup-transports, --no-interaction]
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker:
+    <<: *app
+    command: [php, bin/console, messenger:consume, async, --time-limit=3600, --memory-limit=128M, --no-interaction]
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    healthcheck: &worker-health
+      test: [CMD, php, docker/healthcheck.php, worker]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  scheduler:
+    <<: *app
+    command: [php, bin/console, messenger:consume, scheduler_default, --time-limit=3600, --memory-limit=128M, --no-interaction]
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    healthcheck: *worker-health
+
+  test:
+    <<: *app
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-test:soc-01
+    build:
+      context: .
+      target: test
+    profiles: [test]
+    environment:
+      <<: *app-env
+      APP_ENV: test
+    restart: "no"
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+networks:
+  edge: {}
+  frontend:
+    internal: true
+  backend:
+    internal: true
+  outbound: {}
+
+volumes:
+  postgres_data: {}
+
+secrets:
+  app_secret:
+    file: ./.secrets/app_secret
+  db_password:
+    file: ./.secrets/db_password
+  db_admin_password:
+    file: ./.secrets/db_admin_password
