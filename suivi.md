@@ -125,7 +125,7 @@ Sources : DOCK-01,02,03,04,05,06,07,08,12; §7.
 
 Critères d’acceptation : Un poste avec Docker seul démarre l’application et lance les tests ; base et workers non exposés publiquement.
 
-Livraison : branche `codex/soc-01-docker`, demande de revue liée à l’issue #1. Vérifications : [rapport SOC-01](docs/validation-soc01.md), 5 tests / 15 assertions, persistance après recréation, audit local des trois images sans vulnérabilité connue détectée. Démarrage : [README](README.md). HTTPS production et fonctionnalités métier restent dans leurs lots dédiés.
+Livraison : [PR #51](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/51), branche `codex/soc-01-docker`, liée à l’issue #1. Vérifications : [rapport SOC-01](docs/validation-soc01.md), 5 tests / 15 assertions, persistance après recréation, audit local des trois images sans vulnérabilité connue détectée. Démarrage : [README](README.md). HTTPS production et fonctionnalités métier restent dans leurs lots dédiés.
 
 ### SOC-02 — Modèle de données et migrations
 
