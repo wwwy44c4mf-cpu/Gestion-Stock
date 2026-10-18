@@ -254,7 +254,7 @@ Sources : ART-01,02,03; §4.
 
 Critères d’acceptation : Article mouvementé non supprimable ; référence préservée ; REC-17.
 
-Livraison vérifiée : catalogue global en lecture, administration réservée à ADMIN, références et unité immuables, versions et créations idempotentes, catégories hiérarchiques. Le statut d’une catégorie s’applique à toute sa branche et à tous ses articles ; la réactivation inclut les articles auparavant désactivés. Historique conservé et nouvelles consommations d’articles inactifs bloquées en base. Migration `Version20261018140000`. Recette : 109 tests PHP / 1 526 assertions et quatre validations OpenAPI réussis, dont écritures concurrentes par deux processus. [Guide](docs/catalogue.md) · [Validation](docs/validation-art01.md). Propositions dans ART-02 ; recette dédiée de recherche dans ART-03 ; stocks par article dans STK-01.
+Livraison pour revue : [PR #60](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/60), branche `codex/art-01-catalogue`. Catalogue global en lecture, administration réservée à ADMIN, références et unité immuables, versions et créations idempotentes, catégories hiérarchiques. Le statut d’une catégorie s’applique à toute sa branche et à tous ses articles ; la réactivation inclut les articles auparavant désactivés. Historique conservé et nouvelles consommations d’articles inactifs bloquées en base. Migration `Version20261018140000`. Recette : 109 tests PHP / 1 526 assertions et quatre validations OpenAPI réussis, dont écritures concurrentes par deux processus. [Guide](docs/catalogue.md) · [Validation](docs/validation-art01.md). Propositions dans ART-02 ; recette dédiée de recherche dans ART-03 ; stocks par article dans STK-01.
 
 ### ART-02 — Propositions d’articles et validation administrative
 
