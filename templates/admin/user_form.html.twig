@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ is_new ? 'Créer un compte' : 'Modifier un compte' }} · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">ADMINISTRATION</p><h1>{{ is_new ? 'Créer un compte' : 'Modifier un compte' }}</h1></div><a href="{{ path('admin_users') }}">Retour aux comptes</a></div>
+<section class="card account-form">
+{% if error %}{% include 'components/notice.html.twig' with {kind:'error',message:error} only %}{% endif %}
+{% if editing_self %}<p class="notice">Modifier votre compte peut vous demander de vous reconnecter.</p>{% endif %}
+<form method="post" autocomplete="off">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token(token_id) }}">
+{% if is_new %}<input type="hidden" name="_creation_key" value="{{ creation_key }}">{% endif %}
+<div class="field"><label for="account-name">Nom (obligatoire)</label><input id="account-name" name="name" value="{{ account.name }}" maxlength="160" required autocomplete="name"></div>
+<div class="field"><label for="account-email">Courriel (obligatoire)</label><input id="account-email" type="email" name="email" value="{{ account.email }}" maxlength="254" required autocomplete="off"></div>
+{% if is_new %}<div class="field"><label for="account-password">Mot de passe initial (obligatoire)</label><input id="account-password" type="password" name="password" minlength="12" maxlength="128" autocomplete="new-password" required aria-describedby="password-help"><p class="muted" id="password-help">De 12 à 128 caractères. Transmettez-le au titulaire par un canal approprié.</p></div>{% endif %}
+<div class="field"><label for="account-role">Rôle (obligatoire)</label><select id="account-role" name="role">{% for value,label in {'USER':'Utilisateur','MANAGER':'Gestionnaire','ADMIN':'Administrateur'} %}<option value="{{ value }}" {% if account.role == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+<fieldset><legend>Magasins affectés</legend>{% for store in stores %}<label class="checkbox-row"><input type="checkbox" name="store_ids[]" value="{{ store.id }}" {% if store.id in account.store_ids %}checked{% endif %}> {{ store.name }} <span class="muted">({{ store.code }})</span></label>{% else %}<p class="muted">Aucun magasin actif. Vous pourrez affecter ce compte plus tard.</p>{% endfor %}</fieldset>
+{% if not is_new %}<div class="field"><label class="checkbox-row"><input type="checkbox" name="active" value="1" {% if account.active %}checked{% endif %}> Compte actif</label><p class="muted">Décochez pour désactiver l’accès. La réactivation ne rétablit pas les anciennes sessions.</p></div>{% endif %}
+<button class="button" type="submit">{{ is_new ? 'Créer le compte' : 'Enregistrer les modifications' }}</button>
+</form>
+</section>
+{% endblock %}

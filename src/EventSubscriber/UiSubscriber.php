@@ -25,6 +25,7 @@ final class UiSubscriber implements EventSubscriberInterface
         $user = $this->security->getUser();
         $route = $event->getRequest()->attributes->get('_route');
         $section = in_array($route, ['login', 'profile'], true) ? $route : $event->getRequest()->attributes->get('section', 'home');
+        if (str_starts_with($route ?? '', 'admin_users')) { $section = 'administration'; }
         $this->twig->addGlobal('navigation_items', $this->navigation->items($user instanceof StockUser ? $user->getRoles() : []));
         $this->twig->addGlobal('current_section', $section);
         $this->twig->addGlobal('page_title', ($event->getRequest()->attributes->get('_route') === 'login' ? 'Connexion' : ($event->getRequest()->attributes->get('_route') === 'profile' ? 'Mon profil' : (Navigation::SECTIONS[$section] ?? 'Tableau de bord'))));

@@ -28,6 +28,10 @@ final class NativeAuthenticationTest extends TestCase
                 if (trim($sql) !== '') { $db->executeStatement($sql); }
             }
             $db->executeStatement('ALTER TABLE users ADD development_only boolean NOT NULL DEFAULT false');
+            require_once dirname(__DIR__).'/migrations/Version20261018120000.php';
+            $migration = new \DoctrineMigrations\Version20261018120000($db, new \Psr\Log\NullLogger());
+            $migration->up(new \Doctrine\DBAL\Schema\Schema());
+            foreach ($migration->getSql() as $sql) { $db->executeStatement($sql->getStatement()); }
             $password = bin2hex(random_bytes(24));
             $hash = password_hash($password, PASSWORD_ARGON2ID, ['memory_cost' => 65536, 'time_cost' => 4, 'threads' => 1]);
             $db->executeStatement('INSERT INTO users (email, name, password_hash, role_id) VALUES (?, ?, ?, 3)',
@@ -69,6 +73,31 @@ final class NativeAuthenticationTest extends TestCase
             $prodCookie = $csrf->headers->getCookies()[0]->getValue();
             $prodToken = json_decode($csrf->getContent(), true)['token'];
             self::assertSame(401, $this->request($schema, 'POST', '/api/v1/auth/login', $prodCookie, $prodToken, json_encode(['email' => 'admin.dev@example.test', 'password' => $password]))->getStatusCode());
+
+            [$demoSession, $demoCsrf] = $this->nativeLogin($schema, 'admin.dev@example.test', $password, 'dev');
+            $demoPayload = json_encode(['email' => 'demo-child@example.test', 'name' => 'Compte issu du test', 'password' => $password, 'role' => 'USER', 'store_ids' => []]);
+            $demoCreated = $this->request($schema, 'POST', '/api/v1/users', $demoSession, $demoCsrf, $demoPayload, 'dev');
+            self::assertSame(201, $demoCreated->getStatusCode(), $demoCreated->getContent());
+            self::assertTrue($db->fetchOne("SELECT development_only FROM users WHERE email = 'demo-child@example.test'"));
+            [$childSession] = $this->nativeLogin($schema, 'demo-child@example.test', $password, 'dev');
+            self::assertSame(401, $this->request($schema, 'GET', '/api/v1/auth/me', $childSession)->getStatusCode());
+            $db->executeStatement("UPDATE users SET role_id = 1 WHERE email = 'native@example.test'");
+            [$adminSession, $adminCsrf] = $this->nativeLogin($schema, 'native@example.test', $password);
+            $payload = json_encode(['email' => 'new-native@example.test', 'name' => 'Compte natif créé', 'password' => $password, 'role' => 'USER', 'store_ids' => []]);
+            $created = $this->request($schema, 'POST', '/api/v1/users', $adminSession, $adminCsrf, $payload);
+            self::assertSame(201, $created->getStatusCode(), $created->getContent());
+            $newId = json_decode($created->getContent(), true)['data']['id'];
+            $replay = $this->request($schema, 'POST', '/api/v1/users', $adminSession, $adminCsrf, $payload);
+            self::assertSame(201, $replay->getStatusCode());
+            self::assertJsonStringEqualsJsonString($created->getContent(), $replay->getContent());
+            [$firstSession] = $this->nativeLogin($schema, 'new-native@example.test', $password);
+            [$untouchedSession] = $this->nativeLogin($schema, 'new-native@example.test', $password);
+            $disabled = $this->request($schema, 'PATCH', '/api/v1/users/'.$newId, $adminSession, $adminCsrf, '{"active":false}');
+            self::assertSame(200, $disabled->getStatusCode(), $disabled->getContent());
+            self::assertSame(401, $this->request($schema, 'GET', '/api/v1/auth/me', $firstSession)->getStatusCode());
+            $reactivated = $this->request($schema, 'PATCH', '/api/v1/users/'.$newId, $adminSession, $adminCsrf, '{"active":true}');
+            self::assertSame(200, $reactivated->getStatusCode());
+            self::assertSame(401, $this->request($schema, 'GET', '/api/v1/auth/me', $untouchedSession)->getStatusCode());
         } finally {
             $db->executeStatement('SET search_path TO public');
             $db->executeStatement('DROP SCHEMA '.$schema.' CASCADE');
@@ -86,10 +115,22 @@ final class NativeAuthenticationTest extends TestCase
         $_COOKIE = $cookie ? ['GESTION_STOCK_SESSION' => $cookie] : [];
         session_id($cookie ?? '');
         $request = Request::create('https://localhost'.$path, $method, cookies: $_COOKIE,
-            server: ['REMOTE_ADDR' => '192.0.2.64', 'CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $csrf ?? ''], content: $body);
+            server: ['REMOTE_ADDR' => '192.0.2.64', 'CONTENT_TYPE' => 'application/json', 'HTTP_X_CSRF_TOKEN' => $csrf ?? '', 'HTTP_IDEMPOTENCY_KEY' => 'native-create-user-123'], content: $body);
         $response = $kernel->handle($request);
         $kernel->terminate($request, $response);
         $kernel->shutdown();
         return $response;
     }
+    private function nativeLogin(string $schema, string $email, string $password, string $environment = 'prod'): array
+    {
+        $seed = $this->request($schema, 'GET', '/api/v1/auth/csrf', environment: $environment);
+        $cookie = $seed->headers->getCookies()[0]->getValue();
+        $token = json_decode($seed->getContent(), true)['token'];
+        $login = $this->request($schema, 'POST', '/api/v1/auth/login', $cookie, $token, json_encode(['email' => $email, 'password' => $password]), $environment);
+        self::assertSame(200, $login->getStatusCode(), $login->getContent());
+        $cookie = $login->headers->getCookies()[0]->getValue();
+        $csrf = $this->request($schema, 'GET', '/api/v1/auth/csrf', $cookie, environment: $environment);
+        return [$cookie, json_decode($csrf->getContent(), true)['token']];
+    }
+
 }

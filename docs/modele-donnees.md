@@ -81,3 +81,7 @@ Ce lot livre le stockage et ses garanties structurelles. Il n’enregistre pas e
 Le hash de requête est prévu mais facultatif au niveau du stockage ; il deviendra obligatoire dans le service de création idempotente. Les payloads et contextes ne doivent contenir ni secrets, ni noms/courriels recopiés inutilement. L’historique est protégé contre UPDATE/DELETE usuels, pas contre un administrateur de base capable de modifier le schéma ou de désactiver ses triggers.
 
 Index : mouvements par date, article/date, source/date, destination/date et consommateur/date ; liens inventaire et opération d’origine ; stocks par magasin ; alertes actives ; tâches de notification disponibles ; audit par acteur et magasin.
+
+## Complément technique AUTH-02
+
+La table `user_creation_requests` relie un administrateur et sa clé d’idempotence au compte créé et au résultat JSON initial. Sa transaction est commune à la création, aux affectations et à l’audit. L’empreinte est protégée par HMAC ; aucun corps de création ni mot de passe n’y est stocké. Le résultat contient l’identité initiale et relève donc aussi de la future rétention/anonymisation RGPD-01.

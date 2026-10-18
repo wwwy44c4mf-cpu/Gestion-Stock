@@ -13,8 +13,12 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 | `POST /api/v1/auth/logout` | Déconnexion de la session |
 | `GET /api/v1/auth/me` | Profil de l’utilisateur connecté |
 | `PATCH /api/v1/auth/me` | Modification de son fuseau horaire |
+| `GET /api/v1/users` | Liste administrative des comptes |
+| `POST /api/v1/users` | Création administrative idempotente |
+| `GET /api/v1/users/{id}` | Consultation administrative d’un compte |
+| `PATCH /api/v1/users/{id}` | Modification, désactivation ou réactivation |
 
-Ces sept opérations portent `x-implementation: available`. Les 51 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
+Ces onze opérations portent `x-implementation: available`. Les 47 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
 
 Les routes `/health/live` et `/health/ready` de SOC-01 restent disponibles pour Docker ; la nouvelle sonde API ne remplace pas le contrôle PostgreSQL de readiness.
 
@@ -105,3 +109,5 @@ docker compose run --rm test
 La commande de test dépend du conteneur `contract-test`, sans réseau, qui vérifie la structure contre le schéma officiel OpenAPI, les schémas JSON et toutes les références locales. Les versions de ce validateur et de ses dépendances sont verrouillées dans `docker/contract-requirements.txt` ; Python n’est pas installé dans l’image applicative. Les tests PHP vérifient les réponses réelles et les outils communs ; une session native de production est testée dans un processus séparé pour contrôler aussi le cookie Secure/HttpOnly/SameSite.
 
 Provenance du schéma tiers et licence : [schemas/NOTICE.md](schemas/NOTICE.md). Références : [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0), [Symfony CSRF](https://symfony.com/doc/current/security/csrf.html), [Symfony RateLimiter](https://symfony.com/doc/current/rate_limiter.html). Rapport de recette : [validation-soc03.md](validation-soc03.md).
+
+AUTH-02 active les opérations de comptes ; voir [leur guide](administration-comptes.md) pour les protections, le rejeu persistant et l’invalidation des sessions. Les contrôles de périmètre des ressources métier restent dans AUTH-03.

@@ -30,7 +30,7 @@ final class Navigation
             if (!$admin && !$manager && !$user) {
                 continue;
             }
-            $items[] = ['label' => $label, 'route' => 'ui_section', 'parameters' => ['section' => $section], 'active' => $section];
+            $items[] = ['label' => $label, 'route' => $section === 'administration' ? 'admin_users' : 'ui_section', 'parameters' => $section === 'administration' ? [] : ['section' => $section], 'active' => $section];
         }
 
         return $items;

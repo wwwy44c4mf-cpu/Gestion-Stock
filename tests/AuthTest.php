@@ -176,7 +176,7 @@ final class AuthTest extends WebTestCase
         self::assertResponseRedirects('/', 303);
         $crawler = $this->client->followRedirect();
         self::assertSelectorExists('a[href="/profil"]');
-        self::assertSelectorNotExists('a[href="/espace/administration"]');
+        self::assertSelectorNotExists('a[href="/administration/comptes"]');
         $this->client->submit($crawler->selectButton('Se déconnecter')->form());
         self::assertResponseRedirects('/connexion', 303);
         $this->client->request('GET', '/profil');
@@ -243,8 +243,8 @@ final class AuthTest extends WebTestCase
             self::assertTrue(static::getContainer()->get(\App\Api\OpenApiContract::class)->valid($body, ['$ref' => '#/components/schemas/UserResource']));
             $this->client->request('GET', '/?role=ADMIN&store_id=untrusted');
             self::assertResponseIsSuccessful();
-            if ($role === 'ADMIN') { self::assertSelectorExists('nav a[href="/espace/administration"]'); }
-            else { self::assertSelectorNotExists('nav a[href="/espace/administration"]'); }
+            if ($role === 'ADMIN') { self::assertSelectorExists('nav a[href="/administration/comptes"]'); }
+            else { self::assertSelectorNotExists('nav a[href="/administration/comptes"]'); }
         }
     }
 

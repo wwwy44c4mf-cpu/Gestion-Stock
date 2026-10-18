@@ -36,3 +36,5 @@ La commande `app:user:create-admin` permet encore de créer le premier **vérita
 ## Validation
 
 Recette Docker : **60 tests PHP / 845 assertions**, plus quatre tests indépendants du contrat. Sont couverts : commande refusée hors dev sans écriture, hachage et création idempotente, absence de remplacement d’un compte normal, initialisation possible du premier administrateur normal, refus de connexion et de rafraîchissement hors dev même après renommage, session native de développement rejetée par un noyau de production, protection du retour arrière de migration.
+
+Depuis AUTH-02, les comptes créés depuis cet administrateur héritent du marqueur de développement. Leurs connexions et sessions sont également refusées hors `dev`.

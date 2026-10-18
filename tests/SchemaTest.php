@@ -109,7 +109,7 @@ final class SchemaTest extends KernelTestCase
     public function testMigrationReexecutionIsANoop(): void
     {
         $this->migrate('latest');
-        self::assertSame(2, (int) $this->db->fetchOne('SELECT count(*) FROM doctrine_migration_versions'));
+        self::assertSame(3, (int) $this->db->fetchOne('SELECT count(*) FROM doctrine_migration_versions'));
     }
 
     public function testReferencesAndStockPairsAreUnique(): void
@@ -266,6 +266,16 @@ final class SchemaTest extends KernelTestCase
         self::assertNotSame(0, $this->runMigration('0', $output));
         self::assertStringContainsString('compte de développement présent', $output->fetch());
         self::assertTrue($this->db->fetchOne('SELECT development_only FROM users'));
+    }
+
+    public function testUserCreationReplayCannotBeDroppedByRollback(): void
+    {
+        $fixtures = $this->fixtures();
+        $this->db->executeStatement('INSERT INTO user_creation_requests (actor_id, request_key, request_fingerprint, user_id, response) VALUES (?, ?, ?, ?, ?::jsonb)', [$fixtures['user'], 'schema-user-key', str_repeat('a', 64), $fixtures['consumer'], '{}']);
+        $output = new BufferedOutput();
+        self::assertNotSame(0, $this->runMigration('0', $output));
+        self::assertStringContainsString('créations de comptes présentes', $output->fetch());
+        self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM user_creation_requests'));
     }
 
 }

@@ -65,7 +65,7 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | SOC-03 | 1 | Contrats API REST et erreurs normalisées | §9 | SOC-01 | Terminé | [#3](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/3) |
 | SOC-04 | 1 | Interface française responsive et navigation | §6 | SOC-01 | Terminé | [#4](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/4) |
 | AUTH-01 | 1 | Connexion, sessions et profil | AUTH-01,02,03,07; §10.1 | SOC-02, SOC-03, SOC-04 | Terminé | [#5](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5) |
-| AUTH-02 | 1 | Administration des comptes et désactivation | AUTH-04,09 | AUTH-01 | À faire | [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6) |
+| AUTH-02 | 1 | Administration des comptes et désactivation | AUTH-04,09 | AUTH-01 | En revue | [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6) |
 | AUTH-03 | 1 | Rôles, affectations et contrôle des accès | AUTH-05; MAG-03; §2,4 | AUTH-02 | À faire | [#7](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7) |
 | AUTH-04 | 1 | Réinitialisation sécurisée du mot de passe | AUTH-06; MAIL-02 | AUTH-01, MAIL-01 | À faire | [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) |
 | MAG-01 | 1 | Création, modification et archivage des magasins | MAG-01,02,05 | AUTH-03 | À faire | [#9](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/9) |
@@ -185,15 +185,17 @@ Livraison AUTH-01 : [PR #55](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pul
 
 ### AUTH-02 — Administration des comptes et désactivation
 
-Issue : [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6) · À faire · Dépendances : [AUTH-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5).
+Issue : [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6) · En revue · Dépendances : [AUTH-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5).
 
 Sources : AUTH-04,09.
 
-- [ ] Créer formulaires et API de création, modification, désactivation et réactivation
-- [ ] Réserver les opérations à l’administrateur et tracer les changements
-- [ ] Invalider les sessions actives dès désactivation
+- [x] Créer formulaires et API de création, modification, désactivation et réactivation
+- [x] Réserver les opérations à l’administrateur et tracer les changements
+- [x] Invalider les sessions actives dès désactivation
 
 Critères d’acceptation : Un compte désactivé ne se connecte plus et son ancienne session est rejetée ; REC-18.
+
+Livraison AUTH-02 : liste, filtres, formulaires et API de création/modification/désactivation/réactivation, rôle et affectations, accès réservé aux administrateurs. Révocation des sessions via `auth_version`, dernier administrateur protégé, résultats de création idempotents persistés et audit sans valeurs sensibles. Les comptes issus de l’administrateur de test héritent du marqueur dev. [Guide](docs/administration-comptes.md), [recette](docs/validation-auth02.md). Recette : 73 tests PHP / 1 001 assertions et quatre tests indépendants du contrat réussis. Le contrôle des périmètres métier reste dans AUTH-03.
 
 ### AUTH-03 — Rôles, affectations et contrôle des accès
 
@@ -763,3 +765,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 18 octobre 2026 : SOC-03 et SOC-04 intégrés ; AUTH-01 livré pour revue : connexion, profil, expiration, révocation des sessions et audit des échecs. 55 tests PHP / 809 assertions et quatre tests de contrat réussis. Aucun compte réel créé automatiquement.
 
 - 18 octobre 2026 : AUTH-01 intégré (PR #55). Ajout demandé d’un administrateur de test réservé à `APP_ENV=dev` : création explicite, marqueur persistant et refus hors développement pour les connexions et les sessions existantes. [Guide](docs/administrateur-test.md).
+
+- 18 octobre 2026 : administrateur de test intégré (PR #56). AUTH-02 implémenté pour revue : administration des comptes, création idempotente et révocation des sessions.
