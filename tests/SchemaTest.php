@@ -109,7 +109,7 @@ final class SchemaTest extends KernelTestCase
     public function testMigrationReexecutionIsANoop(): void
     {
         $this->migrate('latest');
-        self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM doctrine_migration_versions'));
+        self::assertSame(2, (int) $this->db->fetchOne('SELECT count(*) FROM doctrine_migration_versions'));
     }
 
     public function testReferencesAndStockPairsAreUnique(): void
@@ -259,4 +259,13 @@ final class SchemaTest extends KernelTestCase
         self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM articles'));
         self::assertSame(2, (int) $this->db->fetchOne('SELECT count(*) FROM users'));
     }
+    public function testDevelopmentProtectionCannotBeRolledBackWithDevAccounts(): void
+    {
+        $this->db->executeStatement("INSERT INTO users (email, name, password_hash, role_id, development_only) VALUES ('dev@example.test', 'Dev', 'fake-hash', 1, true)");
+        $output = new BufferedOutput();
+        self::assertNotSame(0, $this->runMigration('0', $output));
+        self::assertStringContainsString('compte de développement présent', $output->fetch());
+        self::assertTrue($this->db->fetchOne('SELECT development_only FROM users'));
+    }
+
 }

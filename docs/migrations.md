@@ -41,3 +41,7 @@ Le retour à zéro refuse toute table métier contenant des données, à l’exc
 La restauration complète et les sauvegardes automatiques ne sont pas remplacées par ce mécanisme et restent dans OPS-01. Après un retour de version applicative, vérifier également sa compatibilité avec le schéma restant et la file de messages.
 
 Référence technique : [configuration transactionnelle de Doctrine Migrations](https://www.doctrine-project.org/projects/doctrine-migrations/en/3.9/reference/configuration.html).
+
+## Comptes de développement
+
+La migration `Version20261018110000` ajoute `users.development_only`, faux pour les comptes existants. Elle ne crée aucun compte. Le provider refuse les comptes marqués hors `APP_ENV=dev`, y compris au rafraîchissement des sessions. Son retour arrière est refusé si un compte marqué existe, pour éviter de supprimer cette protection. Voir [l’administrateur de test](administrateur-test.md).

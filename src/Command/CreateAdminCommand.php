@@ -35,7 +35,7 @@ final class CreateAdminCommand extends Command
             $io->error('Un courriel valide, un nom et une saisie interactive du mot de passe sont requis.');
             return Command::INVALID;
         }
-        if ($this->db->fetchOne('SELECT count(*) FROM users') > 0) {
+        if ($this->db->fetchOne('SELECT count(*) FROM users WHERE NOT development_only') > 0) {
             $io->error('Un compte existe déjà. Utilisez l’administration des comptes.');
             return Command::FAILURE;
         }
@@ -56,7 +56,7 @@ final class CreateAdminCommand extends Command
         unset($password, $confirmation);
         return $this->db->transactional(function () use ($email, $name, $hash, $io): int {
             $this->db->executeStatement('LOCK TABLE users IN SHARE ROW EXCLUSIVE MODE');
-            if ($this->db->fetchOne('SELECT count(*) FROM users') > 0) {
+            if ($this->db->fetchOne('SELECT count(*) FROM users WHERE NOT development_only') > 0) {
                 $io->error('Un compte a déjà été créé.');
                 return Command::FAILURE;
             }

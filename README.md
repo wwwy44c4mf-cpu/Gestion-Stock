@@ -102,3 +102,5 @@ Le tableau de bord en français est disponible sur [l’application locale](http
 ## Connexion, sessions et profil (AUTH-01)
 
 Formulaire `/connexion`, consultation et fuseau sur `/profil`, déconnexion POST. Sessions limitées à 30 minutes d’inactivité et 12 heures absolues, mots de passe Argon2id, limitation des tentatives commune interface/API et audit sans secrets. Les quatre opérations API de connexion, déconnexion et profil sont disponibles. [Guide et premier administrateur](docs/authentification.md) · [Recette](docs/validation-auth01.md).
+
+Pour essayer l’interface localement : [administrateur de test réservé au mode développement](docs/administrateur-test.md).
