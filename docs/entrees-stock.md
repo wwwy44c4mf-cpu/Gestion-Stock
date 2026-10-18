@@ -31,3 +31,5 @@ Ces UUID sont des exemples de format à remplacer par les identifiants réels au
 Les champs supplémentaires, paramètres de recherche sur l’écriture, nombres décimaux ou avec exposant, quantité nulle/négative, motif vide et référence dépassant 255 caractères sont refusés. Un magasin inaccessible renvoie 404 ; un article désactivé, un inventaire bloquant ou une clé réutilisée pour un autre contenu donnent 409. Un USER reçoit 403. Sans session, un jeton CSRF valide ne dispense pas de l’authentification (401) ; un jeton absent ou invalide est lui-même refusé (403).
 
 Aucune nouvelle migration n’est nécessaire après STK-02 (`Version20261018200000`). [Moteur et garanties](moteur-stock.md) · [Recette](validation-stk03.md).
+
+Une entrée enregistrée peut désormais être rectifiée depuis sa fiche stock avec **Corriger** (STK-05). Saisir directement la bonne quantité et le motif ; l’origine reste conservée. [Corrections](corrections-stock.md).

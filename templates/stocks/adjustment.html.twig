@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+{% block title %}Ajuster le stock · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">AJUSTEMENT DE STOCK</p><h1>Ajuster le stock</h1><p class="subtitle">Ajoutez ou retirez des unités en justifiant la variation. Pour rectifier une saisie précise, utilisez « Corriger » dans son historique.</p></div><a href="{{ path('stocks_list') }}">Retour aux stocks</a></div>
+<section class="card account-form">
+{% if error %}{% include 'components/notice.html.twig' with {kind:'error',message:error} only %}<p><a href="{{ path('stocks_adjustment_new') }}">Ouvrir un nouveau formulaire</a></p>{% endif %}
+{% if stores is empty %}<p class="notice">Aucun magasin actif ne permet d’enregistrer un ajustement avec vos droits actuels.</p>{% endif %}
+{% if articles is empty %}<p class="notice">Le catalogue ne contient aucun article.</p>{% endif %}
+<form method="post" action="{{ path('stocks_adjustment_new') }}">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token('stock_adjustment') }}"><input type="hidden" name="_movement_key" value="{{ movement_key }}">
+<div class="field"><label for="adjustment-store">Magasin (obligatoire)</label><select id="adjustment-store" name="store_id" required><option value="">Choisir un magasin</option>{% for store in stores %}<option value="{{ store.id }}" {% if item.store_id == store.id %}selected{% endif %}>{{ store.code }} · {{ store.name }}</option>{% endfor %}</select></div>
+<div class="field"><label for="adjustment-article">Article (obligatoire)</label><select id="adjustment-article" name="article_id" required><option value="">Choisir un article</option>{% for article in articles %}<option value="{{ article.id }}" {% if item.article_id == article.id %}selected{% endif %}>{{ article.sku }} · {{ article.name }}{{ not article.active ? " (désactivé)" : "" }}</option>{% endfor %}</select></div>
+<div class="field"><label for="adjustment-quantity">Variation en unités (obligatoire)</label><input id="adjustment-quantity" name="quantity" type="text" inputmode="text" pattern="-?[1-9][0-9]*" maxlength="17" value="{{ item.quantity }}" aria-describedby="adjustment-unit" required><p id="adjustment-unit" class="muted">Entier non nul : 2 ajoute deux unités ; -2 retire deux unités. Le stock final ne peut pas être négatif.</p></div>
+<div class="field"><label for="adjustment-reason">Motif (obligatoire)</label><textarea id="adjustment-reason" name="reason" rows="3" maxlength="2000" required>{{ item.reason }}</textarea></div>
+<button class="button" type="submit" {% if stores is empty or articles is empty %}disabled{% endif %}>Enregistrer l’ajustement</button>
+</form>
+</section>
+{% endblock %}

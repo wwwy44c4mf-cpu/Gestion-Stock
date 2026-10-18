@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ cancel ? 'Annuler un mouvement' : 'Corriger une quantité' }} · Gestion de stock{% endblock %}
+{% block content %}
+{% set types = {'entry':'Entrée','consumption':'Consommation','transfer':'Transfert','return':'Retour','adjustment':'Ajustement','reversal':'Annulation'} %}
+<div class="page-heading"><div><p class="eyebrow">CORRECTION TRACÉE</p><h1>{{ cancel ? 'Annuler un mouvement' : 'Corriger une quantité' }}</h1><p class="subtitle">{{ original.sku }} · {{ original.article_name }}</p></div><a href="{{ path('stocks_detail',{storeId:original.source_store_id ?? original.destination_store_id,articleId:original.article_id}) }}">Retour au stock</a></div>
+<section class="card"><h2>Mouvement d’origine</h2><p>{{ types[original.type]|default(original.type) }} de {{ original.quantity }} unité{{ original.quantity > 1 ? 's' : '' }} · {{ original.created_at|date('d/m/Y H:i',app.user.timezone) }}</p>
+{% if original.source_name %}<p>Magasin de sortie : {{ original.source_name }}</p>{% endif %}{% if original.destination_name %}<p>Magasin d’entrée : {{ original.destination_name }}</p>{% endif %}
+{% if original.reason is not null %}<p>Motif initial : {{ original.reason }}</p>{% endif %}
+<p>Le mouvement d’origine reste conservé. {{ cancel ? 'L’annulation compense entièrement son effet sur le stock.' : 'Indiquez la quantité qui aurait dû être enregistrée, et non la différence. Seule la différence sera appliquée au stock.' }}</p></section>
+<section class="card account-form">
+{% if error %}{% include 'components/notice.html.twig' with {kind:'error',message:error} only %}{% endif %}
+{% if not original.editable %}<p class="notice">Ce mouvement a déjà été annulé ou corrigé, ou dépend d’un inventaire clôturé. Il ne peut plus être modifié ici.</p>{% if original.correction_reason is not null %}<p>Motif enregistré : {{ original.correction_reason }}</p>{% endif %}{% if original.replacement_id %}<p><a href="{{ path('stocks_correct',{id:original.replacement_id}) }}">Consulter le mouvement corrigé</a></p>{% endif %}
+{% else %}
+<form method="post" action="{{ path(cancel ? 'stocks_reverse' : 'stocks_correct',{id:original.id}) }}">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token('stock_correction_'~original.id) }}"><input type="hidden" name="_movement_key" value="{{ movement_key }}">
+{% if not cancel %}<div class="field"><label for="correct-quantity">Quantité correcte (obligatoire)</label><input id="correct-quantity" name="quantity" type="text" inputmode="numeric" pattern="[1-9][0-9]*" maxlength="16" value="{{ item.quantity }}" required aria-describedby="correct-help"><p class="muted" id="correct-help">Exemple : une entrée saisie à 10 devait être de 8. Indiquez 8 ; le stock baissera de 2 unités. Le sens du mouvement est conservé.</p></div>{% endif %}
+<div class="field"><label for="correct-reason">Motif de {{ cancel ? 'l’annulation' : 'la correction' }} (obligatoire)</label><textarea id="correct-reason" name="reason" rows="3" maxlength="2000" required>{{ item.reason }}</textarea></div>
+<button class="button" type="submit">{{ cancel ? 'Confirmer l’annulation' : 'Enregistrer la correction' }}</button>
+</form>
+<p><a href="{{ path(cancel ? 'stocks_correct' : 'stocks_reverse',{id:original.id}) }}">{{ cancel ? 'Corriger uniquement la quantité' : 'Annuler entièrement ce mouvement' }}</a></p>
+{% endif %}</section>
+{% endblock %}

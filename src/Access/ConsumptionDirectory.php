@@ -21,6 +21,8 @@ final class ConsumptionDirectory
         $scope = $this->policy->consumptionScope($actor);
         $row = $this->db->fetchAssociative("SELECT m.id,m.article_id,m.source_store_id AS store_id,m.quantity,m.reference,m.comment,m.created_at,
             a.sku,a.name AS article_name,s.code AS store_code,s.name AS store_name,
+            (SELECT r.id FROM stock_movements r WHERE r.type = 'reversal' AND r.related_movement_id = m.id) AS reversed_by,
+            (SELECT c.replacement_id FROM movement_corrections c WHERE c.original_id = m.id) AS replacement_id,
             CASE WHEN author.anonymized_at IS NULL THEN author.name ELSE 'Compte anonymisé' END AS author_name,
             CASE WHEN consumer.anonymized_at IS NULL THEN consumer.name ELSE 'Compte anonymisé' END AS consumer_name
             FROM stock_movements m JOIN articles a ON a.id = m.article_id JOIN stores s ON s.id = m.source_store_id

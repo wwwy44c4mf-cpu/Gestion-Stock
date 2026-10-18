@@ -24,6 +24,8 @@ final class StockConsultationTest extends WebTestCase
         $this->db->executeStatement('ALTER TABLE users ADD development_only boolean NOT NULL DEFAULT false');
         require_once dirname(__DIR__).'/migrations/Version20261018140000.php';
         $migration = new \DoctrineMigrations\Version20261018140000($this->db, new \Psr\Log\NullLogger()); $migration->up(new \Doctrine\DBAL\Schema\Schema()); foreach ($migration->getSql() as $sql) { $this->db->executeStatement($sql->getStatement()); }
+        require_once dirname(__DIR__).'/migrations/Version20261018223000.php';
+        $migration = new \DoctrineMigrations\Version20261018223000($this->db, new \Psr\Log\NullLogger()); $migration->up(new \Doctrine\DBAL\Schema\Schema()); foreach ($migration->getSql() as $sql) { $this->db->executeStatement($sql->getStatement()); }
         $hash = password_hash('Stock-test-2026!', PASSWORD_ARGON2ID);
         foreach (['admin'=>1,'manager'=>2,'user'=>3,'outsider'=>3] as $name=>$role) { $this->users[$name] = $this->db->fetchOne('INSERT INTO users (email,name,password_hash,role_id) VALUES (?,?,?,?) RETURNING id', [$name.'@example.test', $name, $hash, $role]); }
         foreach (['A','B','C','D'] as $code) { $this->stores[$code] = $this->db->fetchOne('INSERT INTO stores (code,name) VALUES (?,?) RETURNING id', [$code, 'Magasin '.$code]); }

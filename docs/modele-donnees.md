@@ -85,3 +85,7 @@ Index : mouvements par date, article/date, source/date, destination/date et cons
 ## Complément technique AUTH-02
 
 La table `user_creation_requests` relie un administrateur et sa clé d’idempotence au compte créé et au résultat JSON initial. Sa transaction est commune à la création, aux affectations et à l’audit. L’empreinte est protégée par HMAC ; aucun corps de création ni mot de passe n’y est stocké. Le résultat contient l’identité initiale et relève donc aussi de la future rétention/anonymisation RGPD-01.
+
+### STK-05 — Liens des corrections
+
+La migration `Version20261018223000` ajoute `movement_corrections` : `original_id` unique, `reversal_id` unique et `replacement_id` unique, tous référencés au journal. Le remplacement conserve type, article, magasins et bénéficiaire ; le contre-mouvement compense exactement l’origine. Les liens sont immuables ; le retour arrière refuse leur destruction s’ils sont présents. Aucun ancien mouvement n’est réécrit.

@@ -3275,7 +3275,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -3297,13 +3297,6 @@
                   "type": "string",
                   "maxLength": 32
                 }
-              },
-              "Location": {
-                "schema": {
-                  "type": "string",
-                  "maxLength": 500
-                },
-                "description": "URI relative de la ressource créée."
               }
             }
           },
@@ -3558,7 +3551,7 @@
       "post": {
         "operationId": "reverseMovement",
         "summary": "Créer un contre-mouvement",
-        "description": "Conserver l’original ; compensation exacte et tracée, droits sur tous les magasins concernés, jamais de stock négatif.",
+        "description": "Compensation exacte liée à l’origine, motif obligatoire, une seule annulation. Droits d’écriture sur tous les magasins actifs concernés, aucun stock négatif ; inventaire bloquant : 409. Les contre-mouvements et ajustements d’inventaire sont exclus. Annuler les retours actifs avant une consommation. Rejeu identique sans nouvelle écriture.",
         "tags": [
           "movements"
         ],
@@ -3573,7 +3566,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -3604,13 +3597,6 @@
                   "type": "string",
                   "maxLength": 32
                 }
-              },
-              "Location": {
-                "schema": {
-                  "type": "string",
-                  "maxLength": 500
-                },
-                "description": "URI relative de la ressource créée."
               }
             }
           },
@@ -6047,6 +6033,107 @@
             "$ref": "#/components/responses/Error500"
           }
         }
+      }
+    },
+    "/movements/{id}/correct": {
+      "post": {
+        "operationId": "correctMovement",
+        "summary": "Corriger la quantité d’un mouvement",
+        "description": "Quantité correcte positive, et non différence ; motif obligatoire. Une transaction applique la variation nette et conserve l’origine, un contre-mouvement exact et son remplacement lié. Même type, article, magasins, bénéficiaire et référence. Même périmètre et blocages que reverseMovement ; article et bénéficiaire actifs pour le remplacement d’une consommation. Quantité inchangée : 422. Rejeu identique sans nouvelle écriture ; origine déjà annulée/corrigée : 409.",
+        "tags": [
+          "movements"
+        ],
+        "security": [
+          {
+            "SessionCookie": [],
+            "CsrfToken": []
+          }
+        ],
+        "x-roles": [
+          "ADMIN",
+          "MANAGER"
+        ],
+        "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
+        "x-implementation": "available",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovementCorrectionResource"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string",
+                  "maxLength": 32
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MovementCorrectionCreate"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-integer-encoding": "Nombres JSON en base 10 sans décimale ni exposant."
       }
     }
   },
@@ -8926,6 +9013,56 @@
             "$ref": "#/components/schemas/PageMeta"
           }
         }
+      },
+      "MovementCorrectionCreate": {
+        "type": "object",
+        "properties": {
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "quantity",
+          "reason"
+        ]
+      },
+      "MovementCorrectionResource": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "original_movement_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "reversal": {
+                "$ref": "#/components/schemas/Movement"
+              },
+              "replacement": {
+                "$ref": "#/components/schemas/Movement"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "original_movement_id",
+              "reversal",
+              "replacement"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ]
       }
     }
   }
