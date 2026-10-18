@@ -29,4 +29,4 @@ Application, serveur web, base, worker et scheduler sains après mise à jour. A
 
 ## Lots suivants
 
-La gestion des propositions reste dans ART-02. La liste et ses filtres de base sont disponibles ; ART-03 conserve sa recette dédiée de recherche/consultation. Les stocks par article et les autres règles de mouvements appartiennent aux lots STK ; aucun endpoint métier simulé n’est ajouté.
+La gestion des propositions reste dans ART-02. La liste et ses filtres de base sont disponibles ; ART-03 suit les premières fonctions déjà fournies et conserve la recette dédiée des combinaisons de filtres ainsi que le raccordement des informations de stock autorisées. Les stocks par article et les autres règles de mouvements appartiennent aux lots STK ; aucun endpoint métier simulé n’est ajouté.
