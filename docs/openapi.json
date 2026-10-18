@@ -771,7 +771,7 @@
           "ADMIN"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/Page"
@@ -882,7 +882,7 @@
       "post": {
         "operationId": "createUser",
         "summary": "Créer un compte",
-        "description": "Créer un compte",
+        "description": "Créer un compte actif avec mot de passe initial Argon2id (12 à 128 caractères). Idempotency-Key obligatoire : résultat initial persisté, conflit 409 si la clé est réutilisée pour un autre contenu. Aucun mot de passe envoyé par courriel.",
         "tags": [
           "users"
         ],
@@ -896,7 +896,7 @@
           "ADMIN"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -993,7 +993,7 @@
           "ADMIN"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -1062,7 +1062,7 @@
       "patch": {
         "operationId": "updateUser",
         "summary": "Modifier ou désactiver un compte",
-        "description": "Une désactivation invalide les sessions actives ; rôles et affectations réservés aux administrateurs.",
+        "description": "Modifier identité, rôle, affectations ou état actif. Toute modification effective invalide les sessions via auth_version. Auto-désactivation et retrait du dernier administrateur actif refusés (409). La réactivation ne restaure jamais les anciennes sessions. Un compte anonymisé ne peut pas être modifié.",
         "tags": [
           "users"
         ],
@@ -1076,7 +1076,7 @@
           "ADMIN"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",

@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+{% block title %}Comptes utilisateurs · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">ADMINISTRATION</p><h1>Comptes utilisateurs</h1><p class="subtitle">Gérez les accès de votre équipe.</p></div><a class="button" href="{{ path('admin_users_new') }}">Créer un compte</a></div>
+<section class="card">
+<form method="get" action="{{ path('admin_users') }}" class="account-filters" aria-label="Filtrer les comptes">
+<div class="field"><label for="filter-role">Rôle</label><select id="filter-role" name="role"><option value="">Tous les rôles</option>{% for value,label in {'ADMIN':'Administrateur','MANAGER':'Gestionnaire','USER':'Utilisateur'} %}<option value="{{ value }}" {% if filters.role|default('') == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+<div class="field"><label for="filter-status">État</label><select id="filter-status" name="status"><option value="">Tous les états</option><option value="active" {% if filters.status|default('') == 'active' %}selected{% endif %}>Actif</option><option value="inactive" {% if filters.status|default('') == 'inactive' %}selected{% endif %}>Désactivé</option></select></div>
+<div class="field"><label for="filter-sort">Trier par</label><select id="filter-sort" name="sort">{% for value,label in {'name':'Nom','email':'Courriel','created_at':'Date de création'} %}<option value="{{ value }}" {% if filters.sort|default('name') == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+<button class="button" type="submit">Filtrer</button><a href="{{ path('admin_users') }}">Réinitialiser</a>
+</form>
+<p>{{ result.meta.total }} compte{{ result.meta.total > 1 ? 's' : '' }}</p>
+<div class="table-scroll"><table><caption>Liste des comptes</caption><thead><tr><th scope="col">Nom</th><th scope="col">Courriel</th><th scope="col">Rôle</th><th scope="col">État</th><th scope="col">Actions</th></tr></thead><tbody>
+{% for account in result.data %}<tr><td>{{ account.name ?? 'Compte anonymisé' }}</td><td>{{ account.email ?? '—' }}</td><td>{{ {'ADMIN':'Administrateur','MANAGER':'Gestionnaire','USER':'Utilisateur'}[account.role] }}</td><td>{{ account.active ? 'Actif' : 'Désactivé' }}</td><td>{% if account.email %}<a href="{{ path('admin_users_edit', {id:account.id}) }}" aria-label="Modifier le compte de {{ account.name }}">Modifier</a>{% else %}—{% endif %}</td></tr>{% else %}<tr><td colspan="5">Aucun compte ne correspond aux filtres.</td></tr>{% endfor %}
+</tbody></table></div>
+{% include 'components/pagination.html.twig' with {page:result.meta.page,pages:result.meta.total_pages,route:'admin_users',parameters:filters|filter((value,key) => key != 'page')} only %}
+</section>
+{% endblock %}

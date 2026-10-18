@@ -45,3 +45,7 @@ Référence technique : [configuration transactionnelle de Doctrine Migrations](
 ## Comptes de développement
 
 La migration `Version20261018110000` ajoute `users.development_only`, faux pour les comptes existants. Elle ne crée aucun compte. Le provider refuse les comptes marqués hors `APP_ENV=dev`, y compris au rafraîchissement des sessions. Son retour arrière est refusé si un compte marqué existe, pour éviter de supprimer cette protection. Voir [l’administrateur de test](administrateur-test.md).
+
+## Créations de comptes idempotentes
+
+`Version20261018120000` ajoute la table technique `user_creation_requests` : clé par acteur, empreinte HMAC, compte créé et résultat JSON initial. Aucun mot de passe ni corps de requête initial n’y est stocké. Son retour arrière est refusé si des résultats existent. La rétention de l’identité contenue dans le résultat doit être intégrée à RGPD-01.

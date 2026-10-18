@@ -104,3 +104,7 @@ Le tableau de bord en français est disponible sur [l’application locale](http
 Formulaire `/connexion`, consultation et fuseau sur `/profil`, déconnexion POST. Sessions limitées à 30 minutes d’inactivité et 12 heures absolues, mots de passe Argon2id, limitation des tentatives commune interface/API et audit sans secrets. Les quatre opérations API de connexion, déconnexion et profil sont disponibles. [Guide et premier administrateur](docs/authentification.md) · [Recette](docs/validation-auth01.md).
 
 Pour essayer l’interface localement : [administrateur de test réservé au mode développement](docs/administrateur-test.md).
+
+## Administration des comptes (AUTH-02)
+
+Le menu **Administration** permet aux administrateurs de créer et modifier les comptes, leurs rôles et leurs affectations, puis de désactiver/réactiver les accès. Les anciennes sessions sont invalidées. [Guide](docs/administration-comptes.md) · [Recette](docs/validation-auth02.md). Appliquer la migration `Version20261018120000` avant la mise en service.

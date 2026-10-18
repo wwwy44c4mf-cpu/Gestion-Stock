@@ -12,3 +12,11 @@
 @media (max-width: 640px) { .profile-details { grid-template-columns: 1fr; gap: .4rem; } .account-actions { font-size: .85rem; } }
 
 .auth-card select { border: 1px solid #788d81; border-radius: 6px; padding: 10px; background: #fff; }
+
+.account-form { max-width: 48rem; }
+.account-form select, .account-filters select { min-height: 44px; max-width:100%; border:1px solid #788d81; border-radius:6px; padding:10px; background:#fff; }
+.account-filters { display:flex; flex-wrap:wrap; align-items:center; gap:1rem; }
+.account-filters .field { margin:0; }
+.checkbox-row { display:flex!important; align-items:center; gap:.6rem; padding:.4rem 0; font-weight:400!important; }
+.checkbox-row input { width:auto!important; min-height:24px!important; }
+.account-form fieldset { border:1px solid #788d81; border-radius:6px; margin:1.5rem 0; }
