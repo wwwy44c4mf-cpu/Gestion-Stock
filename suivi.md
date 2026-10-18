@@ -195,7 +195,7 @@ Sources : AUTH-04,09.
 
 Critères d’acceptation : Un compte désactivé ne se connecte plus et son ancienne session est rejetée ; REC-18.
 
-Livraison AUTH-02 : liste, filtres, formulaires et API de création/modification/désactivation/réactivation, rôle et affectations, accès réservé aux administrateurs. Révocation des sessions via `auth_version`, dernier administrateur protégé, résultats de création idempotents persistés et audit sans valeurs sensibles. Les comptes issus de l’administrateur de test héritent du marqueur dev. [Guide](docs/administration-comptes.md), [recette](docs/validation-auth02.md). Recette : 73 tests PHP / 1 001 assertions et quatre tests indépendants du contrat réussis. Le contrôle des périmètres métier reste dans AUTH-03.
+Livraison AUTH-02 : [PR #57](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/57), branche `codex/auth-02-user-administration`. Liste, filtres, formulaires et API de création/modification/désactivation/réactivation, rôle et affectations, accès réservé aux administrateurs. Révocation des sessions via `auth_version`, dernier administrateur protégé, résultats de création idempotents persistés et audit sans valeurs sensibles. Les comptes issus de l’administrateur de test héritent du marqueur dev. [Guide](docs/administration-comptes.md), [recette](docs/validation-auth02.md). Recette : 73 tests PHP / 1 001 assertions et quatre tests indépendants du contrat réussis. Le contrôle des périmètres métier reste dans AUTH-03.
 
 ### AUTH-03 — Rôles, affectations et contrôle des accès
 
