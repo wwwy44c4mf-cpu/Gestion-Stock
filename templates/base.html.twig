@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>{% block title %}Gestion de stock{% endblock %}</title>
+    <link rel="stylesheet" href="/assets/app.css">
+    <script type="module" src="/assets/app.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+<div class="shell" data-controller="navigation">
+    <aside class="sidebar">
+        <a class="brand" href="{{ path('home') }}"><span class="brand-icon" aria-hidden="true">▦</span> Gestion de stock</a>
+        <button class="menu-toggle" type="button" data-navigation-target="toggle" data-action="navigation#toggle" aria-expanded="true" aria-controls="navigation">Menu</button>
+        <nav id="navigation" aria-label="Navigation principale" data-navigation-target="menu">
+            <p class="nav-label">ESPACE DE TRAVAIL</p>
+            {% for item in navigation_items %}
+                <a class="nav-item" href="{{ path(item.route, item.parameters) }}" {% if current_section == item.active %}aria-current="page"{% endif %}>{{ item.label }}</a>
+            {% endfor %}
+        </nav>
+        <div class="sidebar-note"><span class="status-dot"></span> Socle de l’application<br><small>Votre espace de gestion au quotidien</small></div>
+    </aside>
+    <div class="workspace">
+        <header class="topbar">
+            <span>Gestion des stocks <span class="muted">/ {{ page_title }}</span></span>
+            <div><label for="magasin">Magasin</label> <select id="magasin" disabled aria-describedby="magasin-aide"><option>Aucun magasin affecté</option></select></div>
+        </header>
+        <main id="contenu" tabindex="-1">
+            <p id="magasin-aide" class="context-note">La sélection du magasin sera disponible après connexion et affectation.</p>
+            {% for type, messages in app.flashes %}{% for message in messages %}{% include 'components/notice.html.twig' with {message: message, kind: type} only %}{% endfor %}{% endfor %}
+            {% block content %}{% endblock %}
+        </main>
+        <footer>Gestion de stock <span>Interface en français · SOC-04</span></footer>
+    </div>
+</div>
+</body>
+</html>

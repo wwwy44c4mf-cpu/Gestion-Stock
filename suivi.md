@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 et SOC-02 intégrés à main (PR #51 et #52) ; SOC-03 implémenté et vérifié localement, en revue ; les autres fonctionnalités restent à développer.
+État : SOC-01 et SOC-02 intégrés à main (PR #51 et #52) ; SOC-03 implémenté et vérifié localement, en revue ; SOC-04 implémenté et vérifié localement (raccordement identité/magasins dans AUTH) ; les autres fonctionnalités restent à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -63,7 +63,7 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | SOC-01 | 1 | Environnement Docker reproductible | DOCK-01,02,03,04,05,06,07,08,12; §7 | — | Terminé | [#1](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1) |
 | SOC-02 | 1 | Modèle de données et migrations | §4,8; DOCK-09 | SOC-01 | Terminé | [#2](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2) |
 | SOC-03 | 1 | Contrats API REST et erreurs normalisées | §9 | SOC-01 | En revue | [#3](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/3) |
-| SOC-04 | 1 | Interface française responsive et navigation | §6 | SOC-01 | À faire | [#4](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/4) |
+| SOC-04 | 1 | Interface française responsive et navigation | §6 | SOC-01 | Implémenté localement | [#4](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/4) |
 | AUTH-01 | 1 | Connexion, sessions et profil | AUTH-01,02,03,07; §10.1 | SOC-02, SOC-03, SOC-04 | À faire | [#5](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5) |
 | AUTH-02 | 1 | Administration des comptes et désactivation | AUTH-04,09 | AUTH-01 | À faire | [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6) |
 | AUTH-03 | 1 | Rôles, affectations et contrôle des accès | AUTH-05; MAG-03; §2,4 | AUTH-02 | À faire | [#7](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7) |
@@ -157,15 +157,17 @@ Livraison : [PR #53](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/53), b
 
 ### SOC-04 — Interface française responsive et navigation
 
-Issue : [#4](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/4) · À faire · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1).
+Issue : [#4](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/4) · Implémenté localement · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1).
 
 Sources : §6.
 
-- [ ] Installer Twig et Stimulus ; navigation selon rôle et magasin sélectionné
-- [ ] Créer composants formulaires, erreurs, confirmations, tableaux et pagination
-- [ ] Prévoir navigation clavier, contrastes et affichage mobile
+- [x] Installer Twig et Stimulus ; préparer la navigation selon rôle et magasin sélectionné (contexte authentifié à raccorder dans AUTH-01/03)
+- [x] Créer composants formulaires, erreurs, confirmations, tableaux et pagination
+- [x] Prévoir navigation clavier, contrastes et affichage mobile
 
 Critères d’acceptation : Les écrans sont utilisables au clavier et sur mobile ; messages et libellés en français.
+
+Livraison locale : interface commune Twig/Stimulus, tableau de bord et neuf états d’attente, six composants partagés. Navigation anonyme active ; règles par rôle et magasin testées, sélecteur désactivé en attendant AUTH. 38 tests / 589 assertions réussis. [Guide d’intégration](docs/interface.md), [rapport de validation](docs/validation-soc04.md).
 
 ### AUTH-01 — Connexion, sessions et profil
 

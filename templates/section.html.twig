@@ -1,0 +1,6 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ title }} · Gestion de stock{% endblock %}
+{% block content %}
+<p class="eyebrow">ESPACE DE TRAVAIL</p><h1>{{ title }}</h1>
+<section class="card empty-state"><span class="empty-illustration" aria-hidden="true">▤</span><h2>Ce module est en préparation</h2><p>Les fonctionnalités « {{ title }} » seront disponibles dans une prochaine étape.</p><a class="button" href="{{ path('home') }}">Retour au tableau de bord</a></section>
+{% endblock %}
