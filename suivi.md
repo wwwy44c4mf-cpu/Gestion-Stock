@@ -153,7 +153,7 @@ Sources : §9.
 
 Critères d’acceptation : Les contrats documentent entrées, droits et erreurs de toutes les ressources ; pagination bornée.
 
-Livraison : branche `codex/soc-03-api-contracts`, issue #3. [Contrat OpenAPI](docs/openapi.json), [conventions et intégration](docs/api.md), [rapport de validation](docs/validation-soc03.md). 58 opérations décrites, dont 3 routes techniques disponibles et 55 opérations métier planifiées. 34 tests PHP / 528 assertions et 4 tests indépendants du contrat. Droits métier et idempotence persistante à raccorder dans les lots concernés.
+Livraison : [PR #53](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/53), branche `codex/soc-03-api-contracts`, issue #3. [Contrat OpenAPI](docs/openapi.json), [conventions et intégration](docs/api.md), [rapport de validation](docs/validation-soc03.md). 58 opérations décrites, dont 3 routes techniques disponibles et 55 opérations métier planifiées. 34 tests PHP / 528 assertions et 4 tests indépendants du contrat. Droits métier et idempotence persistante à raccorder dans les lots concernés.
 
 ### SOC-04 — Interface française responsive et navigation
 
