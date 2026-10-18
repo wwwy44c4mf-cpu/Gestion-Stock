@@ -31,3 +31,5 @@ Les nouveaux tests utilisent uniquement des schémas éphémères distincts. Les
 La migration `Version20261018200000` a été appliquée explicitement avec succès en local. La commande `app:stock:reconcile` retourne `consistent: true` et une liste d’écarts vide. Le moteur conserve des événements en attente pour les futurs traitements ; ce lot ne met pas en service l’envoi des alertes ni de nouveaux écrans.
 
 Les erreurs de tests négatifs concernant les migrations protégées et la panne injectée sont attendues. Les corrections effectuées durant la recette ont été incluses dans l’image avant le passage complet réussi.
+
+Livraison pour revue : [PR #63](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/63), branche `codex/stk-02-movement-engine`, basée sur main.

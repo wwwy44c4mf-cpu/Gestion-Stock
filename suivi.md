@@ -311,7 +311,7 @@ Sources : STK-06,07,10; §4.
 
 Critères d’acceptation : Deux sorties concurrentes de la dernière unité : une seule réussit ; rejeu sans doublon ; REC-05,06,14.
 
-Moteur interne commun : entrées, consommations, transferts et ajustements ; transaction unique sur solde, journal, événement durable et audit. Verrous PostgreSQL par demande et solde, refus des stocks négatifs et du gel d’inventaire, rejeux stables. Migration `Version20261018200000`. Recette : 146 tests PHP / 2 173 assertions et quatre validations OpenAPI réussis, dont deux processus sur la dernière unité et panne injectée tardive. [Guide](docs/moteur-stock.md) · [Validation](docs/validation-stk02.md). Les formulaires et endpoints restent dans les lots métier suivants.
+Livraison pour revue : [PR #63](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/63), branche `codex/stk-02-movement-engine`. Moteur interne commun : entrées, consommations, transferts et ajustements ; transaction unique sur solde, journal, événement durable et audit. Verrous PostgreSQL par demande et solde, refus des stocks négatifs et du gel d’inventaire, rejeux stables. Migration `Version20261018200000`. Recette : 146 tests PHP / 2 173 assertions et quatre validations OpenAPI réussis, dont deux processus sur la dernière unité et panne injectée tardive. [Guide](docs/moteur-stock.md) · [Validation](docs/validation-stk02.md). Les formulaires et endpoints restent dans les lots métier suivants.
 
 ### STK-03 — Entrées et réapprovisionnements
 
