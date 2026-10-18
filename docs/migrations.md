@@ -57,3 +57,7 @@ La migration `Version20261018110000` ajoute `users.development_only`, faux pour 
 ## Catalogue et consommation d’articles actifs
 
 `Version20261018140000` ajoute les résultats idempotents des créations d’articles et de catégories (`catalog_creation_requests`) et un contrôle PostgreSQL des nouvelles consommations. Le trigger verrouille l’article en lecture partagée puis exige son statut actif ; il ne modifie aucun mouvement historique. Les retours d’articles archivés restent possibles. Les références d’article demeurent protégées par le trigger d’immutabilité existant. Le retour arrière est refusé si des résultats de création ou des articles inactifs existent.
+
+## Soumissions et décisions des propositions
+
+`Version20261018150000` ajoute `proposal_requests` : clé par acteur et action, empreinte HMAC, proposition concernée et réponse initiale. Aucun catalogue n’est modifié par cette migration. Les résultats rendent les soumissions et décisions répétables sans publication en double. Le retour arrière est refusé lorsque ces résultats existent.

@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+{% block title %}Proposer {{ draft.operation == 'update' ? 'une modification' : 'un article' }} · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">CATALOGUE COMMUN</p><h1>Proposer {{ draft.operation == 'update' ? 'une modification' : 'un article' }}</h1>{% if article %}<p class="subtitle">Article : {{ article.sku }}</p>{% endif %}</div><a href="{{ path('proposals_list') }}">Retour aux propositions</a></div>
+<section class="card account-form"><p class="notice">Le catalogue sera modifié uniquement après validation d’un administrateur. Une proposition envoyée est conservée telle quelle ; vous pourrez en soumettre une nouvelle si nécessaire.</p>
+{% if error %}{% include 'components/notice.html.twig' with {kind:'error',message:error} only %}{% endif %}
+<form method="post"><input type="hidden" name="_csrf_token" value="{{ csrf_token('proposal_create') }}"><input type="hidden" name="_creation_key" value="{{ creation_key }}"><input type="hidden" name="operation" value="{{ draft.operation }}">
+{% if draft.operation == 'update' %}<input type="hidden" name="article_id" value="{{ draft.article_id }}"><input type="hidden" name="base_version" value="{{ draft.base_version }}">{% if article %}<p><a href="{{ path('proposals_new',{article_id:article.id}) }}">Recharger l’article enregistré</a></p>{% endif %}{% else %}<div class="field"><label for="proposal-sku">Référence (obligatoire)</label><input id="proposal-sku" name="sku" value="{{ draft.payload.sku|default('') }}" maxlength="80" required></div>{% endif %}
+<div class="field"><label for="proposal-name">Nom (obligatoire)</label><input id="proposal-name" name="name" value="{{ draft.payload.name }}" maxlength="160" required></div>
+<div class="field"><label for="proposal-description">Description</label><textarea id="proposal-description" name="description" rows="4" maxlength="5000">{{ draft.payload.description }}</textarea></div>
+<p>Unité de stock : <strong>unité</strong>. Quantités entières uniquement.</p>
+<div class="field"><label for="proposal-category">Catégorie (facultative)</label><select id="proposal-category" name="category_id"><option value="">Aucune</option>{% for category in categories %}{% set selected = draft.payload.category_id == category.id %}<option value="{{ category.id }}" {% if selected %}selected{% endif %} {% if not category.active and not selected %}disabled{% endif %}>{{ category.name }}{{ category.active ? '' : ' (désactivée)' }}</option>{% endfor %}</select></div>
+<div class="field"><label class="checkbox-row"><input type="checkbox" name="active" value="1" {% if draft.payload.active %}checked{% endif %}> Article actif après approbation</label></div>
+<button class="button" type="submit">Envoyer la proposition</button></form></section>
+{% endblock %}

@@ -83,6 +83,26 @@ final class CatalogAdministration
             return $this->directory->get($actor,$kind,$id);
         });
     }
+    /** Read-only business validation, shared by submission and administrative publication. */
+    public function checkArticleProposal(StockUser $actor,string $operation,\stdClass $payload,?string $articleId=null,?int $version=null): void
+    {
+        $this->identity->requireRole($actor,Permission::CATALOG_PROPOSE);
+        if (!in_array($operation,['create','update'],true)) { throw new ApiProblem(422,'invalid_operation','Type de proposition invalide.'); }
+        $this->validatePayload($payload,$operation === 'create' ? 'ArticleCreate' : 'ArticleChanges');
+        if ($operation === 'create') {
+            $this->categoryTarget($payload->category_id ?? null);
+            if ($this->db->fetchOne('SELECT 1 FROM articles WHERE lower(btrim(sku)) = lower(btrim(?))',[ $payload->sku ])) { throw new ApiProblem(409,'sku_already_used','Cette référence existe déjà dans le catalogue.'); }
+            return;
+        }
+        if ($articleId === null || $version === null) { throw new ApiProblem(422,'invalid_proposal','L’article et sa version sont obligatoires.'); }
+        $before=$this->directory->get($actor,'article',$articleId)['data'];
+        if ($version !== $before['version']) { throw new ApiProblem(409,'stale_article','L’article a changé. Rechargez sa fiche avant de proposer une modification.'); }
+        $next=array_replace($before,get_object_vars($payload));
+        $next['name']=trim($next['name']);if ($next['category_id'] !== null) { $next['category_id']=strtolower($next['category_id']); }
+        if ($next['category_id'] !== $before['category_id'] || (!$before['active'] && $next['active'])) { $this->categoryTarget($next['category_id']); }
+        foreach (get_object_vars($payload) as $field=>$value) { if ($next[$field] !== $before[$field]) { return; } }
+        throw new ApiProblem(422,'no_article_change','Aucune modification de l’article n’a été proposée.');
+    }
     private function lock(StockUser $actor): void
     {
         $this->db->executeStatement('LOCK TABLE users IN SHARE ROW EXCLUSIVE MODE');
@@ -113,8 +133,12 @@ final class CatalogAdministration
     private function validate(string $kind, \stdClass $body, bool $create): void
     {
         $schema = match ($kind) { 'article' => 'Article', 'category' => 'Category', default => throw new \InvalidArgumentException('Invalid catalogue kind.') };
+        $this->validatePayload($body,$schema.($create?'Create':'Patch'));
+    }
+    private function validatePayload(\stdClass $body,string $schema): void
+    {
         foreach (get_object_vars($body) as $value) { if (is_string($value) && (!preg_match('//u',$value) || str_contains($value,"\0"))) { throw new ApiProblem(422,'invalid_text','Les textes doivent être en UTF-8 et sans caractère nul.'); } }
-        if (!$this->contract->valid($body,['$ref'=>'#/components/schemas/'.$schema.($create?'Create':'Patch')]) || (isset($body->name) && trim($body->name)==='') || (isset($body->sku) && trim($body->sku)==='')) { throw new ApiProblem(422,'validation_failed','Vérifiez les champs obligatoires et les valeurs autorisées.'); }
+        if (!$this->contract->valid($body,['$ref'=>'#/components/schemas/'.$schema]) || (isset($body->name) && trim($body->name)==='') || (isset($body->sku) && trim($body->sku)==='')) { throw new ApiProblem(422,'validation_failed','Vérifiez les champs obligatoires et les valeurs autorisées.'); }
     }
     private function audit(StockUser $actor,string $kind,string $id,string $action,array $fields,?string $cascadeFrom=null): void
     {

@@ -9,13 +9,14 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class UiController extends AbstractController
 {
-    #[Route('/espace/{section}', name: 'ui_section', requirements: ['section' => 'articles|magasins|mouvements|consommations|inventaires|statistiques|alertes|administration'], methods: ['GET'])]
+    #[Route('/espace/{section}', name: 'ui_section', requirements: ['section' => 'articles|stocks|magasins|mouvements|consommations|inventaires|statistiques|alertes|administration'], methods: ['GET'])]
     public function section(string $section, \Symfony\Component\HttpFoundation\Request $request, \App\Ui\StoreContext $storeContext, \App\Security\AccessPolicy $policy): Response
     {
         if ($section === 'administration') {
             $this->denyAccessUnlessGranted('APP_ACCOUNTS_ADMIN');
             return $this->redirectToRoute('admin_users');
         }
+        if ($section === 'stocks') { return $this->redirectToRoute('stocks_list'); }
         if ($section === 'articles') { return $this->redirectToRoute('catalog_list'); }
         if ($section === 'magasins') { return $this->redirectToRoute('stores_list'); }
         $permission = match ($section) {

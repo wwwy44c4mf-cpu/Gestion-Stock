@@ -109,7 +109,7 @@ final class SchemaTest extends KernelTestCase
     public function testMigrationReexecutionIsANoop(): void
     {
         $this->migrate('latest');
-        self::assertSame(5, (int) $this->db->fetchOne('SELECT count(*) FROM doctrine_migration_versions'));
+        self::assertSame(6, (int) $this->db->fetchOne('SELECT count(*) FROM doctrine_migration_versions'));
     }
 
     public function testReferencesAndStockPairsAreUnique(): void
@@ -306,6 +306,17 @@ final class SchemaTest extends KernelTestCase
         self::assertNotSame(0, $this->runMigration('0', $output));
         self::assertStringContainsString('créations de catalogue ou articles inactifs', $output->fetch());
         self::assertSame(1, (int) $this->db->fetchOne("SELECT count(*) FROM pg_trigger WHERE tgname = 'movements_active_article' AND tgrelid = 'stock_movements'::regclass"));
+    }
+
+    public function testProposalReplayProtectsMigrationRollback(): void
+    {
+        $f = $this->fixtures();
+        $id = $this->db->fetchOne("INSERT INTO article_proposals (operation,payload,proposed_by) VALUES ('create','{}',?) RETURNING id", [$f['user']]);
+        $this->db->executeStatement("INSERT INTO proposal_requests (actor_id,action,request_key,request_fingerprint,proposal_id,response) VALUES (?,'create',?,?,?,?::jsonb)", [$f['user'],'schema-proposal-key',str_repeat('d',64),$id,'{}']);
+        $output = new BufferedOutput();
+        self::assertNotSame(0, $this->runMigration('0', $output));
+        self::assertStringContainsString('résultats de propositions présents', $output->fetch());
+        self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM proposal_requests'));
     }
 
 }

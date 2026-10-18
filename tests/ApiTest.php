@@ -48,7 +48,7 @@ final class ApiTest extends WebTestCase
                 }
             }
         }
-        self::assertCount(58, $ids);
+        self::assertCount(59, $ids);
     }
 
     public function testPublicInfrastructureAndContractAreAccessible(): void

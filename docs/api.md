@@ -1,6 +1,6 @@
 # Contrats et socle API — SOC-03
 
-Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décrit 58 opérations et 87 schémas de données pour le MVP. Aucun appel à un service externe n’est nécessaire pour le lire ou pour le valider.
+Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décrit 59 opérations et 89 schémas de données pour le MVP. Aucun appel à un service externe n’est nécessaire pour le lire ou pour le valider.
 
 ## Ce qui fonctionne déjà
 
@@ -30,7 +30,15 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 | `GET /api/v1/categories` | Liste des catégories |
 | `POST /api/v1/categories` et `PATCH /api/v1/categories/{id}` | Administration des catégories et cascade de statut |
 
-Ces vingt-trois opérations portent `x-implementation: available`. Les 35 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
+| `GET /api/v1/article-proposals` et `GET /api/v1/article-proposals/{id}` | Propositions autorisées et commentaire de décision |
+| `POST /api/v1/article-proposals` | Soumission idempotente sans publication |
+| `POST /api/v1/article-proposals/{id}/review` | Approbation ou refus administratif idempotent |
+
+| `GET /api/v1/stocks` et `GET /api/v1/stores/{storeId}/stocks` | Soldes autorisés, filtres et pagination |
+| `GET /api/v1/articles/{id}/stocks` | Total exact autorisé et détail paginé |
+| `GET /api/v1/stores/{storeId}/stocks/{articleId}/movements` | Journal local sans identité distante, ADMIN/MANAGER autorisés |
+
+Ces trente et une opérations portent `x-implementation: available`. Les 28 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
 
 Les routes `/health/live` et `/health/ready` de SOC-01 restent disponibles pour Docker ; la nouvelle sonde API ne remplace pas le contrôle PostgreSQL de readiness.
 
@@ -123,3 +131,7 @@ La commande de test dépend du conteneur `contract-test`, sans réseau, qui vér
 Provenance du schéma tiers et licence : [schemas/NOTICE.md](schemas/NOTICE.md). Références : [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0), [Symfony CSRF](https://symfony.com/doc/current/security/csrf.html), [Symfony RateLimiter](https://symfony.com/doc/current/rate_limiter.html). Rapport de recette : [validation-soc03.md](validation-soc03.md).
 
 AUTH-02 active les opérations de comptes ; voir [leur guide](administration-comptes.md) pour les protections, le rejeu persistant et l’invalidation des sessions. Les contrôles de périmètre des ressources métier restent dans AUTH-03.
+
+## Consultation des stocks
+
+Les lectures `/stocks`, `/stores/{storeId}/stocks` et `/articles/{id}/stocks` appliquent les magasins autorisés avant pagination et total. Les articles sans solde apparaissent à zéro sans écriture. Le journal local `/stores/{storeId}/stocks/{articleId}/movements` est réservé à ADMIN/MANAGER autorisés et ne retourne ni identités ni magasin distant. [Guide](stocks.md).
