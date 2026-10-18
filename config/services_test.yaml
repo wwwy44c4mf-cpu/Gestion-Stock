@@ -4,3 +4,5 @@ services:
     autoconfigure: true
   App\Tests\Fixtures\ApiProbeController:
     tags: ['controller.service_arguments']
+  App\Stock\StockMovementEngine:
+    public: true

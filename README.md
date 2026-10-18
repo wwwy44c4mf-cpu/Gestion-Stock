@@ -128,3 +128,7 @@ Depuis **Articles → Propositions du catalogue**, les gestionnaires proposent d
 ## Consultation des stocks (STK-01 / ART-03)
 
 Le menu Stocks et la fiche article proposent les soldes et totaux sur les seuls magasins autorisés, y compris les articles sans solde à zéro. Les administrateurs et gestionnaires autorisés peuvent consulter les variations locales. Livraison validée pour revue dans la PR #62 : 132 tests PHP / 1 908 assertions et quatre validations OpenAPI réussis. [Guide](docs/stocks.md) · [État de validation](docs/validation-stk01.md).
+
+## Moteur transactionnel de stock (STK-02)
+
+Le moteur commun prépare les prochaines entrées, consommations, transferts et ajustements : solde non négatif, verrouillage concurrent, rejeu sans doublon et écriture atomique du journal, de l’audit et d’un événement durable. Appliquer `Version20261018200000` avant de raccorder les écritures métier. Les formulaires et endpoints de mouvement seront livrés dans leurs lots respectifs. [Guide d’intégration](docs/moteur-stock.md) · [Recette](docs/validation-stk02.md).

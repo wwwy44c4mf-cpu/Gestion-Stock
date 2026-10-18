@@ -61,3 +61,7 @@ La migration `Version20261018110000` ajoute `users.development_only`, faux pour 
 ## Soumissions et décisions des propositions
 
 `Version20261018150000` ajoute `proposal_requests` : clé par acteur et action, empreinte HMAC, proposition concernée et réponse initiale. Aucun catalogue n’est modifié par cette migration. Les résultats rendent les soumissions et décisions répétables sans publication en double. Le retour arrière est refusé lorsque ces résultats existent.
+
+## Événements transactionnels de stock
+
+`Version20261018200000` ajoute `stock_change_events`, un événement durable unique par mouvement, avec article et magasins concernés. Le moteur l’écrit dans la même transaction que solde, journal et audit. Les consommateurs des futurs lots d’alertes renseigneront son état de traitement ; aucun appel SMTP n’est effectué dans le moteur. Les données existantes ne sont pas modifiées et aucun historique n’est rejoué par cette migration. Son retour arrière refuse toute suppression si des événements existent. La table d’historique conserve sa contrainte d’unicité opérateur/clé et son empreinte de requête : aucune copie supplémentaire des textes libres n’est ajoutée.
