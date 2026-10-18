@@ -109,7 +109,7 @@ final class SchemaTest extends KernelTestCase
     public function testMigrationReexecutionIsANoop(): void
     {
         $this->migrate('latest');
-        self::assertSame(4, (int) $this->db->fetchOne('SELECT count(*) FROM doctrine_migration_versions'));
+        self::assertSame(5, (int) $this->db->fetchOne('SELECT count(*) FROM doctrine_migration_versions'));
     }
 
     public function testReferencesAndStockPairsAreUnique(): void
@@ -286,6 +286,26 @@ final class SchemaTest extends KernelTestCase
         self::assertNotSame(0, $this->runMigration('0', $output));
         self::assertStringContainsString('créations de magasins présentes', $output->fetch());
         self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM store_creation_requests'));
+    }
+
+    public function testCatalogReplayProtectsMigrationRollback(): void
+    {
+        $f = $this->fixtures();
+        $this->db->executeStatement("INSERT INTO catalog_creation_requests (actor_id,resource_type,request_key,request_fingerprint,article_id,response) VALUES (?,'article',?,?,?,?::jsonb)", [$f['user'],'schema-catalog-key',str_repeat('c',64),$f['article'],'{}']);
+        $output = new BufferedOutput();
+        self::assertNotSame(0, $this->runMigration('0', $output));
+        self::assertStringContainsString('créations de catalogue ou articles inactifs', $output->fetch());
+        self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM catalog_creation_requests'));
+    }
+
+    public function testInactiveArticlesPreventRemovingConsumptionProtection(): void
+    {
+        $f = $this->fixtures();
+        $this->db->executeStatement('UPDATE articles SET active = false WHERE id = ?', [$f['article']]);
+        $output = new BufferedOutput();
+        self::assertNotSame(0, $this->runMigration('0', $output));
+        self::assertStringContainsString('créations de catalogue ou articles inactifs', $output->fetch());
+        self::assertSame(1, (int) $this->db->fetchOne("SELECT count(*) FROM pg_trigger WHERE tgname = 'movements_active_article' AND tgrelid = 'stock_movements'::regclass"));
     }
 
 }

@@ -53,3 +53,7 @@ La migration `Version20261018110000` ajoute `users.development_only`, faux pour 
 ## Créations de magasins idempotentes
 
 `Version20261018130000` ajoute `store_creation_requests` : clé par acteur, empreinte HMAC, magasin créé et résultat initial. Le rejeu restitue ce résultat sans créer un second magasin ni un second événement d’audit, même après modification ou archivage. Le retour arrière est refusé si des résultats existent. La migration ne crée aucun magasin et ne modifie aucun stock.
+
+## Catalogue et consommation d’articles actifs
+
+`Version20261018140000` ajoute les résultats idempotents des créations d’articles et de catégories (`catalog_creation_requests`) et un contrôle PostgreSQL des nouvelles consommations. Le trigger verrouille l’article en lecture partagée puis exige son statut actif ; il ne modifie aucun mouvement historique. Les retours d’articles archivés restent possibles. Les références d’article demeurent protégées par le trigger d’immutabilité existant. Le retour arrière est refusé si des résultats de création ou des articles inactifs existent.

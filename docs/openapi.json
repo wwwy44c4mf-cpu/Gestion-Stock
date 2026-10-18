@@ -1564,7 +1564,7 @@
           "USER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/Page"
@@ -1673,7 +1673,7 @@
           "ADMIN"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -1757,7 +1757,7 @@
       "patch": {
         "operationId": "updateCategory",
         "summary": "Modifier une catégorie",
-        "description": "Refuser les cycles de parenté et préserver les références existantes.",
+        "description": "Modification et archivage logique. Le changement d’état est propagé à toute la branche et à ses articles ; la réactivation inclut les articles auparavant désactivés. Audit et versions sont mis à jour dans la même transaction.",
         "tags": [
           "categories"
         ],
@@ -1771,7 +1771,7 @@
           "ADMIN"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -1869,7 +1869,7 @@
           "USER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/Page"
@@ -1999,7 +1999,7 @@
           "ADMIN"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -2098,7 +2098,7 @@
           "USER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -2167,7 +2167,7 @@
       "patch": {
         "operationId": "updateArticle",
         "summary": "Modifier ou archiver un article",
-        "description": "Référence et unité immuables. Version attendue obligatoire ; version obsolète : 409. Article archivé exclu des nouvelles consommations.",
+        "description": "Référence et unité conservées ; version courante obligatoire. Archivage sans suppression des mouvements. Toute nouvelle consommation d’un article inactif est refusée en base. Une modification obsolète retourne 409.",
         "tags": [
           "articles"
         ],
@@ -2181,7 +2181,7 @@
           "ADMIN"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -6773,6 +6773,10 @@
               "null"
             ],
             "format": "uuid"
+          },
+          "active": {
+            "type": "boolean",
+            "default": true
           }
         },
         "additionalProperties": false,
@@ -6893,6 +6897,10 @@
               "unit"
             ],
             "default": "unit"
+          },
+          "active": {
+            "type": "boolean",
+            "default": true
           }
         },
         "additionalProperties": false,

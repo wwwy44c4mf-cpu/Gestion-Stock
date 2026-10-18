@@ -116,3 +116,7 @@ Le sélecteur **Magasin** propose les magasins autorisés et conserve le context
 ## Gestion des magasins (MAG-01)
 
 Le menu **Magasins** permet aux administrateurs de créer, modifier, désactiver et réactiver les magasins. Les autres rôles disposent d’une liste filtrée. Un inventaire en cours doit être terminé ou annulé avant désactivation ; les données et historiques sont conservés. Appliquer `Version20261018130000` avant utilisation. [Guide](docs/gestion-magasins.md) · [Recette](docs/validation-mag01.md).
+
+## Catalogue des articles (ART-01)
+
+Le menu **Articles** permet de consulter le catalogue et les catégories. Les administrateurs peuvent créer et modifier les articles, conserver leur référence et les archiver. Le statut d’une catégorie s’applique à toute sa branche et à tous ses articles, y compris les articles auparavant désactivés lors d’une réactivation. Appliquer `Version20261018140000` avant utilisation. [Guide](docs/catalogue.md) · [Recette](docs/validation-art01.md).

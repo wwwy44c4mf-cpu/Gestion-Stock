@@ -25,3 +25,4 @@
 @media(max-width:760px) { .store-context { width:100%; } }
 .field textarea { width:100%; min-height:90px; padding:10px; border:1px solid #788d81; border-radius:6px; font:inherit; resize:vertical; }
 .store-description { max-width:24rem; overflow-wrap:anywhere; }
+.catalog-description { white-space:pre-wrap; overflow-wrap:anywhere; }
