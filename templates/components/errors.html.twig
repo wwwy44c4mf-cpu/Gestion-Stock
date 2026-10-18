@@ -1,0 +1,3 @@
+{% if errors|length %}
+<section class="notice notice-error" role="alert" aria-labelledby="{{ id|default('erreurs') }}-title" tabindex="-1"><h2 id="{{ id|default('erreurs') }}-title">Veuillez corriger les informations suivantes</h2><ul>{% for error in errors %}<li><a href="#{{ error.field }}">{{ error.message }}</a></li>{% endfor %}</ul></section>
+{% endif %}

@@ -1,0 +1,5 @@
+<div class="field">
+<label for="{{ id }}">{{ label }}{% if required|default(false) %} <span>(obligatoire)</span>{% endif %}</label>
+<input id="{{ id }}" name="{{ name|default(id) }}" type="{{ type|default('text') }}" value="{{ value|default('') }}" {% if required|default(false) %}required{% endif %} {% if error|default('') %}aria-invalid="true"{% endif %} {% if hint|default('') or error|default('') %}aria-describedby="{{ id }}-help"{% endif %}>
+{% if hint|default('') or error|default('') %}<p id="{{ id }}-help" class="{{ error|default('') ? 'field-error' : 'muted' }}">{{ error|default('') ?: hint|default('') }}</p>{% endif %}
+</div>

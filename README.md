@@ -94,3 +94,7 @@ Après modification du code : `docker compose up -d --build --wait`. Le code est
 La configuration fournie est locale, en HTTP sur loopback. Le domaine et le reverse proxy restent à préciser ; OPS-02 ajoutera la configuration HTTPS de production et les contrôles correspondants. Ne pas publier cet environnement directement sur Internet. Les paramètres SMTP, sauvegardes, supervision, anonymisation et permissions métier restent couverts par leurs lots dédiés.
 
 Références : [exigences Symfony](https://symfony.com/doc/8.1/setup.html), [version Symfony 8.1](https://symfony.com/releases/8.1), [persistance PostgreSQL 18](https://docs.docker.com/guides/postgresql/immediate-setup-and-data-persistence/), [cahier des charges](cdc.md).
+
+## Interface utilisateur (SOC-04)
+
+Le tableau de bord en français est disponible sur [l’application locale](http://127.0.0.1:8080). Interface adaptée aux mobiles, menu Stimulus et composants Twig partagés. Le contexte reste anonyme jusqu’à AUTH ; le sélecteur de magasin et les modules métier attendent leurs lots respectifs. Voir le [guide de l’interface](docs/interface.md) et le [rapport de validation](docs/validation-soc04.md).
