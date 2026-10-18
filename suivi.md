@@ -325,7 +325,7 @@ Sources : STK-02; parcours 5.3.
 
 Critères d’acceptation : Stock 5 + entrée 10 = 15 ; refus utilisateur simple ; REC-03.
 
-Formulaire sans JavaScript et API d’entrée raccordés au moteur STK-02. Options limitées aux magasins actifs autorisés et articles actifs ; présélection contextuelle, validations serveur, CSRF, valeurs conservées en erreur, redirection vers le solde actualisé, rejeu sans doublon. Auteur et date serveur, événement durable pour les futurs traitements d’alertes. Aucun nouveau schéma de base. Recette : 155 tests PHP / 2 290 assertions et quatre validations OpenAPI réussis, contrôle ordinateur/mobile. [Guide](docs/entrees-stock.md) · [Validation](docs/validation-stk03.md).
+Livraison pour revue : [PR #64](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/64), branche `codex/stk-03-stock-entries`. Formulaire sans JavaScript et API d’entrée raccordés au moteur STK-02. Options limitées aux magasins actifs autorisés et articles actifs ; présélection contextuelle, validations serveur, CSRF, valeurs conservées en erreur, redirection vers le solde actualisé, rejeu sans doublon. Auteur et date serveur, événement durable pour les futurs traitements d’alertes. Aucun nouveau schéma de base. Recette : 155 tests PHP / 2 290 assertions et quatre validations OpenAPI réussis, contrôle ordinateur/mobile. [Guide](docs/entrees-stock.md) · [Validation](docs/validation-stk03.md).
 
 ### STK-04 — Consommations et bénéficiaire tiers
 

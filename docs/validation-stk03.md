@@ -23,3 +23,5 @@ Contrôle navigateur local : connexion de l’administrateur de développement, 
 Aucune entrée de démonstration soumise dans la base locale réelle pendant le contrôle navigateur. Le formulaire testé en écriture l’est dans les schémas isolés. Les images app/test/web/contract-test ont été construites ; les services locaux ont été actualisés. Aucune migration supplémentaire n’est nécessaire après STK-02.
 
 Le contrat conserve 59 opérations et 89 schémas ; 32 opérations sont disponibles et 27 restent planifiées. L’opération `createEntry` est disponible. La réponse n’annonce pas de Location vers un détail de mouvement encore planifié.
+
+Livraison pour revue : [PR #64](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/64), branche `codex/stk-03-stock-entries`, basée sur main.
