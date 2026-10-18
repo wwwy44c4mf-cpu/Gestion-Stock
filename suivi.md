@@ -74,7 +74,7 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | MAG-01 | 1 | Création, modification et archivage des magasins | MAG-01,02,05 | AUTH-03 | Terminé | [#9](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/9) |
 | ART-01 | 1 | Catalogue global, catégories et archivage | ART-01,02,03; §4 | MAG-01 | En revue | [#10](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10) |
 | ART-02 | 1 | Propositions d’articles et validation administrative | ART-01,02; décision utilisateur | ART-01 | À faire | [#11](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/11) |
-| ART-03 | 1 | Recherche et consultation du catalogue | ART-04 | ART-01, SOC-04 | À faire | [#12](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/12) |
+| ART-03 | 1 | Recherche et consultation du catalogue | ART-04 | ART-01, SOC-04 | En cours | [#12](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/12) |
 | STK-01 | 2 | Consultation des stocks et consolidation | STK-01; MAG-04 | ART-01, AUTH-03 | À faire | [#13](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13) |
 | STK-02 | 2 | Moteur transactionnel, concurrence et idempotence | STK-06,07,10; §4 | SOC-02, AUTH-03 | À faire | [#14](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14) |
 | STK-03 | 2 | Entrées et réapprovisionnements | STK-02; parcours 5.3 | STK-02, STK-01 | À faire | [#15](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/15) |
@@ -270,15 +270,17 @@ Critères d’acceptation : Une proposition non approuvée n’affecte pas le ca
 
 ### ART-03 — Recherche et consultation du catalogue
 
-Issue : [#12](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/12) · À faire · Dépendances : [ART-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10), [SOC-04](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/4).
+Issue : [#12](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/12) · En cours · Dépendances : [ART-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10), [SOC-04](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/4).
 
 Sources : ART-04.
 
-- [ ] Créer liste et fiche article
-- [ ] Ajouter recherche référence/nom et filtres catégorie/statut, tri et pagination
+- [x] Créer liste et fiche article
+- [x] Ajouter recherche référence/nom et filtres catégorie/statut, tri et pagination
 - [ ] Respecter les droits sur les informations de stocks associées
 
 Critères d’acceptation : Recherche et filtres combinés retournent uniquement les résultats attendus.
+
+Liste, fiche et filtres de base fournis par [PR #60](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/60) (ART-01). Restent la recette dédiée des combinaisons de paramètres et le raccordement des informations de stock avec leurs périmètres, dans le prolongement de STK-01. Aucune information de stock n’est exposée par le catalogue actuel.
 
 ### STK-01 — Consultation des stocks et consolidation
 
