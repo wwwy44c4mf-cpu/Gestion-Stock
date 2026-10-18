@@ -1,18 +1,32 @@
 # Recette STK-01 et fin de ART-03
 
-État au 18 octobre 2026 : **NON VALIDÉ**. Les images app/test/contract-test ont été construites. Le lancement des tests Docker a été refusé avant exécution par le contrôle automatique d’approbation, dont la limite d’utilisation était atteinte. Les dernières corrections n’ont pas encore été reconstruites. Aucune réussite PHP, SQL ou navigateur n’est revendiquée pour ce lot.
+Validation du 18 octobre 2026 : **132 tests PHP / 1 908 assertions et quatre validations indépendantes OpenAPI réussis** dans Docker. Commande complète : `docker compose run --rm test`, durée PHPUnit 59,468 s, sortie 0. La recette ciblée initiale avait également réussi (7 tests / 166 assertions) ; un huitième test de contexte magasin a ensuite été inclus dans la suite finale.
 
-## Contrôles à exécuter
+## Couverture
 
-1. Reconstruire les images : `docker compose build app test contract-test`.
-2. Exécuter le test ciblé : `docker compose run --rm --no-deps test php vendor/bin/phpunit tests/StockConsultationTest.php`.
-3. Corriger tout échec, reconstruire et exécuter la suite complète : `docker compose run --rm test`.
-4. Vérifier les écrans Stocks, fiche stock, fiche article et filtres sur ordinateur et mobile ; absence de débordement, formulaires sans JavaScript et échappement des libellés.
-5. Déployer les images locales validées, puis vérifier la santé des services. Aucun enregistrement métier fictif ne doit être ajouté à la base locale.
-6. Actualiser cette recette, suivi.md et les issues #12/#13 avec les résultats réels avant de déclarer la livraison prête.
+`StockConsultationTest` utilise un schéma PostgreSQL isolé et une transaction annulée après chaque test. Les huit tests couvrent :
 
-## Couverture écrite, non encore exécutée
+- ADMIN, MANAGER, USER et compte sans affectation ; magasins affectés, non affectés et désactivés.
+- Changements d’affectation et désactivation immédiatement pris en compte, indépendamment du contexte choisi dans l’en-tête.
+- Total autorisé avant pagination et sur page vide ; valeur exacte `36028797018963964` pour une somme supérieure à la précision entière JavaScript.
+- Articles sans solde affichés à zéro, sans aucune création de ligne ; absence de modification des soldes après les lectures.
+- Seuil absent distinct de zéro, égalité du seuil, rupture, filtres combinés et recherche littérale `%`.
+- Erreurs des paramètres inconnus, tableaux, identifiants invalides, pagination hors limites et magasin inaccessible.
+- Fiche stock et journal local : signes des entrées/transferts, pagination, refus pour USER, absence d’auteur ou d’identifiant du magasin distant.
+- Catalogue global : recherche/catégorie/statut combinés, cinq tris et stabilité entre pages ; stocks associés exclusivement dans le périmètre autorisé.
+- Contexte de l’en-tête utilisé par défaut à l’écran ; filtre vide explicite pour consulter tous les magasins ; API indépendante du contexte ; contexte périmé retiré.
+- Rendu HTML, échappement des libellés, absence de liens/options de magasins inaccessibles et affichage ADMIN des magasins désactivés.
 
-`StockConsultationTest` utilise un schéma PostgreSQL isolé et une transaction annulée après chaque test. Les cas couvrent les trois rôles, les magasins affectés/non affectés/désactivés, les modifications d’affectation, les totaux avant pagination et sur page vide, les sommes supérieures à la précision JavaScript, les couples sans solde, les seuils nuls ou à zéro, les filtres combinés, les recherches littérales, les paramètres invalides, les fiches et le journal local sans identités distantes. Les tris du catalogue sont comparés entre vue complète et pages successives.
+Les tests existants d’authentification et de navigation ont été mis à jour pour la nouvelle route Stocks et la section supplémentaire. Le reste de la suite, y compris concurrence catalogue/propositions, sessions, comptes, magasins et migrations protégées, reste vert. Les messages d’erreurs de scénarios négatifs (panne injectée, rollback refusé, route inexistante) sont attendus.
 
-Les validations officielles OpenAPI existantes restent obligatoires. La tentative de les exécuter directement sur l’hôte n’a pas abouti, car `jsonschema` n’y est pas installé ; le conteneur contract-test reste la méthode prévue.
+## Contrat et interface
+
+Le contrat autonome comporte 59 opérations et 89 schémas : 31 opérations disponibles et 28 planifiées. Les quatre validations officielles indépendantes réussissent dans le conteneur contract-test ; les réponses stock et journal sont aussi validées contre leurs schémas pendant les tests PHP.
+
+Contrôle navigateur local : connexion du compte dev, ouverture Stocks, détail avec journal vide, fiche article avec total, filtre de recherche soumis et réinitialisation. Contrôle responsive à 390 × 844 : largeur du document égale à 390, sans débordement global ; les tables restent dans leur zone de défilement. La taille normale a été rétablie. Capture : `/tmp/gestion-stock-stk01.jpg`. Aucun mouvement ni article fictif ajouté à la base locale pour cette recette.
+
+## Livraison
+
+[PR #62](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/62), basée sur `codex/art-02-proposals` (#61), encore ouverte au moment de la livraison. La recette est validée ; la dépendance doit être traitée avant intégration à main. Aucune nouvelle migration. Les formulaires de mouvements, la configuration des seuils et le journal général restent dans leurs lots respectifs.
+
+Le premier lancement des tests avait été empêché par une limite temporaire du contrôle automatique d’approbation. Après confirmation de sa levée, la recette complète a été exécutée par le même contrôle habituel. Ce blocage est résolu.

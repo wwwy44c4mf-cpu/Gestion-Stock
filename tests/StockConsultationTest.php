@@ -98,6 +98,17 @@ final class StockConsultationTest extends WebTestCase
         $this->client->request('GET','/articles?q=vis&status=inactive');self::assertResponseIsSuccessful();self::assertSelectorTextContains('tbody','Vis Beta');self::assertSelectorTextNotContains('tbody','Vis Alpha');
         $this->client->request('GET','/articles/'.$this->articles['REF-1']);self::assertResponseIsSuccessful();self::assertSelectorTextContains('main','Stock total autorisé : 0');self::assertSelectorTextNotContains('main','Magasin A');
     }
+    public function testSelectedStoreIsDefaultForTheScreenButCannotGrantAccess(): void
+    {
+        $this->login('manager'); $crawler = $this->client->request('GET','/stocks');
+        $form = $crawler->selectButton('Choisir')->form(['store_id'=>$this->stores['B']]); $this->client->submit($form); self::assertResponseStatusCodeSame(303);
+        $this->client->request('GET','/stocks'); self::assertResponseIsSuccessful(); self::assertSelectorExists('#stock-store option[selected][value="'.$this->stores['B'].'"]'); self::assertSelectorTextNotContains('tbody','Magasin A');
+        $this->client->request('GET','/stocks?store_id='); self::assertResponseIsSuccessful(); self::assertSelectorTextContains('tbody','Magasin A'); self::assertSelectorTextContains('tbody','Magasin B');
+        self::assertSame(8,$this->get('/api/v1/stocks')['meta']['total']);
+        $this->db->executeStatement('DELETE FROM user_stores WHERE user_id = ? AND store_id = ?',[$this->users['manager'],$this->stores['B']]);
+        $this->client->request('GET','/stocks');self::assertResponseIsSuccessful();self::assertSelectorNotExists('#magasin option[selected]');self::assertSelectorTextNotContains('tbody','Magasin B');
+    }
+
     public function testHtmlFiltersLinksEscapingAndUnavailableStoreViews(): void
     {
         $this->login('manager');$this->client->request('GET','/stocks?store_id='.$this->stores['A'].'&q=%25');self::assertResponseIsSuccessful();self::assertSelectorTextContains('tbody','Littéral <script>');self::assertSelectorNotExists('main script');self::assertSelectorExists('nav a[aria-current="page"][href="/stocks"]');self::assertSelectorNotExists('option[value="'.$this->stores['C'].'"]');self::assertSelectorNotExists('option[value="'.$this->stores['D'].'"]');

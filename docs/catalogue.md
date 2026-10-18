@@ -1,6 +1,6 @@
 # Catalogue global — ART-01
 
-Le menu **Articles** donne accès à la liste, à la fiche d’un article et aux catégories. Tous les comptes actifs autorisés peuvent lire le catalogue global ; seules les informations descriptives sont exposées, sans stock ni historique de magasin. La création et la modification directe sont réservées aux administrateurs. Les gestionnaires passent par [les propositions du catalogue](propositions.md), soumises à validation administrative (ART-02).
+Le menu **Articles** donne accès à la liste, à la fiche d’un article et aux catégories. Tous les comptes actifs autorisés peuvent lire le catalogue global ; les réponses API descriptives restent globales et sans stock. La fiche HTML affiche aussi les [stocks autorisés](stocks.md) et leur total, limités aux droits par magasin. La création et la modification directe sont réservées aux administrateurs. Les gestionnaires passent par [les propositions du catalogue](propositions.md), soumises à validation administrative (ART-02).
 
 ## Articles
 

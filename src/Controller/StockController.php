@@ -36,10 +36,12 @@ final class StockController extends AbstractController
     }
 
     #[Route('/stocks', name: 'stocks_list', methods: ['GET'])]
-    public function index(Request $request, QueryParameters $query): Response
+    public function index(Request $request, QueryParameters $query, \App\Ui\StoreContext $context): Response
     {
         $filters = $this->filters($request, $query, 'listStocks');
-        $actor = $this->actor(); $result = $this->stocks->listing($actor, $filters);
+        $actor = $this->actor();
+        if (!$request->query->has('store_id') && ($selected = $context->read($request, $actor)['selected']) !== null) { $filters['store_id'] = $selected; }
+        $result = $this->stocks->listing($actor, $filters);
         return $this->render('stocks/list.html.twig', [
             'result' => $result, 'filters' => $filters, 'labels' => $this->stocks->labels($result['data']),
             'stores' => $this->directory->storeOptions($actor), 'categories' => $this->catalog->categoryOptions($actor),

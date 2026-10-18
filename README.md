@@ -127,4 +127,4 @@ Depuis **Articles → Propositions du catalogue**, les gestionnaires proposent d
 
 ## Consultation des stocks (STK-01 / ART-03)
 
-Développement en cours de validation : le menu Stocks et la fiche article proposent les soldes et totaux sur les seuls magasins autorisés, y compris les articles sans solde à zéro. La recette Docker reste à exécuter avant livraison. [Guide](docs/stocks.md) · [État de validation](docs/validation-stk01.md).
+Le menu Stocks et la fiche article proposent les soldes et totaux sur les seuls magasins autorisés, y compris les articles sans solde à zéro. Les administrateurs et gestionnaires autorisés peuvent consulter les variations locales. Livraison validée pour revue dans la PR #62 : 132 tests PHP / 1 908 assertions et quatre validations OpenAPI réussis. [Guide](docs/stocks.md) · [État de validation](docs/validation-stk01.md).

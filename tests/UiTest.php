@@ -30,7 +30,7 @@ final class UiTest extends WebTestCase
         self::assertContains('mouvements', $sections(['ROLE_GESTIONNAIRE'], 'store-1'));
         self::assertNotContains('inventaires', $sections(['ROLE_UTILISATEUR'], 'store-1'));
         self::assertContains('consommations', $sections(['ROLE_UTILISATEUR'], 'store-1'));
-        self::assertCount(9, $sections(['ROLE_ADMIN']));
+        self::assertCount(10, $sections(['ROLE_ADMIN']));
     }
 
     public function testModulePlaceholdersAndUnknownSections(): void
