@@ -18,7 +18,7 @@ docker compose exec app php bin/console app:user:create-admin administrateur@exa
 
 Remplacer le courriel et le nom par ceux du compte souhaité. Le mot de passe et sa confirmation sont demandés **en saisie masquée**, jamais comme argument, variable d’environnement ou valeur par défaut. Il doit comporter de 12 à 128 caractères. Si le terminal ne permet pas la saisie masquée, la commande refuse de continuer. Ne pas utiliser `--no-interaction` ni rediriger les secrets dans l’historique du terminal.
 
-La commande refuse de créer un compte si un compte existe déjà, y compris désactivé/anonymisé. Un verrou transactionnel protège aussi deux initialisations simultanées. Aucun compte n’est créé automatiquement au démarrage. L’administration courante des comptes sera livrée dans AUTH-02.
+La commande refuse de créer un compte si un compte normal existe déjà, y compris désactivé/anonymisé. Les comptes marqués comme réservés au développement ne bloquent pas cette initialisation. Un verrou transactionnel protège aussi deux initialisations simultanées. Aucun compte n’est créé automatiquement au démarrage. L’administration courante des comptes sera livrée dans AUTH-02.
 
 ## Sessions et mots de passe
 
@@ -66,3 +66,7 @@ docker compose exec app php bin/console lint:yaml config
 Les tests AUTH utilisent PostgreSQL dans des schémas isolés. Les scénarios courants sont annulés par transaction ; le scénario PHP natif utilise un schéma indépendant supprimé en fin de test. Ils ne créent aucun compte dans les données applicatives. Voir [la recette AUTH-01](validation-auth01.md).
 
 Référence de conception : [Symfony Security et rafraîchissement des utilisateurs](https://symfony.com/doc/current/security.html).
+
+## Compte de démonstration
+
+Un [administrateur de test](administrateur-test.md) peut être créé explicitement en mode `dev`. Son marqueur persistant interdit la connexion et le rafraîchissement des sessions dans tout autre environnement, même si la base est conservée.
