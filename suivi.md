@@ -268,7 +268,7 @@ Sources : ART-01,02; décision utilisateur.
 
 Critères d’acceptation : Une proposition non approuvée n’affecte pas le catalogue ; seul un administrateur applique la proposition.
 
-Livraison vérifiée : soumissions sans modification du catalogue, liste et consultation privées par auteur, file ADMIN et comparaison des valeurs, approbation/refus motivé et décisions visibles par l’auteur. Références et versions revérifiées ; publications, décisions et rejeux atomiques. Migration `Version20261018150000`. Recette : 124 tests PHP / 1 717 assertions et quatre validations OpenAPI réussis, dont soumissions/décisions simultanées et panne injectée après publication. [Guide](docs/propositions.md) · [Validation](docs/validation-art02.md).
+Livraison pour revue : [PR #61](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/61), branche `codex/art-02-proposals`. Soumissions sans modification du catalogue, liste et consultation privées par auteur, file ADMIN et comparaison des valeurs, approbation/refus motivé et décisions visibles par l’auteur. Références et versions revérifiées ; publications, décisions et rejeux atomiques. Migration `Version20261018150000`. Recette : 124 tests PHP / 1 717 assertions et quatre validations OpenAPI réussis, dont soumissions/décisions simultanées et panne injectée après publication. [Guide](docs/propositions.md) · [Validation](docs/validation-art02.md).
 
 ### ART-03 — Recherche et consultation du catalogue
 
