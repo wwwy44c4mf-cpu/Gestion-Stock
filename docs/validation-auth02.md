@@ -2,7 +2,7 @@
 
 ## Résultat
 
-Livraison pour revue : branche `codex/auth-02-user-administration`, issue [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6). Base : AUTH-01 et administrateur de développement intégrés sur `main` (`0194c2cdb977e5f13fdc553813253273f737dfac`).
+Livraison pour revue : [PR #57](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/57), branche `codex/auth-02-user-administration`, issue [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6). Base : AUTH-01 et administrateur de développement intégrés sur `main` (`0194c2cdb977e5f13fdc553813253273f737dfac`).
 
 - **73 tests PHP / 1 001 assertions réussis** dans Docker, dont douze parcours d’administration, la recette native et les migrations.
 - **Quatre tests indépendants du contrat OpenAPI réussis** : 58 opérations documentées, onze disponibles et 47 planifiées.
