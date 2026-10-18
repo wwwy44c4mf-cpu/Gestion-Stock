@@ -120,7 +120,7 @@ final class StockMovementEngine
         }
     }
 
-    private function resource(array $row): array
+    public function resource(array $row): array
     {
         $result = array_intersect_key($row, array_flip(['id','type','article_id','source_store_id','destination_store_id','quantity','author_id','consumer_id','related_movement_id','inventory_id','reason','reference','comment','created_at']));
         $result['quantity'] = (int) $result['quantity'];

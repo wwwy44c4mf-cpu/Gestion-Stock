@@ -1,6 +1,6 @@
 # Contrats et socle API — SOC-03
 
-Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décrit 59 opérations et 89 schémas de données pour le MVP. Aucun appel à un service externe n’est nécessaire pour le lire ou pour le valider.
+Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décrit 60 opérations et 91 schémas de données pour le MVP. Aucun appel à un service externe n’est nécessaire pour le lire ou pour le valider.
 
 ## Ce qui fonctionne déjà
 
@@ -40,8 +40,11 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 
 | `POST /api/v1/movements/entries` | Entrée autorisée, atomique et idempotente |
 | `POST /api/v1/movements/consumptions` | Consommation pour soi ou tiers autorisé, confirmation HTML dans Location |
+| `POST /api/v1/movements/adjustments` | Écart signé justifié |
+| `POST /api/v1/movements/{id}/correct` | Bonne quantité, contre-mouvement et remplacement atomiques liés |
+| `POST /api/v1/movements/{id}/reverse` | Annulation exacte unique et justifiée |
 
-Ces trente-trois opérations portent `x-implementation: available`. Les 26 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
+Ces trente-six opérations portent `x-implementation: available`. Les 24 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
 
 Les routes `/health/live` et `/health/ready` de SOC-01 restent disponibles pour Docker ; la nouvelle sonde API ne remplace pas le contrôle PostgreSQL de readiness.
 
@@ -142,3 +145,5 @@ Les lectures `/stocks`, `/stores/{storeId}/stocks` et `/articles/{id}/stocks` ap
 ## Entrées de stock
 
 Le formulaire et `POST /api/v1/movements/entries` utilisent le moteur transactionnel de STK-02. Motif obligatoire, référence facultative, auteur et date serveur ; événement durable de recalcul en attente des futurs traitements d’alertes. [Guide](entrees-stock.md) · [Recette](validation-stk03.md).
+
+STK-05 : [corrections et ajustements](corrections-stock.md). Les réponses d’écriture de ces trois nouvelles opérations n’annoncent pas de Location vers un détail API encore planifié.

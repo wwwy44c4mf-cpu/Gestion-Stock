@@ -109,7 +109,7 @@ final class SchemaTest extends KernelTestCase
     public function testMigrationReexecutionIsANoop(): void
     {
         $this->migrate('latest');
-        self::assertSame(7, (int) $this->db->fetchOne('SELECT count(*) FROM doctrine_migration_versions'));
+        self::assertSame(8, (int) $this->db->fetchOne('SELECT count(*) FROM doctrine_migration_versions'));
     }
 
     public function testReferencesAndStockPairsAreUnique(): void
@@ -326,6 +326,16 @@ final class SchemaTest extends KernelTestCase
         $output = new BufferedOutput(); self::assertNotSame(0,$this->runMigration('DoctrineMigrations\\Version20261018150000',$output));
         self::assertSame(1,(int)$this->db->fetchOne('SELECT count(*) FROM stock_change_events'));self::assertSame(1,(int)$this->db->fetchOne('SELECT count(*) FROM stock_movements'));
         $this->rejected('UPDATE stock_change_events SET store_ids = ?::uuid[] WHERE movement_id = ?',['{}',$movement]);
+    }
+
+    public function testCorrectionLinksAreImmutableValidatedAndProtectRollback(): void
+    {
+        $f=$this->fixtures();$original=$this->movement($f,'entry','10',null,$f['a']);$undo=$this->movement($f,'reversal','10',$f['a'],null,$original);$replacement=$this->movement($f,'entry','8',null,$f['a']);
+        $this->db->insert('movement_corrections',['original_id'=>$original,'reversal_id'=>$undo,'replacement_id'=>$replacement]);
+        $this->rejected('DELETE FROM movement_corrections');$this->rejected('UPDATE movement_corrections SET replacement_id = original_id');
+        $other=$this->movement($f,'entry','3',null,$f['a']);$otherUndo=$this->movement($f,'reversal','3',$f['a'],null,$other);$foreign=$this->movement($f,'entry','2',null,$f['b']);
+        $this->rejected('INSERT INTO movement_corrections (original_id,reversal_id,replacement_id) VALUES (?,?,?)',[$other,$otherUndo,$foreign]);
+        $output=new BufferedOutput();self::assertNotSame(0,$this->runMigration('DoctrineMigrations\\Version20261018200000',$output));self::assertStringContainsString('corrections présentes',$output->fetch());self::assertSame(1,(int)$this->db->fetchOne('SELECT count(*) FROM movement_corrections'));
     }
 
 }

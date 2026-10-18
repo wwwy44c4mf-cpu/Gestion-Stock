@@ -140,3 +140,7 @@ Depuis **Stocks → Enregistrer une entrée**, les administrateurs et gestionnai
 ## Consommations (STK-04)
 
 Depuis **Consommations** ou les stocks, enregistrer une sortie pour soi-même ; administrateurs et gestionnaires peuvent choisir un autre technicien actif. Référence et commentaire facultatifs, contrôle du stock disponible, protection contre les doubles envois et confirmation distinguant opérateur et bénéficiaire. [Guide](docs/consommations.md) · [Recette](docs/validation-stk04.md).
+
+## Ajustements et corrections (STK-05)
+
+Depuis une fiche stock, **Corriger** permet de saisir directement la bonne quantité et un motif. L’original reste conservé, avec contre-mouvement et remplacement liés, sans double correction ni stock négatif. **Ajuster le stock** enregistre un écart signé pour les administrateurs et gestionnaires autorisés. Appliquer la migration `Version20261018223000` avant les nouvelles pages. [Guide](docs/corrections-stock.md) · [Recette](docs/validation-stk05.md).

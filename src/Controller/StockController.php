@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class StockController extends AbstractController
 {
-    public function __construct(private readonly StockDirectory $stocks, private readonly AccessDirectory $directory, private readonly CatalogDirectory $catalog) {}
+    public function __construct(private readonly StockDirectory $stocks, private readonly AccessDirectory $directory, private readonly CatalogDirectory $catalog, private readonly \App\Access\CorrectionDirectory $corrections) {}
 
     #[Route('/api/v1/stocks', name: 'api_stocks_list', methods: ['GET'])]
     #[Route('/api/v1/stores/{storeId}/stocks', name: 'api_store_stocks', methods: ['GET'])]
@@ -45,7 +45,7 @@ final class StockController extends AbstractController
         $result = $this->stocks->listing($actor, $filters);
         return $this->render('stocks/list.html.twig', [
             'result' => $result, 'filters' => $filters, 'labels' => $this->stocks->labels($result['data']),
-            'can_register_consumption' => $this->directory->storeOptions($actor,Permission::CONSUMPTION_CREATE) !== [], 'can_register_entry' => in_array($actor->role,['ADMIN','MANAGER'],true) && $this->directory->storeOptions($actor,Permission::ENTRY_CREATE) !== [], 'stores' => $this->directory->storeOptions($actor), 'categories' => $this->catalog->categoryOptions($actor),
+            'can_adjust' => in_array($actor->role,['ADMIN','MANAGER'],true) && $this->directory->storeOptions($actor,Permission::ADJUSTMENT_CREATE) !== [], 'can_register_consumption' => $this->directory->storeOptions($actor,Permission::CONSUMPTION_CREATE) !== [], 'can_register_entry' => in_array($actor->role,['ADMIN','MANAGER'],true) && $this->directory->storeOptions($actor,Permission::ENTRY_CREATE) !== [], 'stores' => $this->directory->storeOptions($actor), 'categories' => $this->catalog->categoryOptions($actor),
         ]);
     }
 
@@ -56,7 +56,9 @@ final class StockController extends AbstractController
         $row = $this->stocks->detail($this->actor(), $storeId, $articleId)['data'];
         $labels = $this->stocks->labels([$row]);
         $canEnter = in_array($this->actor()->role,['ADMIN','MANAGER'],true) && $labels['articles'][$row['article_id']]['active'] && $labels['stores'][$row['store_id']]['active'];
-        return $this->render('stocks/detail.html.twig', ['can_register_consumption' => $labels['articles'][$row['article_id']]['active'] && $labels['stores'][$row['store_id']]['active'], 'can_register_entry' => $canEnter, 'history' => $this->actor()->role === 'USER' ? null : $this->stocks->history($this->actor(), $storeId, $articleId, $filters), 'filters' => $filters, 'stock' => $row, 'labels' => $labels]);
+        $history = $this->actor()->role === 'USER' ? null : $this->stocks->history($this->actor(), $storeId, $articleId, $filters);
+        $correctionLinks = $history === null ? [] : $this->corrections->links($this->actor(), $history['data']);
+        return $this->render('stocks/detail.html.twig', ['can_adjust' => in_array($this->actor()->role,['ADMIN','MANAGER'],true) && $labels['stores'][$row['store_id']]['active'], 'can_register_consumption' => $labels['articles'][$row['article_id']]['active'] && $labels['stores'][$row['store_id']]['active'], 'can_register_entry' => $canEnter, 'correction_links' => $correctionLinks, 'history' => $history, 'filters' => $filters, 'stock' => $row, 'labels' => $labels]);
     }
 
     #[Route('/api/v1/stores/{storeId}/stocks/{articleId}/movements', name: 'api_stock_history', methods: ['GET'])]
