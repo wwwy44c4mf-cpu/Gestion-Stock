@@ -16,6 +16,9 @@ final class Navigation
         $admin = in_array('ROLE_ADMIN', $roles, true);
         $manager = in_array('ROLE_GESTIONNAIRE', $roles, true);
         $user = in_array('ROLE_UTILISATEUR', $roles, true);
+        if (!$admin && !$manager && !$user) {
+            return [['label' => 'Connexion', 'route' => 'login', 'parameters' => [], 'active' => 'login']];
+        }
         $items = [['label' => 'Tableau de bord', 'route' => 'home', 'parameters' => [], 'active' => 'home']];
         foreach (self::SECTIONS as $section => $label) {
             if ($section === 'administration' && !$admin) {

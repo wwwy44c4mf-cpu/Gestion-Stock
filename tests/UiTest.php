@@ -7,16 +7,16 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class UiTest extends WebTestCase
 {
-    public function testAnonymousHomeHasAccessibleShellWithoutPrivilegedLinks(): void
+    public function testLoginHasAccessibleShellWithoutPrivilegedLinks(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/');
+        $client->request('GET', '/connexion');
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('a.skip-link[href="#contenu"]');
         self::assertSelectorExists('main#contenu');
         self::assertSelectorExists('nav[aria-label="Navigation principale"] a[aria-current="page"]');
         self::assertSelectorNotExists('nav a[href="/espace/administration"]');
-        self::assertSelectorExists('select#magasin[disabled]');
+        self::assertSelectorNotExists('select#magasin');
         self::assertSelectorExists('script[type="module"][src="/assets/app.js"]');
     }
 
@@ -24,7 +24,7 @@ final class UiTest extends WebTestCase
     {
         $navigation = new Navigation();
         $sections = fn (array $roles, ?string $store = null) => array_column($navigation->items($roles, $store), 'active');
-        self::assertSame(['home'], $sections([]));
+        self::assertSame(['login'], $sections([]));
         self::assertNotContains('administration', $sections(['ROLE_GESTIONNAIRE'], 'store-1'));
         self::assertNotContains('mouvements', $sections(['ROLE_GESTIONNAIRE']));
         self::assertContains('mouvements', $sections(['ROLE_GESTIONNAIRE'], 'store-1'));
@@ -38,9 +38,7 @@ final class UiTest extends WebTestCase
         $client = static::createClient();
         foreach (Navigation::SECTIONS as $section => $title) {
             $client->request('GET', '/espace/'.$section);
-            self::assertResponseIsSuccessful();
-            self::assertSelectorTextContains('h1', $title);
-            self::assertSelectorTextContains('h2', 'Ce module est en préparation');
+            self::assertResponseRedirects('/connexion');
         }
         $client->request('GET', '/espace/inconnu');
         self::assertResponseStatusCodeSame(404);

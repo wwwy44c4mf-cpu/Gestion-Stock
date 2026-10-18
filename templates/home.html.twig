@@ -1,12 +1,12 @@
 {% extends 'base.html.twig' %}
 {% block content %}
 <div class="page-heading"><div><p class="eyebrow">VUE D’ENSEMBLE</p><h1>Gestion de stock</h1><p class="subtitle">Tout ce qu’il faut pour suivre vos stocks, au même endroit.</p></div><span class="badge">Mise en place</span></div>
-{% include 'components/notice.html.twig' with {kind: 'info', message: 'Bienvenue dans votre espace. La connexion et les modules métier seront activés au fil des prochaines étapes.'} only %}
+{% include 'components/notice.html.twig' with {kind: 'info', message: 'Bienvenue dans votre espace. Les modules métier seront activés au fil des prochaines étapes.'} only %}
 <section class="metrics" aria-label="Indicateurs de stock">
     {% for label, description in {'Articles référencés': 'Votre catalogue de fournitures', 'Magasins': 'Vos lieux de stockage', 'Alertes de stock': 'Les seuils à surveiller'} %}
     <article class="card metric"><p>{{ label }}</p><strong aria-label="Donnée non disponible">—</strong><small>{{ description }}</small></article>
     {% endfor %}
 </section>
 <section class="card overview"><div><p class="eyebrow">VOTRE ACTIVITÉ</p><h2>Un espace prêt à accueillir vos opérations</h2><p>Consultez vos articles, suivez les mouvements et retrouvez les consommations de vos magasins.</p><p class="muted">Aucune donnée métier n’est encore disponible.</p></div><div class="empty-illustration" aria-hidden="true">▤</div></section>
-<section aria-labelledby="suite"><h2 id="suite">Les prochaines étapes</h2><div class="steps"><article class="card"><span class="step">01</span><h3>Se connecter</h3><p>Accéder à votre profil et aux magasins qui vous sont affectés.</p></article><article class="card"><span class="step">02</span><h3>Retrouver ses articles</h3><p>Parcourir le catalogue et consulter les quantités disponibles.</p></article><article class="card"><span class="step">03</span><h3>Suivre les opérations</h3><p>Enregistrer les consommations et consulter leur historique.</p></article></div></section>
+<section aria-labelledby="suite"><h2 id="suite">Les prochaines étapes</h2><div class="steps"><article class="card"><span class="step">01</span><h3>Votre compte</h3><p><a href="{{ path('profile') }}">Consulter votre profil et vos préférences.</a></p></article><article class="card"><span class="step">02</span><h3>Retrouver ses articles</h3><p>Parcourir le catalogue et consulter les quantités disponibles.</p></article><article class="card"><span class="step">03</span><h3>Suivre les opérations</h3><p>Enregistrer les consommations et consulter leur historique.</p></article></div></section>
 {% endblock %}

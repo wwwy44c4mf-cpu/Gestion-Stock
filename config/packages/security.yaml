@@ -1,0 +1,22 @@
+security:
+  expose_security_errors: none
+  password_hashers:
+    App\Security\StockUser:
+      algorithm: argon2id
+  providers:
+    stock_users:
+      id: App\Security\StockUserProvider
+  firewalls:
+    main:
+      provider: stock_users
+      user_checker: App\Security\ActiveUserChecker
+      custom_authenticators:
+        - App\Security\LoginAuthenticator
+      entry_point: App\Security\LoginAuthenticator
+  access_control:
+    - { path: '^/api/v1/(health|openapi\.json|auth/(csrf|login|password-reset/(request|confirm)))$', roles: PUBLIC_ACCESS }
+    # Test fixtures bypass authentication only in the test container.
+    - { request_matcher: App\Security\TestFixtureRequestMatcher, roles: PUBLIC_ACCESS }
+    - { path: '^/api/v1', roles: IS_AUTHENTICATED_FULLY }
+    - { path: '^/(connexion$|assets/|health/)', roles: PUBLIC_ACCESS }
+    - { path: '^/', roles: IS_AUTHENTICATED_FULLY }

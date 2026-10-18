@@ -14,7 +14,17 @@ framework:
     cookie_samesite: lax
     cookie_secure: auto
     save_path: '%kernel.project_dir%/var/sessions'
+    gc_maxlifetime: 43200
+    cookie_lifetime: 0
   rate_limiter:
+    login_account:
+      policy: fixed_window
+      limit: 5
+      interval: '15 minutes'
+    login_ip:
+      policy: fixed_window
+      limit: 30
+      interval: '15 minutes'
     api_sensitive:
       policy: fixed_window
       limit: 5

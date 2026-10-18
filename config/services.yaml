@@ -9,3 +9,4 @@ services:
       - '../src/Api/ApiProblem.php'
       - '../src/Api/Pagination.php'
       - '../src/Api/DateRange.php'
+      - '../src/Security/StockUser.php'

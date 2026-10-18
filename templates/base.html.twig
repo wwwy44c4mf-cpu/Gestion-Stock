@@ -20,19 +20,25 @@
                 <a class="nav-item" href="{{ path(item.route, item.parameters) }}" {% if current_section == item.active %}aria-current="page"{% endif %}>{{ item.label }}</a>
             {% endfor %}
         </nav>
-        <div class="sidebar-note"><span class="status-dot"></span> Socle de l’application<br><small>Votre espace de gestion au quotidien</small></div>
+        <div class="sidebar-note"><span class="status-dot"></span> Gestion de vos magasins<br><small>Votre espace de gestion au quotidien</small></div>
     </aside>
     <div class="workspace">
         <header class="topbar">
             <span>Gestion des stocks <span class="muted">/ {{ page_title }}</span></span>
-            <div><label for="magasin">Magasin</label> <select id="magasin" disabled aria-describedby="magasin-aide"><option>Aucun magasin affecté</option></select></div>
+            {% if app.user %}<div><label for="magasin">Magasin</label> <select id="magasin" disabled aria-describedby="magasin-aide"><option>Aucun magasin affecté</option></select></div>{% endif %}
+            <div class="account-actions">
+            {% if app.user %}
+                <a href="{{ path('profile') }}" {% if current_section == 'profile' %}aria-current="page"{% endif %}>Mon profil</a>
+                <form method="post" action="{{ path('logout') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}"><button class="button" type="submit">Se déconnecter</button></form>
+            {% endif %}
+            </div>
         </header>
         <main id="contenu" tabindex="-1">
-            <p id="magasin-aide" class="context-note">La sélection du magasin sera disponible après connexion et affectation.</p>
+            {% if app.user %}<p id="magasin-aide" class="context-note">La sélection du magasin sera disponible avec la gestion des affectations.</p>{% endif %}
             {% for type, messages in app.flashes %}{% for message in messages %}{% include 'components/notice.html.twig' with {message: message, kind: type} only %}{% endfor %}{% endfor %}
             {% block content %}{% endblock %}
         </main>
-        <footer>Gestion de stock <span>Interface en français · SOC-04</span></footer>
+        <footer>Gestion de stock <span>Interface en français</span></footer>
     </div>
 </div>
 </body>

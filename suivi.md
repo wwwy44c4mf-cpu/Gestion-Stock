@@ -62,9 +62,9 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 |---|---|---|---|---|---|---|
 | SOC-01 | 1 | Environnement Docker reproductible | DOCK-01,02,03,04,05,06,07,08,12; §7 | — | Terminé | [#1](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1) |
 | SOC-02 | 1 | Modèle de données et migrations | §4,8; DOCK-09 | SOC-01 | Terminé | [#2](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2) |
-| SOC-03 | 1 | Contrats API REST et erreurs normalisées | §9 | SOC-01 | En revue | [#3](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/3) |
-| SOC-04 | 1 | Interface française responsive et navigation | §6 | SOC-01 | Implémenté localement | [#4](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/4) |
-| AUTH-01 | 1 | Connexion, sessions et profil | AUTH-01,02,03,07; §10.1 | SOC-02, SOC-03, SOC-04 | À faire | [#5](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5) |
+| SOC-03 | 1 | Contrats API REST et erreurs normalisées | §9 | SOC-01 | Terminé | [#3](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/3) |
+| SOC-04 | 1 | Interface française responsive et navigation | §6 | SOC-01 | Terminé | [#4](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/4) |
+| AUTH-01 | 1 | Connexion, sessions et profil | AUTH-01,02,03,07; §10.1 | SOC-02, SOC-03, SOC-04 | En revue | [#5](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5) |
 | AUTH-02 | 1 | Administration des comptes et désactivation | AUTH-04,09 | AUTH-01 | À faire | [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6) |
 | AUTH-03 | 1 | Rôles, affectations et contrôle des accès | AUTH-05; MAG-03; §2,4 | AUTH-02 | À faire | [#7](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7) |
 | AUTH-04 | 1 | Réinitialisation sécurisée du mot de passe | AUTH-06; MAIL-02 | AUTH-01, MAIL-01 | À faire | [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) |
@@ -143,7 +143,7 @@ Livraison : [PR #52](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/52), b
 
 ### SOC-03 — Contrats API REST et erreurs normalisées
 
-Issue : [#3](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/3) · En revue · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1).
+Issue : [#3](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/3) · Terminé · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1).
 
 Sources : §9.
 
@@ -157,7 +157,7 @@ Livraison : [PR #53](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/53), b
 
 ### SOC-04 — Interface française responsive et navigation
 
-Issue : [#4](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/4) · Implémenté localement · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1).
+Issue : [#4](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/4) · Terminé · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1).
 
 Sources : §6.
 
@@ -167,19 +167,21 @@ Sources : §6.
 
 Critères d’acceptation : Les écrans sont utilisables au clavier et sur mobile ; messages et libellés en français.
 
-Livraison locale : interface commune Twig/Stimulus, tableau de bord et neuf états d’attente, six composants partagés. Navigation anonyme active ; règles par rôle et magasin testées, sélecteur désactivé en attendant AUTH. 38 tests / 589 assertions réussis. [Guide d’intégration](docs/interface.md), [rapport de validation](docs/validation-soc04.md).
+Livraison intégrée : [PR #54](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/54). Interface commune Twig/Stimulus, tableau de bord et neuf états d’attente, six composants partagés. Navigation anonyme active ; règles par rôle et magasin testées, sélecteur désactivé en attendant AUTH. 38 tests / 589 assertions réussis. [Guide d’intégration](docs/interface.md), [rapport de validation](docs/validation-soc04.md).
 
 ### AUTH-01 — Connexion, sessions et profil
 
-Issue : [#5](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5) · À faire · Dépendances : [SOC-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2), [SOC-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/3), [SOC-04](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/4).
+Issue : [#5](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5) · En revue · Dépendances : [SOC-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2), [SOC-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/3), [SOC-04](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/4).
 
 Sources : AUTH-01,02,03,07; §10.1.
 
-- [ ] Créer connexion par courriel, hachage éprouvé et consultation du profil
-- [ ] Gérer déconnexion, expiration, cookies sécurisés et CSRF
-- [ ] Limiter les tentatives et auditer les échecs sans secrets
+- [x] Créer connexion par courriel, hachage éprouvé et consultation du profil
+- [x] Gérer déconnexion, expiration, cookies sécurisés et CSRF
+- [x] Limiter les tentatives et auditer les échecs sans secrets
 
 Critères d’acceptation : Connexion valide acceptée, invalide refusée ; session expirée rejetée ; REC-01.
+
+Livraison AUTH-01 : connexion interface/API, profil et fuseau, Argon2id, sessions avec expiration (30 minutes d’inactivité, 12 heures absolues), CSRF renouvelé, limites partagées et audit pseudonymisé. Commande interactive de premier administrateur ; aucun compte par défaut. [Guide](docs/authentification.md), [recette](docs/validation-auth01.md). Recette : 55 tests PHP / 809 assertions et quatre tests indépendants du contrat réussis. L’administration des comptes et les contrôles métier par magasin restent dans AUTH-02/03.
 
 ### AUTH-02 — Administration des comptes et désactivation
 
@@ -757,3 +759,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 18 octobre 2026 : intégration de SOC-01 confirmée (PR #51 fusionnée). SOC-02 implémenté : schéma, contraintes, journal immuable, outbox/rappels, migration réversible à vide et refus protecteur avec données ; 18 tests / 92 assertions. Livraison pour revue, issue #2 ouverte jusqu’à intégration.
 
 - 18 octobre 2026 : intégration de SOC-02 confirmée (PR #52 fusionnée). SOC-03 implémenté : contrat OpenAPI, erreurs JSON, outils de requête, sessions/CSRF, limitation de débit et empreinte idempotente. Recette : 34 tests PHP / 528 assertions et 4 tests indépendants ; livraison pour revue, issue #3 ouverte jusqu’à intégration.
+
+- 18 octobre 2026 : SOC-03 et SOC-04 intégrés ; AUTH-01 livré pour revue : connexion, profil, expiration, révocation des sessions et audit des échecs. 55 tests PHP / 809 assertions et quatre tests de contrat réussis. Aucun compte réel créé automatiquement.
