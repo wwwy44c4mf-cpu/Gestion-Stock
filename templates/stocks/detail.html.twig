@@ -7,6 +7,7 @@
 <p>Seuil bas : {{ stock.low_threshold is null ? 'Non configuré' : stock.low_threshold }} · Seuil critique : {{ stock.critical_threshold is null ? 'Non configuré' : stock.critical_threshold }}</p>
 {% if not article.active %}<p class="notice">Cet article est désactivé. Les nouvelles consommations sont interdites.</p>{% endif %}{% if not store.active %}<p class="notice">Ce magasin est désactivé. Aucun mouvement n’est autorisé.</p>{% endif %}
 <a href="{{ path('catalog_article',{id:stock.article_id}) }}">Consulter l’article et son total autorisé</a>
+{% if can_register_entry %}<p><a class="button" href="{{ path('stocks_entry_new',{store_id:stock.store_id,article_id:stock.article_id}) }}">Enregistrer une entrée</a></p>{% endif %}
 </section>
 {% if history is not null %}<section class="card"><h2>Historique des variations dans ce magasin</h2><div class="table-scroll"><table><caption>Journal local de l’article</caption><thead><tr><th>Date</th><th>Mouvement</th><th>Variation en unités</th></tr></thead><tbody>
 {% set types = {'entry':'Entrée','consumption':'Consommation','transfer':'Transfert','return':'Retour','adjustment':'Ajustement','inventory_adjustment':'Inventaire','reversal':'Annulation'} %}

@@ -45,10 +45,10 @@ final class AccessDirectory
     }
 
     /** All options, without the API pagination limit, but always scoped first. */
-    public function storeOptions(StockUser $actor): array
+    public function storeOptions(StockUser $actor, Permission $permission = Permission::STOCK_READ): array
     {
-        $scope = $this->policy->storeScope($actor);
-        return $this->db->fetchAllAssociative('SELECT s.id, s.name, s.active FROM stores s WHERE '.$scope->condition.' ORDER BY s.name, s.id', $scope->parameters);
+        $scope = $this->policy->storeScope($actor, $permission);
+        return $this->db->fetchAllAssociative('SELECT s.id, s.code, s.name, s.active FROM stores s WHERE '.$scope->condition.' ORDER BY s.name, s.id', $scope->parameters);
     }
 
     public function beneficiaries(StockUser $actor, array $filters): array

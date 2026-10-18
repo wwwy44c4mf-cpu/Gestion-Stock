@@ -50,6 +50,12 @@ final class CatalogDirectory
         $this->identity->requireRole($actor, Permission::CATALOG_READ);
         return $this->db->fetchAllAssociative('SELECT id,name,parent_id,active FROM categories ORDER BY name,id');
     }
+    /** Descriptive global options only; the engine rechecks active status on submission. */
+    public function activeArticleOptions(StockUser $actor): array
+    {
+        $this->identity->requireRole($actor, Permission::CATALOG_READ);
+        return $this->db->fetchAllAssociative('SELECT id,sku,name FROM articles WHERE active ORDER BY sku,id');
+    }
     private function table(string $kind): string { return match ($kind) { 'article' => 'articles', 'category' => 'categories', default => throw new \InvalidArgumentException('Invalid catalogue kind.') }; }
     private function resource(string $kind, array $row): array
     {

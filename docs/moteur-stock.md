@@ -1,6 +1,6 @@
 # Moteur transactionnel de stock — STK-02
 
-Le service `App\Stock\StockMovementEngine::record(actor, operation, body, key)` est le point d’écriture commun destiné aux prochains contrôleurs métier. Ce lot livre le moteur ; il n’active aucun endpoint d’écriture ni formulaire. Les routes d’écriture du contrat restent planifiées jusqu’à leurs lots respectifs.
+Le service `App\Stock\StockMovementEngine::record(actor, operation, body, key)` est le point d’écriture commun destiné aux prochains contrôleurs métier. Le lot STK-02 livre le moteur. Depuis STK-03, [le formulaire et l’API d’entrée](entrees-stock.md) l’utilisent ; les autres routes d’écriture seront raccordées dans leurs lots respectifs.
 
 ## Opérations préparées
 
