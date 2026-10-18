@@ -52,3 +52,14 @@ RUN apk upgrade --no-cache \
     && apk add --no-cache su-exec \
     && sed -i 's/exec gosu /exec su-exec /' /usr/local/bin/docker-entrypoint.sh \
     && rm /usr/local/bin/gosu
+
+FROM python:3.13-alpine@sha256:2d9aefe2fef018a7eb2c13064c89c71929800fd2e5dccdbf52ea5da5bb8d929a AS contract-test
+ENV PYTHONDONTWRITEBYTECODE=1
+WORKDIR /contract
+COPY docker/contract-requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+COPY docs/openapi.json docs/openapi.json
+COPY docs/schemas/openapi-3.1.schema.json docs/schemas/openapi-3.1.schema.json
+COPY tests/contract_test.py tests/contract_test.py
+USER 10001:10001
+CMD ["python", "tests/contract_test.py"]

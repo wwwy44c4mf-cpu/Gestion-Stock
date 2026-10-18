@@ -1,6 +1,6 @@
 # Gestion-Stock
 
-Application web de gestion de stocks multi-magasins. SOC-01 fournit le socle Docker et une page d’accueil provisoire ; SOC-02 ajoute le modèle de données et les migrations explicites. Les fonctionnalités métier sont détaillées dans [suivi.md](suivi.md). Aucun catalogue ni compte utilisateur réel n’est encore créé.
+Application web de gestion de stocks multi-magasins. SOC-01 fournit le socle Docker et une page d’accueil provisoire ; SOC-02 ajoute le modèle de données et les migrations explicites ; SOC-03 ajoute les contrats API et leurs outils communs. Les fonctionnalités métier sont détaillées dans [suivi.md](suivi.md). Aucun catalogue ni compte utilisateur réel n’est encore créé.
 
 ## Prérequis
 
@@ -29,6 +29,8 @@ Modèle et diagramme : [docs/modele-donnees.md](docs/modele-donnees.md). Install
 docker compose exec app php bin/console app:stock:reconcile
 ```
 
+Contrats et protections API : [docs/api.md](docs/api.md). Le [document OpenAPI local](http://127.0.0.1:8080/api/v1/openapi.json) distingue les trois routes techniques disponibles des opérations métier encore à développer.
+
 ## Services et réseau
 
 | Service | Rôle | Persistance / santé |
@@ -50,7 +52,7 @@ La sonde planifiée est purement technique ; le récapitulatif quotidien à 08 h
 ## Tests et vérifications
 
 ```sh
-docker compose --profile test build test
+docker compose --profile test build test contract-test
 docker compose run --rm test
 docker compose run --rm test composer validate
 docker compose run --rm test composer audit
@@ -60,9 +62,9 @@ docker compose exec app php bin/console about
 docker compose ps
 ```
 
-Les tests vérifient le rendu français, l’accès réel à PostgreSQL, les sondes, les erreurs 404 et la persistance/acquittement d’une sonde dans la file Messenger. Le test de file utilise une queue dédiée `soc01_test`, distincte de la queue métier `async`, pour ne pas interférer avec le worker. Les lancer dans l’environnement local de développement.
+Les tests vérifient le rendu, PostgreSQL, les contraintes/migrations, les outils API et les protections CSRF/cookies/débit. Le test de file utilise une queue dédiée `soc01_test`, distincte de la queue métier `async`. Le test de schéma utilise des transactions isolées. Le service de test dépend de `contract-test`, qui valide OpenAPI et JSON Schema dans un conteneur sans réseau et sans accès à la base. Python et ses dépendances verrouillées restent dans cette cible de test, sans installation sur l’hôte ni dans l’image applicative.
 
-Composer signale l’absence de licence : ce choix reste volontairement ouvert dans DOC-01 ; aucune licence n’est attribuée sans décision du propriétaire. La validation du schéma reste possible avec cet avertissement. Rapports : [SOC-01](docs/validation-soc01.md), [SOC-02](docs/validation-soc02.md).
+Composer signale l’absence de licence : ce choix reste volontairement ouvert dans DOC-01 ; aucune licence n’est attribuée sans décision du propriétaire. La validation du schéma reste possible avec cet avertissement. Rapports : [SOC-01](docs/validation-soc01.md), [SOC-02](docs/validation-soc02.md), [SOC-03](docs/validation-soc03.md).
 
 ## Arrêt, diagnostic et persistance
 

@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 intégré à main (PR #51) ; SOC-02 implémenté et vérifié localement, en revue ; les autres fonctionnalités restent à développer.
+État : SOC-01 et SOC-02 intégrés à main (PR #51 et #52) ; SOC-03 implémenté et vérifié localement, en revue ; les autres fonctionnalités restent à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -61,8 +61,8 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | Lot | Phase | Fonctionnalité | Références CDC | Dépendances | Statut | Issue |
 |---|---|---|---|---|---|---|
 | SOC-01 | 1 | Environnement Docker reproductible | DOCK-01,02,03,04,05,06,07,08,12; §7 | — | Terminé | [#1](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1) |
-| SOC-02 | 1 | Modèle de données et migrations | §4,8; DOCK-09 | SOC-01 | En revue | [#2](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2) |
-| SOC-03 | 1 | Contrats API REST et erreurs normalisées | §9 | SOC-01 | À faire | [#3](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/3) |
+| SOC-02 | 1 | Modèle de données et migrations | §4,8; DOCK-09 | SOC-01 | Terminé | [#2](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2) |
+| SOC-03 | 1 | Contrats API REST et erreurs normalisées | §9 | SOC-01 | En revue | [#3](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/3) |
 | SOC-04 | 1 | Interface française responsive et navigation | §6 | SOC-01 | À faire | [#4](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/4) |
 | AUTH-01 | 1 | Connexion, sessions et profil | AUTH-01,02,03,07; §10.1 | SOC-02, SOC-03, SOC-04 | À faire | [#5](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5) |
 | AUTH-02 | 1 | Administration des comptes et désactivation | AUTH-04,09 | AUTH-01 | À faire | [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6) |
@@ -129,7 +129,7 @@ Livraison : [PR #51](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/51), b
 
 ### SOC-02 — Modèle de données et migrations
 
-Issue : [#2](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2) · En revue · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1).
+Issue : [#2](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2) · Terminé · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1).
 
 Sources : §4,8; DOCK-09.
 
@@ -143,15 +143,17 @@ Livraison : [PR #52](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/52), b
 
 ### SOC-03 — Contrats API REST et erreurs normalisées
 
-Issue : [#3](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/3) · À faire · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1).
+Issue : [#3](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/3) · En revue · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1).
 
 Sources : §9.
 
-- [ ] Définir /api/v1 et un contrat OpenAPI incluant propositions et retours
-- [ ] Normaliser validation, pagination, filtres, tri, codes HTTP et erreurs
-- [ ] Prévoir sessions cookie, CSRF, limitation de débit et clés d’idempotence
+- [x] Définir /api/v1 et un contrat OpenAPI incluant propositions et retours
+- [x] Normaliser validation, pagination, filtres, tri, codes HTTP et erreurs
+- [x] Prévoir sessions cookie, CSRF, limitation de débit et clés d’idempotence
 
 Critères d’acceptation : Les contrats documentent entrées, droits et erreurs de toutes les ressources ; pagination bornée.
+
+Livraison : branche `codex/soc-03-api-contracts`, issue #3. [Contrat OpenAPI](docs/openapi.json), [conventions et intégration](docs/api.md), [rapport de validation](docs/validation-soc03.md). 58 opérations décrites, dont 3 routes techniques disponibles et 55 opérations métier planifiées. 34 tests PHP / 528 assertions et 4 tests indépendants du contrat. Droits métier et idempotence persistante à raccorder dans les lots concernés.
 
 ### SOC-04 — Interface française responsive et navigation
 
@@ -751,3 +753,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 18 octobre 2026 : SOC-01 implémenté sur `codex/soc-01-docker` : cinq services Docker, secrets hors Git, file durable, sondes, tests et documentation. Recette locale et audit hors réseau réussis ; passage en revue, issue ouverte jusqu’à intégration.
 
 - 18 octobre 2026 : intégration de SOC-01 confirmée (PR #51 fusionnée). SOC-02 implémenté : schéma, contraintes, journal immuable, outbox/rappels, migration réversible à vide et refus protecteur avec données ; 18 tests / 92 assertions. Livraison pour revue, issue #2 ouverte jusqu’à intégration.
+
+- 18 octobre 2026 : intégration de SOC-02 confirmée (PR #52 fusionnée). SOC-03 implémenté : contrat OpenAPI, erreurs JSON, outils de requête, sessions/CSRF, limitation de débit et empreinte idempotente. Recette : 34 tests PHP / 528 assertions et 4 tests indépendants ; livraison pour revue, issue #3 ouverte jusqu’à intégration.

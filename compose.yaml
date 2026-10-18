@@ -139,6 +139,21 @@ services:
     depends_on:
       init:
         condition: service_completed_successfully
+      contract-test:
+        condition: service_completed_successfully
+
+  contract-test:
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-contract-test:soc-03
+    build:
+      context: .
+      target: contract-test
+    profiles: [test]
+    network_mode: none
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: "no"
 
 networks:
   edge: {}

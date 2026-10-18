@@ -4,4 +4,8 @@ services:
     autoconfigure: true
   App\:
     resource: '../src/'
-    exclude: '../src/Kernel.php'
+    exclude:
+      - '../src/Kernel.php'
+      - '../src/Api/ApiProblem.php'
+      - '../src/Api/Pagination.php'
+      - '../src/Api/DateRange.php'

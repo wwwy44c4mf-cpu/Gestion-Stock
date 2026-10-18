@@ -6,6 +6,19 @@ framework:
   php_errors:
     log: true
   handle_all_throwables: true
+  csrf_protection: true
+  lock: flock
+  session:
+    name: GESTION_STOCK_SESSION
+    cookie_httponly: true
+    cookie_samesite: lax
+    cookie_secure: auto
+    save_path: '%kernel.project_dir%/var/sessions'
+  rate_limiter:
+    api_sensitive:
+      policy: fixed_window
+      limit: 5
+      interval: '1 minute'
   messenger:
     failure_transport: failed
     transports:
@@ -27,6 +40,8 @@ framework:
 when@test:
   framework:
     test: true
+    session:
+      storage_factory_id: session.storage.factory.mock_file
     messenger:
       transports:
         async:
