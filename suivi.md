@@ -339,7 +339,7 @@ Sources : STK-03; CON-01,02; CON-05 partiel.
 
 Critères d’acceptation : Sortie 4 sur 15 donne 11 ; tiers réservé aux rôles autorisés ; REC-02,04,05.
 
-Livraison pour revue : branche `codex/stk-04-consumptions`. Formulaire sans JavaScript et API raccordés au moteur STK-02 ; magasin/article actifs, quantité entière, bénéficiaire tiers réservé à ADMIN/MANAGER. Confirmation distinguant opérateur et bénéficiaire, consultation personnelle conservée sans affectation sans exposer le stock actuel ; rejeu sans double débit, inventaire bloquant et stock insuffisant contrôlés. Aucune nouvelle migration. Recette : 167 tests PHP / 2 432 assertions et quatre validations OpenAPI réussis ; contrôle ordinateur/mobile. [Guide](docs/consommations.md) · [Validation](docs/validation-stk04.md). Historique complet et statistiques personnels restent dans CON-01/STAT-01.
+Livraison pour revue : [PR #65](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/65), branche `codex/stk-04-consumptions`. Formulaire sans JavaScript et API raccordés au moteur STK-02 ; magasin/article actifs, quantité entière, bénéficiaire tiers réservé à ADMIN/MANAGER. Confirmation distinguant opérateur et bénéficiaire, consultation personnelle conservée sans affectation sans exposer le stock actuel ; rejeu sans double débit, inventaire bloquant et stock insuffisant contrôlés. Aucune nouvelle migration. Recette : 167 tests PHP / 2 432 assertions et quatre validations OpenAPI réussis ; contrôle ordinateur/mobile. [Guide](docs/consommations.md) · [Validation](docs/validation-stk04.md). Historique complet et statistiques personnels restent dans CON-01/STAT-01.
 
 ### STK-05 — Ajustements et corrections par contre-mouvement
 

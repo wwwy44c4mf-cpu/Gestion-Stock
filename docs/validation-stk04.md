@@ -23,4 +23,4 @@ Aucun mouvement de démonstration soumis dans la base locale réelle. Images app
 
 Contrat : 59 opérations, 89 schémas ; 33 opérations disponibles, 26 planifiées. Seule `createConsumption` est nouvellement disponible. La lecture complète d’historique personnel et les statistiques restent planifiées. Guide : [consommations.md](consommations.md).
 
-Livraison : branche `codex/stk-04-consumptions`, basée sur main après intégration de la PR #64.
+Livraison pour revue : [PR #65](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/65), branche `codex/stk-04-consumptions`, basée sur main après intégration de la PR #64.
