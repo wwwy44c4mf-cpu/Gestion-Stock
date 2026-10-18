@@ -20,14 +20,14 @@ final class AdministrationUiSubscriber implements EventSubscriberInterface
     {
         $route = $event->getRequest()->attributes->get('_route', '');
         $adminAlias = in_array($route, ['ui_section', 'store_context'], true);
-        if (!$event->isMainRequest() || (!str_starts_with($route, 'admin_users') && !$adminAlias)) { return; }
+        if (!$event->isMainRequest() || (!str_starts_with($route, 'admin_users') && !str_starts_with($route, 'stores_') && !$adminAlias)) { return; }
         $error = $event->getThrowable();
         if ($error instanceof AccessDeniedHttpException) {
-            $event->setResponse(new Response($this->twig->render('admin/forbidden.html.twig', ['message' => str_starts_with($route, 'admin_users') || ($route === 'ui_section' && $event->getRequest()->attributes->get('section') === 'administration') ? 'Seul un administrateur peut gérer les comptes utilisateurs.' : 'Vos droits ne permettent pas de consulter cet espace.']), 403));
+            $event->setResponse(new Response($this->twig->render('admin/forbidden.html.twig', ['message' => str_starts_with($route, 'admin_users') || ($route === 'ui_section' && $event->getRequest()->attributes->get('section') === 'administration') ? 'Seul un administrateur peut gérer les comptes utilisateurs.' : (str_starts_with($route, 'stores_') ? 'Seul un administrateur peut gérer les magasins.' : 'Vos droits ne permettent pas de consulter cet espace.')]), 403));
             return;
         }
         if ($error instanceof ApiProblem && $error->status < 500) {
-            $event->setResponse(new Response($this->twig->render('admin/error.html.twig', ['message' => $error->getMessage()]), $error->status));
+            $event->setResponse(new Response($this->twig->render('admin/error.html.twig', ['message' => $error->getMessage(), 'return_route' => str_starts_with($route, 'stores_') ? 'stores_list' : 'admin_users', 'return_label' => str_starts_with($route, 'stores_') ? 'Retour aux magasins' : 'Retour aux comptes']), $error->status));
         }
     }
 }

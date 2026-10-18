@@ -49,3 +49,7 @@ La migration `Version20261018110000` ajoute `users.development_only`, faux pour 
 ## Créations de comptes idempotentes
 
 `Version20261018120000` ajoute la table technique `user_creation_requests` : clé par acteur, empreinte HMAC, compte créé et résultat JSON initial. Aucun mot de passe ni corps de requête initial n’y est stocké. Son retour arrière est refusé si des résultats existent. La rétention de l’identité contenue dans le résultat doit être intégrée à RGPD-01.
+
+## Créations de magasins idempotentes
+
+`Version20261018130000` ajoute `store_creation_requests` : clé par acteur, empreinte HMAC, magasin créé et résultat initial. Le rejeu restitue ce résultat sans créer un second magasin ni un second événement d’audit, même après modification ou archivage. Le retour arrière est refusé si des résultats existent. La migration ne crée aucun magasin et ne modifie aucun stock.

@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+{% block title %}Magasins · Gestion de stock{% endblock %}
+{% block content %}
+{% set can_manage = is_granted('APP_STORES_ADMIN') %}
+<div class="page-heading"><div><p class="eyebrow">LIEUX DE STOCKAGE</p><h1>Magasins</h1><p class="subtitle">Retrouvez les magasins auxquels vous avez accès.</p></div>{% if can_manage %}<a class="button" href="{{ path('stores_new') }}">Créer un magasin</a>{% endif %}</div>
+<section class="card">
+<form method="get" action="{{ path('stores_list') }}" class="account-filters" aria-label="Filtrer les magasins">
+<div class="field"><label for="store-status">État</label><select id="store-status" name="status"><option value="">Tous les états autorisés</option><option value="active" {% if filters.status|default('') == 'active' %}selected{% endif %}>Actif</option><option value="inactive" {% if filters.status|default('') == 'inactive' %}selected{% endif %}>Désactivé</option></select></div>
+<div class="field"><label for="store-sort">Trier par</label><select id="store-sort" name="sort"><option value="code" {% if filters.sort|default('code') == 'code' %}selected{% endif %}>Code</option><option value="name" {% if filters.sort|default('code') == 'name' %}selected{% endif %}>Nom</option></select></div>
+<button class="button" type="submit">Filtrer</button><a href="{{ path('stores_list') }}">Réinitialiser</a>
+</form>
+<p>{{ result.meta.total }} magasin{{ result.meta.total > 1 ? 's' : '' }}</p>
+<div class="table-scroll"><table><caption>Liste des magasins autorisés</caption><thead><tr><th scope="col">Code</th><th scope="col">Nom</th><th scope="col">Description</th><th scope="col">Adresse</th><th scope="col">État</th>{% if can_manage %}<th scope="col">Actions</th>{% endif %}</tr></thead><tbody>
+{% for store in result.data %}<tr><td>{{ store.code }}</td><td>{{ store.name }}</td><td class="store-description">{{ store.description ?: '—' }}</td><td>{{ store.address ?? '—' }}</td><td>{{ store.active ? 'Actif' : 'Désactivé' }}</td>{% if can_manage %}<td><a href="{{ path('stores_edit',{id:store.id}) }}" aria-label="Modifier le magasin {{ store.name }}">Modifier</a></td>{% endif %}</tr>{% else %}<tr><td colspan="{{ can_manage ? 6 : 5 }}">Aucun magasin ne correspond aux filtres.</td></tr>{% endfor %}
+</tbody></table></div>
+{% include 'components/pagination.html.twig' with {page:result.meta.page,pages:result.meta.total_pages,route:'stores_list',parameters:filters|filter((value,key) => key != 'page')} only %}
+</section>
+{% endblock %}

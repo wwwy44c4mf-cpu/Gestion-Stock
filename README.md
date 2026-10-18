@@ -112,3 +112,7 @@ Le menu **Administration** permet aux administrateurs de créer et modifier les 
 ## Rôles et accès aux magasins (AUTH-03)
 
 Le sélecteur **Magasin** propose les magasins autorisés et conserve le contexte choisi. Les permissions sont vérifiées côté serveur indépendamment de ce choix. Les magasins désactivés restent consultables uniquement par les administrateurs ; les utilisateurs conservent leurs lectures et retours personnels hors affectation pour une origine active. [Règles et intégration](docs/controle-acces.md) · [Recette](docs/validation-auth03.md).
+
+## Gestion des magasins (MAG-01)
+
+Le menu **Magasins** permet aux administrateurs de créer, modifier, désactiver et réactiver les magasins. Les autres rôles disposent d’une liste filtrée. Un inventaire en cours doit être terminé ou annulé avant désactivation ; les données et historiques sont conservés. Appliquer `Version20261018130000` avant utilisation. [Guide](docs/gestion-magasins.md) · [Recette](docs/validation-mag01.md).

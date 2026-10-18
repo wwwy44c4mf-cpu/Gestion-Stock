@@ -23,3 +23,5 @@
 .store-context { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; min-width:0; max-width:100%; margin:0; }
 .store-context select { min-width:0; max-width:min(240px,100%); }
 @media(max-width:760px) { .store-context { width:100%; } }
+.field textarea { width:100%; min-height:90px; padding:10px; border:1px solid #788d81; border-radius:6px; font:inherit; resize:vertical; }
+.store-description { max-width:24rem; overflow-wrap:anywhere; }

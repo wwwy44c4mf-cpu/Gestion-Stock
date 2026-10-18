@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -13,6 +13,7 @@ Les décisions ci-dessous précisent ou remplacent les options correspondantes d
 | Architecture | Application et dépendances intégralement sous Docker ; API REST /api/v1, PostgreSQL, worker et scheduler conteneurisés. Symfony 8.x proposé par le CDC ; versions PHP et dépendances compatibles à vérifier et épingler à l’implémentation. |
 | Catalogue global | Les gestionnaires proposent créations et modifications ; un administrateur valide avant publication. Les administrateurs administrent directement le catalogue. |
 | Consommation pour autrui | Réservée aux administrateurs et gestionnaires autorisés sur le magasin ; tout technicien actif peut être bénéficiaire, même sans affectation à ce magasin. |
+| Désactivation pendant inventaire | Refus tant que l’inventaire est en cours ou en attente de validation ; le terminer ou l’annuler d’abord. |
 | Magasin désactivé | Stocks et historiques accessibles uniquement aux administrateurs ; aucune écriture de stock. |
 | Consultation personnelle | Les utilisateurs consultent leur historique et leurs statistiques de consommation, y compris pour un magasin actif non affecté. Un magasin désactivé reste réservé aux administrateurs. Cette permission n’ouvre pas les stocks des magasins non affectés. |
 | Référence métier | Référence d’intervention, chantier ou client facultative dès le MVP ; gestion structurée des interventions en V2. |
@@ -67,9 +68,9 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | SOC-04 | 1 | Interface française responsive et navigation | §6 | SOC-01 | Terminé | [#4](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/4) |
 | AUTH-01 | 1 | Connexion, sessions et profil | AUTH-01,02,03,07; §10.1 | SOC-02, SOC-03, SOC-04 | Terminé | [#5](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5) |
 | AUTH-02 | 1 | Administration des comptes et désactivation | AUTH-04,09 | AUTH-01 | Terminé | [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6) |
-| AUTH-03 | 1 | Rôles, affectations et contrôle des accès | AUTH-05; MAG-03; §2,4 | AUTH-02 | En revue | [#7](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7) |
+| AUTH-03 | 1 | Rôles, affectations et contrôle des accès | AUTH-05; MAG-03; §2,4 | AUTH-02 | Terminé | [#7](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7) |
 | AUTH-04 | 1 | Réinitialisation sécurisée du mot de passe | AUTH-06; MAIL-02 | AUTH-01, MAIL-01 | À faire | [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) |
-| MAG-01 | 1 | Création, modification et archivage des magasins | MAG-01,02,05 | AUTH-03 | À faire | [#9](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/9) |
+| MAG-01 | 1 | Création, modification et archivage des magasins | MAG-01,02,05 | AUTH-03 | En revue | [#9](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/9) |
 | ART-01 | 1 | Catalogue global, catégories et archivage | ART-01,02,03; §4 | MAG-01 | À faire | [#10](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10) |
 | ART-02 | 1 | Propositions d’articles et validation administrative | ART-01,02; décision utilisateur | ART-01 | À faire | [#11](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/11) |
 | ART-03 | 1 | Recherche et consultation du catalogue | ART-04 | ART-01, SOC-04 | À faire | [#12](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/12) |
@@ -200,7 +201,7 @@ Livraison AUTH-02 : [PR #57](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pul
 
 ### AUTH-03 — Rôles, affectations et contrôle des accès
 
-Issue : [#7](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7) · En revue · Dépendances : [AUTH-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6).
+Issue : [#7](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7) · Terminé · Dépendances : [AUTH-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6).
 
 Sources : AUTH-05; MAG-03; §2,4.
 
@@ -228,15 +229,17 @@ Critères d’acceptation : Jeton expiré ou déjà utilisé refusé ; mot de pa
 
 ### MAG-01 — Création, modification et archivage des magasins
 
-Issue : [#9](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/9) · À faire · Dépendances : [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
+Issue : [#9](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/9) · En revue · Dépendances : [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
 
 Sources : MAG-01,02,05.
 
-- [ ] Créer écrans et API avec code unique, nom, description, adresse facultative et statut
-- [ ] Réserver l’administration des magasins aux administrateurs
-- [ ] Interdire suppression des magasins mouvementés et préserver les relations historiques
+- [x] Créer écrans et API avec code unique, nom, description, adresse facultative et statut
+- [x] Réserver l’administration des magasins aux administrateurs
+- [x] Interdire suppression des magasins mouvementés et préserver les relations historiques
 
 Critères d’acceptation : Archivage conserve mouvements et données ; doublon de code rejeté.
+
+Livraison vérifiée : liste autorisée, formulaires sans JavaScript et API de création/modification/archivage/réactivation. Code unique conservé ; création idempotente et audit atomiques. Désactivation refusée si un inventaire est en cours ou en attente de validation. Migration `Version20261018130000`. Recette : 94 tests PHP / 1 304 assertions et quatre validations OpenAPI réussis, dont créations simultanées par deux processus. [Guide](docs/gestion-magasins.md) · [Validation](docs/validation-mag01.md).
 
 ### ART-01 — Catalogue global, catégories et archivage
 
@@ -774,3 +777,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 18 octobre 2026 : administrateur de test intégré (PR #56). AUTH-02 implémenté pour revue : administration des comptes, création idempotente et révocation des sessions.
 
 - 18 octobre 2026 : AUTH-02 intégré à main (PR #57). AUTH-03 implémenté et vérifié pour revue ; décisions sur magasins désactivés et retours hors affectation intégrées.
+
+- 18 octobre 2026 : AUTH-03 intégré à main (PR #58). MAG-01 développé et vérifié pour revue ; blocage de désactivation pendant inventaire validé par l’utilisateur.
