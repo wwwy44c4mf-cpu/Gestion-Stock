@@ -39,8 +39,9 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 | `GET /api/v1/stores/{storeId}/stocks/{articleId}/movements` | Journal local sans identité distante, ADMIN/MANAGER autorisés |
 
 | `POST /api/v1/movements/entries` | Entrée autorisée, atomique et idempotente |
+| `POST /api/v1/movements/consumptions` | Consommation pour soi ou tiers autorisé, confirmation HTML dans Location |
 
-Ces trente-deux opérations portent `x-implementation: available`. Les 27 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
+Ces trente-trois opérations portent `x-implementation: available`. Les 26 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
 
 Les routes `/health/live` et `/health/ready` de SOC-01 restent disponibles pour Docker ; la nouvelle sonde API ne remplace pas le contrôle PostgreSQL de readiness.
 

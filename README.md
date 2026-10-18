@@ -136,3 +136,7 @@ Le moteur commun prépare les prochaines entrées, consommations, transferts et 
 ## Entrées de stock (STK-03)
 
 Depuis **Stocks → Enregistrer une entrée**, les administrateurs et gestionnaires autorisés créditent un magasin actif. Quantité entière, motif et référence facultative ; confirmation sur le stock actualisé et protection contre les doubles envois. Le formulaire fonctionne sans JavaScript, et l’API utilise les mêmes règles. [Guide](docs/entrees-stock.md) · [Recette](docs/validation-stk03.md).
+
+## Consommations (STK-04)
+
+Depuis **Consommations** ou les stocks, enregistrer une sortie pour soi-même ; administrateurs et gestionnaires peuvent choisir un autre technicien actif. Référence et commentaire facultatifs, contrôle du stock disponible, protection contre les doubles envois et confirmation distinguant opérateur et bénéficiaire. [Guide](docs/consommations.md) · [Recette](docs/validation-stk04.md).

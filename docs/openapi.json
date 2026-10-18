@@ -3176,7 +3176,7 @@
           "USER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"

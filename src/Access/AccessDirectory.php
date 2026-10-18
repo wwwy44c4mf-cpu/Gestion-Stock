@@ -68,6 +68,13 @@ final class AccessDirectory
         return $pagination->response($rows, $total);
     }
 
+    /** Complete minimal selector, with the same scope as the paginated beneficiary API. */
+    public function beneficiaryOptions(StockUser $actor): array
+    {
+        $this->policy->assert($actor, Permission::BENEFICIARIES_READ);
+        return $this->db->fetchAllAssociative("SELECT id,name FROM users WHERE active AND anonymized_at IS NULL AND (NOT development_only OR ? = 'dev') ORDER BY name,id", [$this->environment]);
+    }
+
     private function order(array $filters): string
     {
         $order = $filters['order'] ?? 'asc';

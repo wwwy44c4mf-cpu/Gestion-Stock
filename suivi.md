@@ -78,8 +78,8 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | ART-03 | 1 | Recherche et consultation du catalogue | ART-04 | ART-01, SOC-04 | Terminé | [#12](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/12) |
 | STK-01 | 2 | Consultation des stocks et consolidation | STK-01; MAG-04 | ART-01, AUTH-03 | Terminé | [#13](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13) |
 | STK-02 | 2 | Moteur transactionnel, concurrence et idempotence | STK-06,07,10; §4 | SOC-02, AUTH-03 | Terminé | [#14](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14) |
-| STK-03 | 2 | Entrées et réapprovisionnements | STK-02; parcours 5.3 | STK-02, STK-01 | En revue | [#15](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/15) |
-| STK-04 | 2 | Consommations et bénéficiaire tiers | STK-03; CON-01,02; CON-05 partiel | STK-02, STK-01 | À faire | [#16](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16) |
+| STK-03 | 2 | Entrées et réapprovisionnements | STK-02; parcours 5.3 | STK-02, STK-01 | Terminé | [#15](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/15) |
+| STK-04 | 2 | Consommations et bénéficiaire tiers | STK-03; CON-01,02; CON-05 partiel | STK-02, STK-01 | En revue | [#16](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16) |
 | STK-05 | 2 | Ajustements et corrections par contre-mouvement | STK-04,09 | STK-02 | À faire | [#17](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17) |
 | STK-06 | 2 | Transferts atomiques entre magasins | STK-05 | STK-02 | À faire | [#18](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/18) |
 | STK-07 | 2 | Retours liés à une consommation | Décision utilisateur; STAT-06 | STK-04 | À faire | [#19](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19) |
@@ -315,7 +315,7 @@ Livraison pour revue : [PR #63](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### STK-03 — Entrées et réapprovisionnements
 
-Issue : [#15](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/15) · En revue · Dépendances : [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14), [STK-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13).
+Issue : [#15](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/15) · Terminé · Dépendances : [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14), [STK-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13).
 
 Sources : STK-02; parcours 5.3.
 
@@ -325,19 +325,21 @@ Sources : STK-02; parcours 5.3.
 
 Critères d’acceptation : Stock 5 + entrée 10 = 15 ; refus utilisateur simple ; REC-03.
 
-Livraison pour revue : [PR #64](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/64), branche `codex/stk-03-stock-entries`. Formulaire sans JavaScript et API d’entrée raccordés au moteur STK-02. Options limitées aux magasins actifs autorisés et articles actifs ; présélection contextuelle, validations serveur, CSRF, valeurs conservées en erreur, redirection vers le solde actualisé, rejeu sans doublon. Auteur et date serveur, événement durable pour les futurs traitements d’alertes. Aucun nouveau schéma de base. Recette : 155 tests PHP / 2 290 assertions et quatre validations OpenAPI réussis, contrôle ordinateur/mobile. [Guide](docs/entrees-stock.md) · [Validation](docs/validation-stk03.md).
+Intégré à main le 18 octobre 2026 : [PR #64](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/64), branche `codex/stk-03-stock-entries`. Formulaire sans JavaScript et API d’entrée raccordés au moteur STK-02. Options limitées aux magasins actifs autorisés et articles actifs ; présélection contextuelle, validations serveur, CSRF, valeurs conservées en erreur, redirection vers le solde actualisé, rejeu sans doublon. Auteur et date serveur, événement durable pour les futurs traitements d’alertes. Aucun nouveau schéma de base. Recette : 155 tests PHP / 2 290 assertions et quatre validations OpenAPI réussis, contrôle ordinateur/mobile. [Guide](docs/entrees-stock.md) · [Validation](docs/validation-stk03.md).
 
 ### STK-04 — Consommations et bénéficiaire tiers
 
-Issue : [#16](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16) · À faire · Dépendances : [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14), [STK-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13).
+Issue : [#16](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16) · En revue · Dépendances : [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14), [STK-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13).
 
 Sources : STK-03; CON-01,02; CON-05 partiel.
 
-- [ ] Créer sortie avec quantité positive, commentaire et référence intervention/chantier/client facultative dès le MVP
-- [ ] Utilisateur : bénéficiaire soi-même ; admin/gestionnaire : tout technicien actif, même non affecté au magasin
-- [ ] Conserver distinctement opérateur et consommateur ; vérifier magasin autorisé et article actif
+- [x] Créer sortie avec quantité positive, commentaire et référence intervention/chantier/client facultative dès le MVP
+- [x] Utilisateur : bénéficiaire soi-même ; admin/gestionnaire : tout technicien actif, même non affecté au magasin
+- [x] Conserver distinctement opérateur et consommateur ; vérifier magasin autorisé et article actif
 
 Critères d’acceptation : Sortie 4 sur 15 donne 11 ; tiers réservé aux rôles autorisés ; REC-02,04,05.
+
+Livraison pour revue : [PR #65](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/65), branche `codex/stk-04-consumptions`. Formulaire sans JavaScript et API raccordés au moteur STK-02 ; magasin/article actifs, quantité entière, bénéficiaire tiers réservé à ADMIN/MANAGER. Confirmation distinguant opérateur et bénéficiaire, consultation personnelle conservée sans affectation sans exposer le stock actuel ; rejeu sans double débit, inventaire bloquant et stock insuffisant contrôlés. Aucune nouvelle migration. Recette : 167 tests PHP / 2 432 assertions et quatre validations OpenAPI réussis ; contrôle ordinateur/mobile. [Guide](docs/consommations.md) · [Validation](docs/validation-stk04.md). Historique complet et statistiques personnels restent dans CON-01/STAT-01.
 
 ### STK-05 — Ajustements et corrections par contre-mouvement
 
@@ -803,3 +805,4 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 18 octobre 2026 : PR #61 et #62 intégrées à main. STK-02 développé et vérifié pour revue : moteur interne, événements durables, concurrence réelle et atomicité. Recette complète : 146 tests / 2 173 assertions + 4 validations OpenAPI.
 
 - 18 octobre 2026 : PR #63 intégrée à main. STK-03 développé et vérifié pour revue : formulaire et API d’entrée, scénario 5 + 10 = 15, permissions et doubles envois. Recette : 155 tests / 2 290 assertions + 4 validations OpenAPI.
+- 18 octobre 2026 : STK-03 intégré (PR #64). STK-04 livré pour revue : consommations pour soi ou tiers autorisé, confirmation personnelle sans fuite de stock, 167 tests / 2 432 assertions et quatre validations OpenAPI.
