@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% block title %}Stocks · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">DISPONIBILITÉS</p><h1>Stocks</h1><p class="subtitle">Les quantités des magasins auxquels vous avez accès.</p></div></div>
+<section class="card">
+<form method="get" class="account-filters" aria-label="Filtrer les stocks">
+{% if filters.article_id is defined %}<input type="hidden" name="article_id" value="{{ filters.article_id }}">{% endif %}
+<div class="field"><label for="stock-q">Référence ou nom</label><input id="stock-q" name="q" maxlength="160" value="{{ filters.q|default('') }}"></div>
+<div class="field"><label for="stock-store">Magasin</label><select id="stock-store" name="store_id"><option value="">Tous mes magasins autorisés</option>{% for store in stores %}<option value="{{ store.id }}" {% if filters.store_id|default('') == store.id %}selected{% endif %}>{{ store.name }}{{ store.active ? '' : ' (désactivé)' }}</option>{% endfor %}</select></div>
+<div class="field"><label for="stock-category">Catégorie</label><select id="stock-category" name="category_id"><option value="">Toutes les catégories</option>{% for category in categories %}<option value="{{ category.id }}" {% if filters.category_id|default('') == category.id %}selected{% endif %}>{{ category.name }}</option>{% endfor %}</select></div>
+<div class="field"><label for="stock-status">Disponibilité</label><select id="stock-status" name="status">{% for value,label in {'all':'Toutes','out_of_stock':'En rupture','below_threshold':'Seuil bas atteint'} %}<option value="{{ value }}" {% if filters.status|default('all') == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+<div class="field"><label for="stock-sort">Trier par</label><select id="stock-sort" name="sort">{% for value,label in {'sku':'Référence','quantity':'Quantité','store_code':'Magasin'} %}<option value="{{ value }}" {% if filters.sort|default('sku') == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+<div class="field"><label for="stock-order">Ordre</label><select id="stock-order" name="order"><option value="asc" {% if filters.order|default('asc') == 'asc' %}selected{% endif %}>Croissant</option><option value="desc" {% if filters.order|default('asc') == 'desc' %}selected{% endif %}>Décroissant</option></select></div>
+<button class="button" type="submit">Filtrer</button><a href="{{ path('stocks_list') }}">Réinitialiser</a>
+</form>
+<p>{{ result.meta.total }} résultat{{ result.meta.total > 1 ? 's' : '' }}</p>
+{% include 'stocks/table.html.twig' with {rows:result.data,labels:labels} only %}
+{% include 'components/pagination.html.twig' with {page:result.meta.page,pages:result.meta.total_pages,route:'stocks_list',parameters:filters|filter((value,key) => key != 'page')} only %}
+</section>
+{% endblock %}

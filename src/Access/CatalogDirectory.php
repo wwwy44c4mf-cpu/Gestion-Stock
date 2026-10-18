@@ -30,11 +30,12 @@ final class CatalogDirectory
             $q = trim($filters['q']); if ($q === '' || mb_strlen($q) > 160 || str_contains($q, "\0") || !preg_match('//u', $q)) { $this->invalid(); }
             $where[] = '(strpos(lower(r.sku),lower(?)) > 0 OR strpos(lower(r.name),lower(?)) > 0)'; $parameters[] = $q; $parameters[] = $q;
         }
-        $sorts = $kind === 'article' ? ['sku','name','created_at'] : ['name']; $sort = $filters['sort'] ?? $sorts[0]; $order = $filters['order'] ?? 'asc';
+        $sorts = $kind === 'article' ? ['sku','name','created_at','category','status'] : ['name']; $sort = $filters['sort'] ?? $sorts[0]; $order = $filters['order'] ?? 'asc';
         if (!in_array($sort, $sorts, true) || !in_array($order, ['asc','desc'], true)) { $this->invalid(); }
+        $sortExpression = match ($sort) { 'category' => '(SELECT c.name FROM categories c WHERE c.id = r.category_id)', 'status' => 'r.active', default => 'r.'.$sort };
         $pagination = new Pagination($filters['page'] ?? 1, $filters['limit'] ?? 25); $condition = implode(' AND ', $where);
         $total = (int) $this->db->fetchOne('SELECT count(*) FROM '.$table.' r WHERE '.$condition, $parameters);
-        $rows = $this->db->fetchAllAssociative('SELECT r.* FROM '.$table.' r WHERE '.$condition.' ORDER BY r.'.$sort.' '.strtoupper($order).', r.id LIMIT '.$pagination->limit.' OFFSET '.$pagination->offset(), $parameters);
+        $rows = $this->db->fetchAllAssociative('SELECT r.* FROM '.$table.' r WHERE '.$condition.' ORDER BY '.$sortExpression.' '.strtoupper($order).', r.id LIMIT '.$pagination->limit.' OFFSET '.$pagination->offset(), $parameters);
         return $pagination->response(array_map(fn(array $row) => $this->resource($kind, $row), $rows), $total);
     }
     public function get(StockUser $actor, string $kind, string $id): array

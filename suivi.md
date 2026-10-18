@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02 implémenté et vérifié, en revue ; STK-01 et compléments ART-03 en développement, recette en attente ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -19,6 +19,7 @@ Les décisions ci-dessous précisent ou remplacent les options correspondantes d
 | Consultation personnelle | Les utilisateurs consultent leur historique et leurs statistiques de consommation, y compris pour un magasin actif non affecté. Un magasin désactivé reste réservé aux administrateurs. Cette permission n’ouvre pas les stocks des magasins non affectés. |
 | Référence métier | Référence d’intervention, chantier ou client facultative dès le MVP ; gestion structurée des interventions en V2. |
 | Inventaire | Mouvements du magasin bloqués pendant comptage et validation, y compris entrées, sorties, ajustements, retours et transferts impliquant le magasin. Seuls administrateurs et gestionnaires autorisés saisissent et valident. |
+| Affichage des stocks | Tous les articles apparaissent dans chaque magasin autorisé, avec zéro si aucun solde n’existe. Lecture sans création de données. |
 | Quantités | Une seule unité : « unité » ; nombres entiers uniquement. Les décimales et autres unités ne sont pas nécessaires au MVP. |
 | Dates | Date et heure serveur à la saisie, sans rétroactivité ; stockage UTC, affichage local, Europe/Paris par défaut. |
 | Retours | Dès le MVP, retours liés à la consommation initiale, dans le magasin d’origine ; administrateurs/gestionnaires selon périmètre, utilisateurs pour leurs propres consommations. Cumul limité à la quantité sortie. L’utilisateur conserve le droit de retour personnel après retrait d’affectation si le magasin d’origine est actif. |
@@ -75,7 +76,7 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | ART-01 | 1 | Catalogue global, catégories et archivage | ART-01,02,03; §4 | MAG-01 | Terminé | [#10](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10) |
 | ART-02 | 1 | Propositions d’articles et validation administrative | ART-01,02; décision utilisateur | ART-01 | En revue | [#11](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/11) |
 | ART-03 | 1 | Recherche et consultation du catalogue | ART-04 | ART-01, SOC-04 | En cours | [#12](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/12) |
-| STK-01 | 2 | Consultation des stocks et consolidation | STK-01; MAG-04 | ART-01, AUTH-03 | À faire | [#13](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13) |
+| STK-01 | 2 | Consultation des stocks et consolidation | STK-01; MAG-04 | ART-01, AUTH-03 | En cours | [#13](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13) |
 | STK-02 | 2 | Moteur transactionnel, concurrence et idempotence | STK-06,07,10; §4 | SOC-02, AUTH-03 | À faire | [#14](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14) |
 | STK-03 | 2 | Entrées et réapprovisionnements | STK-02; parcours 5.3 | STK-02, STK-01 | À faire | [#15](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/15) |
 | STK-04 | 2 | Consommations et bénéficiaire tiers | STK-03; CON-01,02; CON-05 partiel | STK-02, STK-01 | À faire | [#16](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16) |
@@ -282,11 +283,11 @@ Sources : ART-04.
 
 Critères d’acceptation : Recherche et filtres combinés retournent uniquement les résultats attendus.
 
-Liste, fiche et filtres de base fournis par [PR #60](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/60) (ART-01). Restent la recette dédiée des combinaisons de paramètres et le raccordement des informations de stock avec leurs périmètres, dans le prolongement de STK-01. Aucune information de stock n’est exposée par le catalogue actuel.
+Liste, fiche et filtres de base fournis par [PR #60](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/60) (ART-01). Restent la recette dédiée des combinaisons de paramètres et le raccordement des informations de stock avec leurs périmètres, dans le prolongement de STK-01. Le raccordement des stocks autorisés et les tris catégorie/état sont maintenant écrits avec STK-01, mais leur recette reste à exécuter. [Guide](docs/stocks.md) · [Recette en attente](docs/validation-stk01.md).
 
 ### STK-01 — Consultation des stocks et consolidation
 
-Issue : [#13](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13) · À faire · Dépendances : [ART-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
+Issue : [#13](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13) · En cours · Dépendances : [ART-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
 
 Sources : STK-01; MAG-04.
 
@@ -295,6 +296,8 @@ Sources : STK-01; MAG-04.
 - [ ] Prévoir accès au détail et à l’historique
 
 Critères d’acceptation : La consolidation ne compte aucun magasin non autorisé ; quantités entières.
+
+Implémentation et tests écrits : liste/filtres, total exact avant pagination, détail et journal local autorisé. Images construites une première fois ; tests non exécutés, le contrôle automatique d’approbation ayant atteint sa limite. Livraison non validée. [Guide](docs/stocks.md) · [Actions de reprise](docs/validation-stk01.md).
 
 ### STK-02 — Moteur transactionnel, concurrence et idempotence
 
@@ -790,3 +793,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 18 octobre 2026 : MAG-01 intégré à main (PR #59). ART-01 développé et vérifié pour revue ; décisions de propagation du statut à toute une branche et de réactivation complète intégrées.
 
 - 18 octobre 2026 : ART-01 intégré à main (PR #60). ART-02 développé et vérifié pour revue : propositions privées, décisions administratives et publications atomiques.
+
+- 18 octobre 2026 : STK-01 et compléments ART-03 écrits. Affichage des articles sans solde à zéro confirmé par l’utilisateur. Validation Docker en attente après échec du contrôle automatique d’approbation lié à sa limite d’utilisation ; aucune déclaration de fin de lot.

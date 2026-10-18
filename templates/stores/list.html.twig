@@ -11,7 +11,7 @@
 </form>
 <p>{{ result.meta.total }} magasin{{ result.meta.total > 1 ? 's' : '' }}</p>
 <div class="table-scroll"><table><caption>Liste des magasins autorisés</caption><thead><tr><th scope="col">Code</th><th scope="col">Nom</th><th scope="col">Description</th><th scope="col">Adresse</th><th scope="col">État</th>{% if can_manage %}<th scope="col">Actions</th>{% endif %}</tr></thead><tbody>
-{% for store in result.data %}<tr><td>{{ store.code }}</td><td>{{ store.name }}</td><td class="store-description">{{ store.description ?: '—' }}</td><td>{{ store.address ?? '—' }}</td><td>{{ store.active ? 'Actif' : 'Désactivé' }}</td>{% if can_manage %}<td><a href="{{ path('stores_edit',{id:store.id}) }}" aria-label="Modifier le magasin {{ store.name }}">Modifier</a></td>{% endif %}</tr>{% else %}<tr><td colspan="{{ can_manage ? 6 : 5 }}">Aucun magasin ne correspond aux filtres.</td></tr>{% endfor %}
+{% for store in result.data %}<tr><td>{{ store.code }}</td><td><a href="{{ path('stocks_list',{store_id:store.id}) }}">{{ store.name }}</a></td><td class="store-description">{{ store.description ?: '—' }}</td><td>{{ store.address ?? '—' }}</td><td>{{ store.active ? 'Actif' : 'Désactivé' }}</td>{% if can_manage %}<td><a href="{{ path('stores_edit',{id:store.id}) }}" aria-label="Modifier le magasin {{ store.name }}">Modifier</a></td>{% endif %}</tr>{% else %}<tr><td colspan="{{ can_manage ? 6 : 5 }}">Aucun magasin ne correspond aux filtres.</td></tr>{% endfor %}
 </tbody></table></div>
 {% include 'components/pagination.html.twig' with {page:result.meta.page,pages:result.meta.total_pages,route:'stores_list',parameters:filters|filter((value,key) => key != 'page')} only %}
 </section>
