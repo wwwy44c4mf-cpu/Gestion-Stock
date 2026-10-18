@@ -19,11 +19,11 @@ final class AdministrationUiSubscriber implements EventSubscriberInterface
     public function problem(ExceptionEvent $event): void
     {
         $route = $event->getRequest()->attributes->get('_route', '');
-        $adminAlias = $route === 'ui_section' && $event->getRequest()->attributes->get('section') === 'administration';
+        $adminAlias = in_array($route, ['ui_section', 'store_context'], true);
         if (!$event->isMainRequest() || (!str_starts_with($route, 'admin_users') && !$adminAlias)) { return; }
         $error = $event->getThrowable();
         if ($error instanceof AccessDeniedHttpException) {
-            $event->setResponse(new Response($this->twig->render('admin/forbidden.html.twig'), 403));
+            $event->setResponse(new Response($this->twig->render('admin/forbidden.html.twig', ['message' => str_starts_with($route, 'admin_users') || ($route === 'ui_section' && $event->getRequest()->attributes->get('section') === 'administration') ? 'Seul un administrateur peut gérer les comptes utilisateurs.' : 'Vos droits ne permettent pas de consulter cet espace.']), 403));
             return;
         }
         if ($error instanceof ApiProblem && $error->status < 500) {

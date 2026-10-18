@@ -25,14 +25,11 @@ final class UserAdministration
     public function __construct(private readonly Connection $db, private readonly UserPasswordHasherInterface $hasher,
         private readonly OpenApiContract $contract, private readonly IdempotencyKey $keys,
         #[Autowire('%kernel.environment%')] private readonly string $environment,
-        #[Autowire('%kernel.secret%')] private readonly string $secret) {}
+        #[Autowire('%kernel.secret%')] private readonly string $secret, private readonly \App\Security\AccessIdentity $accessIdentity) {}
 
     private function authorize(StockUser $actor): void
     {
-        $valid = $this->db->fetchOne("SELECT count(*) FROM users u JOIN roles r ON r.id = u.role_id
-            WHERE u.id = ? AND u.active AND u.anonymized_at IS NULL AND r.code = 'ADMIN' AND u.auth_version = ?
-            AND (NOT u.development_only OR ? = 'dev')", [$actor->id, $actor->authVersion, $this->environment]);
-        if (!(bool) $valid) { throw new ApiProblem(403, 'administrator_required', 'Cette opération est réservée à un administrateur actif.'); }
+        $this->accessIdentity->requireRole($actor, \App\Security\Permission::ACCOUNTS_ADMIN);
     }
 
     public function listing(StockUser $actor, array $filters): array

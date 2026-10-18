@@ -1173,8 +1173,8 @@
           "MANAGER",
           "USER"
         ],
-        "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-perimeter": "ADMIN : tous les magasins, y compris désactivés. MANAGER/USER : magasins actifs affectés uniquement, filtrage avant comptage et pagination.",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/Page"
@@ -1382,8 +1382,8 @@
           "MANAGER",
           "USER"
         ],
-        "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-perimeter": "Même périmètre que la liste ; magasin hors périmètre, inexistant ou identifiant invalide : 404.",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -3927,8 +3927,8 @@
           "ADMIN",
           "MANAGER"
         ],
-        "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-perimeter": "ADMIN ou MANAGER affecté à au moins un magasin actif. Comptes actifs de tout magasin ; projection id/nom uniquement, sans accès au profil complet.",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/Page"
