@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ is_new ? 'Créer' : 'Modifier' }} {{ kind == 'article' ? 'un article' : 'une catégorie' }} · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">CATALOGUE COMMUN</p><h1>{{ is_new ? 'Créer' : 'Modifier' }} {{ kind == 'article' ? 'un article' : 'une catégorie' }}</h1></div><a href="{{ path(kind == 'article' ? 'catalog_list' : 'catalog_categories') }}">Retour {{ kind == 'article' ? 'aux articles' : 'aux catégories' }}</a></div>
+<section class="card account-form">
+{% if error %}{% include 'components/notice.html.twig' with {kind:'error',message:error} only %}{% if not is_new %}<p><a href="{{ path(kind == 'article' ? 'catalog_article_edit' : 'catalog_category_edit',{id:item.id}) }}">Recharger la fiche enregistrée</a></p>{% endif %}{% endif %}
+<form method="post">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token(token_id) }}">
+{% if is_new %}<input type="hidden" name="_creation_key" value="{{ creation_key }}">{% elseif kind == 'article' %}<input type="hidden" name="version" value="{{ item.version }}">{% endif %}
+{% if kind == 'article' %}<div class="field"><label for="article-sku">Référence (obligatoire)</label><input id="article-sku" name="sku" value="{{ item.sku }}" maxlength="80" required {% if not is_new %}disabled aria-describedby="sku-help"{% endif %}>{% if not is_new %}<p id="sku-help" class="muted">La référence est conservée pendant toute la vie de l’article.</p>{% endif %}</div>{% endif %}
+<div class="field"><label for="catalog-name">Nom (obligatoire)</label><input id="catalog-name" name="name" value="{{ item.name }}" maxlength="160" required></div>
+{% if kind == 'article' %}<div class="field"><label for="article-description">Description</label><textarea id="article-description" name="description" rows="4" maxlength="5000">{{ item.description }}</textarea></div><p>Unité de stock : <strong>unité</strong>. Quantités entières uniquement.</p>{% endif %}
+<div class="field"><label for="catalog-parent">{{ kind == 'article' ? 'Catégorie (facultative)' : 'Catégorie parente (facultative)' }}</label><select id="catalog-parent" name="{{ kind == 'article' ? 'category_id' : 'parent_id' }}"><option value="">Aucune</option>{% for category in categories %}{% set selected = (kind == 'article' ? item.category_id : item.parent_id) == category.id %}<option value="{{ category.id }}" {% if selected %}selected{% endif %} {% if (not category.active and not selected) or (kind == 'category' and not is_new and category.id == item.id) %}disabled{% endif %}>{{ category.name }}{{ category.active ? '' : ' (désactivée)' }}</option>{% endfor %}</select></div>
+<div class="field"><label class="checkbox-row"><input type="checkbox" name="active" value="1" {% if item.active %}checked{% endif %}> {{ kind == 'article' ? 'Article actif' : 'Catégorie active' }}</label><p class="muted">{{ kind == 'article' ? 'La désactivation conserve l’historique et interdit les nouvelles consommations.' : 'Le changement d’état concerne toute cette branche : sous-catégories et articles. La réactivation réactivera aussi les articles déjà désactivés auparavant. L’historique est conservé.' }}</p></div>
+<button class="button" type="submit">{{ is_new ? (kind == 'article' ? 'Créer l’article' : 'Créer la catégorie') : 'Enregistrer les modifications' }}</button>
+</form>
+</section>
+{% endblock %}
