@@ -30,7 +30,11 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 | `GET /api/v1/categories` | Liste des catégories |
 | `POST /api/v1/categories` et `PATCH /api/v1/categories/{id}` | Administration des catégories et cascade de statut |
 
-Ces vingt-trois opérations portent `x-implementation: available`. Les 35 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
+| `GET /api/v1/article-proposals` et `GET /api/v1/article-proposals/{id}` | Propositions autorisées et commentaire de décision |
+| `POST /api/v1/article-proposals` | Soumission idempotente sans publication |
+| `POST /api/v1/article-proposals/{id}/review` | Approbation ou refus administratif idempotent |
+
+Ces vingt-sept opérations portent `x-implementation: available`. Les 31 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
 
 Les routes `/health/live` et `/health/ready` de SOC-01 restent disponibles pour Docker ; la nouvelle sonde API ne remplace pas le contrôle PostgreSQL de readiness.
 

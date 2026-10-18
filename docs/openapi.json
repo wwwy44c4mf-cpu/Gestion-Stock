@@ -2278,7 +2278,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/Page"
@@ -2389,7 +2389,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -2487,7 +2487,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -2572,7 +2572,7 @@
           "ADMIN"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -7142,6 +7142,13 @@
               "null"
             ],
             "format": "date-time"
+          },
+          "review_comment": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 2000
           }
         },
         "additionalProperties": false,
@@ -7156,7 +7163,8 @@
           "proposed_by",
           "reviewed_by",
           "created_at",
-          "reviewed_at"
+          "reviewed_at",
+          "review_comment"
         ]
       },
       "StockLevel": {

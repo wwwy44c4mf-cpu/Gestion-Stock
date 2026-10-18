@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+{% block title %}Propositions · Gestion de stock{% endblock %}
+{% block content %}
+{% set states = {'pending':'En attente','approved':'Approuvée','rejected':'Refusée'} %}
+<div class="page-heading"><div><p class="eyebrow">CATALOGUE COMMUN</p><h1>Propositions</h1><p class="subtitle">{{ is_granted('APP_CATALOG_ADMIN') ? 'Examinez les propositions avant leur publication.' : 'Retrouvez vos propositions et les décisions reçues.' }}</p></div><a class="button" href="{{ path('proposals_new') }}">Proposer un article</a></div>
+<p><a href="{{ path('catalog_list') }}">Retour au catalogue</a></p>
+<section class="card"><form method="get" class="account-filters" aria-label="Filtrer les propositions"><div class="field"><label for="proposal-status">État</label><select id="proposal-status" name="status"><option value="">Tous les états</option>{% for value,label in states %}<option value="{{ value }}" {% if filters.status|default('') == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div><button class="button" type="submit">Filtrer</button><a href="{{ path('proposals_list') }}">Réinitialiser</a></form>
+<p>{{ result.meta.total }} proposition{{ result.meta.total > 1 ? 's' : '' }}</p><div class="table-scroll"><table><caption>Propositions autorisées</caption><thead><tr><th scope="col">Article proposé</th><th scope="col">Demande</th><th scope="col">État</th><th scope="col">Date</th><th scope="col">Actions</th></tr></thead><tbody>{% for item in result.data %}<tr><td>{{ item.payload.name|default('Modification d’un article') }}</td><td>{{ item.operation == 'create' ? 'Création' : 'Modification' }}</td><td>{{ states[item.status] }}</td><td>{{ item.created_at|date('d/m/Y H:i',app.user.timezone) }}</td><td><a href="{{ path('proposals_detail',{id:item.id}) }}">Consulter</a></td></tr>{% else %}<tr><td colspan="5">Aucune proposition ne correspond aux filtres.</td></tr>{% endfor %}</tbody></table></div>
+{% include 'components/pagination.html.twig' with {page:result.meta.page,pages:result.meta.total_pages,route:'proposals_list',parameters:filters|filter((value,key) => key != 'page')} only %}</section>
+{% endblock %}

@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -72,8 +72,8 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | AUTH-03 | 1 | Rôles, affectations et contrôle des accès | AUTH-05; MAG-03; §2,4 | AUTH-02 | Terminé | [#7](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7) |
 | AUTH-04 | 1 | Réinitialisation sécurisée du mot de passe | AUTH-06; MAIL-02 | AUTH-01, MAIL-01 | À faire | [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) |
 | MAG-01 | 1 | Création, modification et archivage des magasins | MAG-01,02,05 | AUTH-03 | Terminé | [#9](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/9) |
-| ART-01 | 1 | Catalogue global, catégories et archivage | ART-01,02,03; §4 | MAG-01 | En revue | [#10](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10) |
-| ART-02 | 1 | Propositions d’articles et validation administrative | ART-01,02; décision utilisateur | ART-01 | À faire | [#11](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/11) |
+| ART-01 | 1 | Catalogue global, catégories et archivage | ART-01,02,03; §4 | MAG-01 | Terminé | [#10](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10) |
+| ART-02 | 1 | Propositions d’articles et validation administrative | ART-01,02; décision utilisateur | ART-01 | En revue | [#11](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/11) |
 | ART-03 | 1 | Recherche et consultation du catalogue | ART-04 | ART-01, SOC-04 | En cours | [#12](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/12) |
 | STK-01 | 2 | Consultation des stocks et consolidation | STK-01; MAG-04 | ART-01, AUTH-03 | À faire | [#13](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13) |
 | STK-02 | 2 | Moteur transactionnel, concurrence et idempotence | STK-06,07,10; §4 | SOC-02, AUTH-03 | À faire | [#14](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14) |
@@ -244,7 +244,7 @@ Livraison pour revue : [PR #59](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### ART-01 — Catalogue global, catégories et archivage
 
-Issue : [#10](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10) · En revue · Dépendances : [MAG-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/9).
+Issue : [#10](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10) · Terminé · Dépendances : [MAG-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/9).
 
 Sources : ART-01,02,03; §4.
 
@@ -258,15 +258,17 @@ Livraison pour revue : [PR #60](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### ART-02 — Propositions d’articles et validation administrative
 
-Issue : [#11](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/11) · À faire · Dépendances : [ART-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10).
+Issue : [#11](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/11) · En revue · Dépendances : [ART-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10).
 
 Sources : ART-01,02; décision utilisateur.
 
-- [ ] Permettre au gestionnaire de proposer une création ou modification sans changer le catalogue publié
-- [ ] Créer file de validation pour administrateur et décisions tracées
-- [ ] Détecter doublons de référence et propositions devenues obsolètes
+- [x] Permettre au gestionnaire de proposer une création ou modification sans changer le catalogue publié
+- [x] Créer file de validation pour administrateur et décisions tracées
+- [x] Détecter doublons de référence et propositions devenues obsolètes
 
 Critères d’acceptation : Une proposition non approuvée n’affecte pas le catalogue ; seul un administrateur applique la proposition.
+
+Livraison vérifiée : soumissions sans modification du catalogue, liste et consultation privées par auteur, file ADMIN et comparaison des valeurs, approbation/refus motivé et décisions visibles par l’auteur. Références et versions revérifiées ; publications, décisions et rejeux atomiques. Migration `Version20261018150000`. Recette : 124 tests PHP / 1 717 assertions et quatre validations OpenAPI réussis, dont soumissions/décisions simultanées et panne injectée après publication. [Guide](docs/propositions.md) · [Validation](docs/validation-art02.md).
 
 ### ART-03 — Recherche et consultation du catalogue
 
@@ -786,3 +788,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 18 octobre 2026 : AUTH-03 intégré à main (PR #58). MAG-01 développé et vérifié pour revue ; blocage de désactivation pendant inventaire validé par l’utilisateur.
 
 - 18 octobre 2026 : MAG-01 intégré à main (PR #59). ART-01 développé et vérifié pour revue ; décisions de propagation du statut à toute une branche et de réactivation complète intégrées.
+
+- 18 octobre 2026 : ART-01 intégré à main (PR #60). ART-02 développé et vérifié pour revue : propositions privées, décisions administratives et publications atomiques.
