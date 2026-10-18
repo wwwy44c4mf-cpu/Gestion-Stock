@@ -124,3 +124,7 @@ Le menu **Articles** permet de consulter le catalogue et les catégories. Les ad
 ## Propositions du catalogue (ART-02)
 
 Depuis **Articles → Propositions du catalogue**, les gestionnaires proposent des créations et modifications. L’administrateur compare les valeurs puis approuve ou refuse avec un motif. Le catalogue change uniquement après approbation ; doublons et versions périmées sont contrôlés. Appliquer `Version20261018150000` avant utilisation. [Guide](docs/propositions.md) · [Recette](docs/validation-art02.md).
+
+## Consultation des stocks (STK-01 / ART-03)
+
+Le menu Stocks et la fiche article proposent les soldes et totaux sur les seuls magasins autorisés, y compris les articles sans solde à zéro. Les administrateurs et gestionnaires autorisés peuvent consulter les variations locales. Livraison validée pour revue dans la PR #62 : 132 tests PHP / 1 908 assertions et quatre validations OpenAPI réussis. [Guide](docs/stocks.md) · [État de validation](docs/validation-stk01.md).

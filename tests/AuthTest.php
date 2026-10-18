@@ -92,8 +92,8 @@ final class AuthTest extends WebTestCase
         $this->client->request('GET', '/api/v1/auth/me');
         self::assertResponseStatusCodeSame(401);
         $this->client->request('GET', '/api/v1/stocks');
-        // The stock route is planned; AUTH-03/STK-01 will add its resource checks.
-        self::assertResponseStatusCodeSame(404);
+        // Stock consultation is implemented and requires authentication.
+        self::assertResponseStatusCodeSame(401);
         $this->client->request('GET', '/profil');
         self::assertResponseRedirects('/connexion');
         $this->login(password: 'secret-incorrect');

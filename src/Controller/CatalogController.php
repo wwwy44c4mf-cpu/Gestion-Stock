@@ -56,9 +56,11 @@ final class CatalogController extends AbstractController
         return $this->render('catalog/list.html.twig',['kind'=>$kind,'result'=>$this->directory->listing($this->actor(),$kind,$filters),'filters'=>$filters,'categories'=>$this->directory->categoryOptions($this->actor())]);
     }
     #[Route('/articles/{id}',name:'catalog_article',methods:['GET'])]
-    public function detail(string $id): Response
+    public function detail(string $id,Request $request,QueryParameters $query,\App\Access\StockDirectory $stocks): Response
     {
-        return $this->render('catalog/detail.html.twig',['article'=>$this->directory->get($this->actor(),'article',$id)['data'],'categories'=>$this->directory->categoryOptions($this->actor())]);
+        $filtered=$request->duplicate();if ($filtered->query->get('store_id')==='') { $filtered->query->remove('store_id'); }
+        $filters=$query->read($filtered,'articleStocks');$stock=$stocks->article($this->actor(),$id,$filters)['data'];
+        return $this->render('catalog/detail.html.twig',['stock_summary'=>$stock,'stock_labels'=>$stocks->labels($stock['stores']['data']),'stock_filters'=>$filters,'article'=>$this->directory->get($this->actor(),'article',$id)['data'],'categories'=>$this->directory->categoryOptions($this->actor())]);
     }
     #[Route('/administration/articles/nouveau',name:'catalog_article_new',methods:['GET','POST'],defaults:['kind'=>'article'])]
     #[Route('/administration/articles/{id}/modifier',name:'catalog_article_edit',methods:['GET','POST'],defaults:['kind'=>'article'])]
