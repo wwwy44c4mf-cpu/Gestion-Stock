@@ -1,6 +1,6 @@
 # Gestion-Stock
 
-Application web de gestion de stocks multi-magasins. SOC-01 fournit le socle Docker et une page d’accueil provisoire ; SOC-02 ajoute le modèle de données et les migrations explicites ; SOC-03 ajoute les contrats API et leurs outils communs. Les fonctionnalités métier sont détaillées dans [suivi.md](suivi.md). Aucun catalogue ni compte utilisateur réel n’est encore créé.
+Application web de gestion de stocks multi-magasins. SOC-01 fournit le socle Docker et une page d’accueil provisoire ; SOC-02 ajoute le modèle de données et les migrations explicites ; SOC-03 ajoute les contrats API et leurs outils communs ; SOC-04 fournit l’interface française ; AUTH-01 active la connexion, les sessions et le profil. Les fonctionnalités métier sont détaillées dans [suivi.md](suivi.md). Aucun catalogue ni compte utilisateur n’est créé automatiquement.
 
 ## Prérequis
 
@@ -19,7 +19,7 @@ docker compose up -d --build --wait
 docker compose run --rm --no-deps app php bin/console doctrine:migrations:migrate --no-interaction
 ```
 
-Ouvrir [l’application locale](http://127.0.0.1:8080). Le fichier `.env` peut modifier le port si nécessaire. Le script de préparation ne remplace jamais les secrets existants. Le répertoire `.secrets` est privé sur l’hôte ; ses fichiers sont lisibles par les différents UID des conteneurs auxquels ils sont explicitement montés. Ils ne sont pas intégrés aux images ni versionnés. Les secrets Compose locaux ne constituent pas un coffre chiffré ; protéger leur stockage et utiliser le mécanisme adapté lors du déploiement.
+Ouvrir [l’application locale](http://127.0.0.1:8080). L’accès demande une connexion. Créer le premier compte avec la commande documentée dans le [guide d’authentification](docs/authentification.md), qui demande le mot de passe en saisie masquée. Le fichier `.env` peut modifier le port si nécessaire. Le script de préparation ne remplace jamais les secrets existants. Le répertoire `.secrets` est privé sur l’hôte ; ses fichiers sont lisibles par les différents UID des conteneurs auxquels ils sont explicitement montés. Ils ne sont pas intégrés aux images ni versionnés. Les secrets Compose locaux ne constituent pas un coffre chiffré ; protéger leur stockage et utiliser le mécanisme adapté lors du déploiement.
 
 Le service ponctuel `init` prépare seulement les tables techniques Messenger. La commande de migration ci-dessus installe le schéma métier de SOC-02 explicitement. PostgreSQL initialise un compte applicatif distinct, sans privilèges superutilisateur, et conserve ses données dans un volume dédié. La première initialisation fixe ses identifiants : changer un fichier secret ne change pas automatiquement un mot de passe dans une base existante.
 
@@ -62,7 +62,7 @@ docker compose exec app php bin/console about
 docker compose ps
 ```
 
-Les tests vérifient le rendu, PostgreSQL, les contraintes/migrations, les outils API et les protections CSRF/cookies/débit. Le test de file utilise une queue dédiée `soc01_test`, distincte de la queue métier `async`. Le test de schéma utilise des transactions isolées. Le service de test dépend de `contract-test`, qui valide OpenAPI et JSON Schema dans un conteneur sans réseau et sans accès à la base. Python et ses dépendances verrouillées restent dans cette cible de test, sans installation sur l’hôte ni dans l’image applicative.
+Les tests vérifient le rendu, PostgreSQL, les contraintes/migrations, les outils API, les protections CSRF/cookies/débit et le parcours de connexion, profil, expiration et déconnexion. Le test de file utilise une queue dédiée `soc01_test`, distincte de la queue métier `async`. Le test de schéma utilise des transactions isolées. Le service de test dépend de `contract-test`, qui valide OpenAPI et JSON Schema dans un conteneur sans réseau et sans accès à la base. Python et ses dépendances verrouillées restent dans cette cible de test, sans installation sur l’hôte ni dans l’image applicative.
 
 Composer signale l’absence de licence : ce choix reste volontairement ouvert dans DOC-01 ; aucune licence n’est attribuée sans décision du propriétaire. La validation du schéma reste possible avec cet avertissement. Rapports : [SOC-01](docs/validation-soc01.md), [SOC-02](docs/validation-soc02.md), [SOC-03](docs/validation-soc03.md).
 
@@ -97,4 +97,8 @@ Références : [exigences Symfony](https://symfony.com/doc/8.1/setup.html), [ver
 
 ## Interface utilisateur (SOC-04)
 
-Le tableau de bord en français est disponible sur [l’application locale](http://127.0.0.1:8080). Interface adaptée aux mobiles, menu Stimulus et composants Twig partagés. Le contexte reste anonyme jusqu’à AUTH ; le sélecteur de magasin et les modules métier attendent leurs lots respectifs. Voir le [guide de l’interface](docs/interface.md) et le [rapport de validation](docs/validation-soc04.md).
+Le tableau de bord en français est disponible sur [l’application locale](http://127.0.0.1:8080). Interface adaptée aux mobiles, menu Stimulus et composants Twig partagés. La connexion est requise ; le rôle authentifié alimente les menus. Le sélecteur de magasin et les modules métier attendent leurs lots respectifs. Voir le [guide de l’interface](docs/interface.md) et le [rapport de validation](docs/validation-soc04.md).
+
+## Connexion, sessions et profil (AUTH-01)
+
+Formulaire `/connexion`, consultation et fuseau sur `/profil`, déconnexion POST. Sessions limitées à 30 minutes d’inactivité et 12 heures absolues, mots de passe Argon2id, limitation des tentatives commune interface/API et audit sans secrets. Les quatre opérations API de connexion, déconnexion et profil sont disponibles. [Guide et premier administrateur](docs/authentification.md) · [Recette](docs/validation-auth01.md).

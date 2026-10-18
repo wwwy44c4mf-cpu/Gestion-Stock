@@ -271,7 +271,7 @@
       "post": {
         "operationId": "login",
         "summary": "Se connecter",
-        "description": "Session cookie HttpOnly/SameSite=Lax, Secure sur HTTPS ; aucun jeton Bearer. Régénérer la session après connexion. Réponse générique si identifiants invalides.",
+        "description": "Session cookie HttpOnly/SameSite=Lax, Secure sur HTTPS ; aucun jeton Bearer. Régénérer la session après connexion. Réponse générique si identifiants invalides. Hachage Argon2id ; expiration après 30 minutes d’inactivité ou 12 heures absolues. Après connexion, récupérer un nouveau jeton CSRF.",
         "tags": [
           "auth"
         ],
@@ -282,7 +282,7 @@
         ],
         "x-roles": [],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [],
         "responses": {
           "200": {
@@ -332,6 +332,9 @@
           },
           "500": {
             "$ref": "#/components/responses/Error500"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
           }
         },
         "requestBody": {
@@ -348,8 +351,8 @@
         "x-integer-encoding": "Nombres JSON en base 10 sans décimale ni exposant.",
         "x-rate-limit": {
           "limit": 5,
-          "interval_seconds": 60,
-          "scope": "adresse IP et route ; _api_sensitive=true à la déclaration de route"
+          "interval_seconds": 900,
+          "scope": "courriel normalisé et IP, commun interface/API ; plafond supplémentaire de 30 tentatives par IP/15 minutes ; compteur courriel/IP réinitialisé après succès"
         }
       }
     },
@@ -373,7 +376,7 @@
           "USER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [],
         "responses": {
           "204": {
@@ -442,7 +445,7 @@
           "USER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [],
         "responses": {
           "200": {
@@ -501,7 +504,7 @@
       "patch": {
         "operationId": "updateProfile",
         "summary": "Modifier son fuseau",
-        "description": "Modifier son fuseau",
+        "description": "Modifier uniquement son fuseau horaire IANA. Identité, rôle et affectations restent administrés séparément.",
         "tags": [
           "auth"
         ],
@@ -517,7 +520,7 @@
           "USER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [],
         "responses": {
           "200": {

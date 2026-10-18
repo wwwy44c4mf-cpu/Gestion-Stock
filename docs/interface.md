@@ -6,7 +6,7 @@ L’interface est rendue par Symfony/Twig, en français. Le CSS et Stimulus 3.2.
 
 `App\Ui\Navigation::items($roles, $storeId)` produit les liens selon des rôles de confiance et le magasin sélectionné. Les administrateurs disposent de neuf rubriques. Les mouvements, inventaires et alertes des gestionnaires exigent un contexte magasin. Les utilisateurs n’ont pas les liens de gestion réservés. La saisie d’inventaire utilisateur reste exclue conformément à l’arbitrage du suivi.
 
-Le subscriber fournit actuellement le contexte anonyme : seul le tableau de bord apparaît et le sélecteur de magasin est désactivé. AUTH-01/03 devra alimenter ce contexte depuis l’identité authentifiée et ses affectations, valider le magasin demandé avant de le conserver en session et fournir les options du sélecteur. Aucun rôle ni magasin fourni par une URL ne devient une autorisation. Masquer un lien ne remplace pas les contrôles serveur.
+Depuis AUTH-01, le subscriber lit l’identité authentifiée et son rôle en base ; le visiteur anonyme voit la connexion. AUTH-03 devra valider le magasin demandé avant de le conserver en session et fournir les options du sélecteur. Le sélecteur reste désactivé jusque-là. Aucun rôle ni magasin fourni par une URL ne devient une autorisation. Masquer un lien ne remplace pas les contrôles serveur.
 
 Les pages `/espace/{section}` sont des états d’attente publics sans données ni actions métier. Les lots métier remplaceront ces états et appliqueront les contrôles d’accès. Les tirets des indicateurs signifient « donnée non disponible », jamais un stock nul calculé.
 
@@ -32,3 +32,5 @@ La confirmation doit être incluse **dans le formulaire POST protégé**, après
 Lien d’évitement, repères sémantiques, page active, focus contrasté, libellés explicites, erreurs textuelles et cibles de contrôle d’au moins 44 px. Sous 760 px : menu repliable, cartes sur une colonne. Sans JavaScript, les liens du menu restent visibles. Stimulus synchronise la visibilité et `aria-expanded` à chaque changement de largeur.
 
 Le rendu initial représente le socle : les formulaires métier, la connexion, les statistiques et les opérations ne sont pas livrés dans SOC-04.
+
+Depuis AUTH-01, les écrans de connexion et de profil utilisent ce socle ; voir [le guide d’authentification](authentification.md).

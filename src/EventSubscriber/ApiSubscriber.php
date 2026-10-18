@@ -31,8 +31,8 @@ final class ApiSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            'kernel.request' => [['identify', 256], ['protect', 8]],
-            'kernel.exception' => ['problem', 64],
+            'kernel.request' => [['identify', 256], ['protect', 16]],
+            'kernel.exception' => ['problem', 0],
             'kernel.response' => ['headers', -64],
         ];
     }
@@ -57,7 +57,7 @@ final class ApiSubscriber implements EventSubscriberInterface
             return;
         }
         $sensitive = $request->attributes->getBoolean('_api_sensitive') || in_array($request->getPathInfo(), [
-            '/api/v1/auth/login', '/api/v1/auth/password-reset/request', '/api/v1/auth/password-reset/confirm',
+            '/api/v1/auth/password-reset/request', '/api/v1/auth/password-reset/confirm',
             '/api/v1/notifications/information',
         ], true);
         if ($sensitive && !$request->isMethodSafe()) {

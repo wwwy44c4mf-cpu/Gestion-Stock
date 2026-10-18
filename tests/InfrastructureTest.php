@@ -9,12 +9,14 @@ use Symfony\Component\Messenger\Transport\TransportInterface;
 
 final class InfrastructureTest extends WebTestCase
 {
-    public function testHomeRendersFrenchPage(): void
+    public function testHomeRequiresLoginAndLoginPageIsFrench(): void
     {
         $client = static::createClient();
         $client->request('GET', '/');
+        self::assertResponseRedirects('/connexion');
+        $client->followRedirect();
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('h1', 'Gestion de stock');
+        self::assertSelectorTextContains('h1', 'Connexion');
         self::assertSelectorExists('html[lang="fr"]');
     }
 

@@ -58,7 +58,8 @@ final class ApiTest extends WebTestCase
             $client->request('GET', $path);
             self::assertResponseIsSuccessful();
             self::assertResponseHeaderSame('Content-Type', 'application/json');
-            self::assertResponseHeaderSame('Cache-Control', 'no-store, private');
+            self::assertStringContainsString('no-store', $client->getResponse()->headers->get('Cache-Control'));
+            self::assertStringContainsString('private', $client->getResponse()->headers->get('Cache-Control'));
             self::assertMatchesRegularExpression('/^[a-f0-9]{32}$/', $client->getResponse()->headers->get('X-Request-Id'));
         }
     }

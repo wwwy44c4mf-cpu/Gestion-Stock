@@ -9,8 +9,12 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 | `GET /api/v1/health` | Sonde technique minimale |
 | `GET /api/v1/openapi.json` | Document OpenAPI local |
 | `GET /api/v1/auth/csrf` | Jeton CSRF lié à une session cookie |
+| `POST /api/v1/auth/login` | Connexion par courriel et mot de passe |
+| `POST /api/v1/auth/logout` | Déconnexion de la session |
+| `GET /api/v1/auth/me` | Profil de l’utilisateur connecté |
+| `PATCH /api/v1/auth/me` | Modification de son fuseau horaire |
 
-Ces trois opérations portent `x-implementation: available`. Les 55 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
+Ces sept opérations portent `x-implementation: available`. Les 51 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
 
 Les routes `/health/live` et `/health/ready` de SOC-01 restent disponibles pour Docker ; la nouvelle sonde API ne remplace pas le contrôle PostgreSQL de readiness.
 
@@ -77,11 +81,11 @@ Toutes les erreurs traitées par Symfony sous `/api/v1` sont des `application/pr
 
 ## Sessions, CSRF et débit
 
-Le cookie de production est `GESTION_STOCK_SESSION`, HttpOnly et SameSite=Lax. Secure s’applique sur une requête HTTPS reconnue par Symfony ; le proxy et HTTPS de production seront configurés dans OPS-02. Le stockage natif se trouve dans la zone temporaire de l’application ; un redémarrage invalide les sessions. L’authentification, l’expiration métier, la désactivation et la régénération d’identifiant à la connexion restent dans AUTH-01/02.
+Le cookie de production est `GESTION_STOCK_SESSION`, HttpOnly et SameSite=Lax. Secure s’applique sur une requête HTTPS reconnue par Symfony ; le proxy et HTTPS de production seront configurés dans OPS-02. Le stockage natif se trouve dans la zone temporaire de l’application ; un redémarrage invalide les sessions. AUTH-01 fournit la connexion, la déconnexion, le profil et le renouvellement de session, avec expiration à 30 minutes d’inactivité et 12 heures absolues. La relecture du compte rejette une identité désactivée ou une version d’authentification modifiée. Les écrans de gestion des comptes restent dans AUTH-02.
 
-Avant une écriture, appeler `/auth/csrf`, conserver le cookie puis transmettre le champ `token` dans `X-CSRF-Token`. Le jeton est lié à cette session, y compris pour connexion et réinitialisation. Un jeton absent ou appartenant à une autre session donne 403. Il ne prouve pas l’identité d’un utilisateur et ne remplace pas les contrôles de rôle.
+Après une connexion, le cookie est renouvelé et les anciens jetons CSRF sont supprimés. Redemander un jeton avec le nouveau cookie. Avant une écriture, appeler `/auth/csrf`, conserver le cookie puis transmettre le champ `token` dans `X-CSRF-Token`. Le jeton est lié à cette session, y compris pour connexion et réinitialisation. Un jeton absent ou appartenant à une autre session donne 403. Il ne prouve pas l’identité d’un utilisateur et ne remplace pas les contrôles de rôle.
 
-Les futures routes de connexion, réinitialisation et information ciblée sont limitées par adresse IP et route à cinq requêtes par minute ; un contrôleur sensible supplémentaire peut déclarer `_api_sensitive: true`. Symfony RateLimiter utilise un cache local partagé entre processus du conteneur et un verrou `flock`. Un dépassement donne 429 et `Retry-After`. Les proxys ne sont pas implicitement reconnus : configurer explicitement ceux de confiance dans OPS-02. AUTH-07 ajoutera la politique complète des échecs par compte et leur audit. Un déploiement à plusieurs réplicas demandera un stockage partagé des limites/sessions ; la configuration actuelle cible un seul conteneur applicatif.
+La réinitialisation et l’information ciblée sont limitées par adresse IP et route à cinq requêtes par minute ; un contrôleur sensible supplémentaire peut déclarer `_api_sensitive: true`. Symfony RateLimiter utilise un cache local partagé entre processus du conteneur et un verrou `flock`. Un dépassement donne 429 et `Retry-After`. Les proxys ne sont pas implicitement reconnus : configurer explicitement ceux de confiance dans OPS-02. La connexion utilise une politique partagée interface/API : cinq tentatives par courriel/IP sur quinze minutes, trente par IP, audit pseudonymisé et réponse générique. Voir [AUTH-01](authentification.md). Un déploiement à plusieurs réplicas demandera un stockage partagé des limites/sessions ; la configuration actuelle cible un seul conteneur applicatif.
 
 ## Idempotence et contrôles métier à raccorder
 
