@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+{% block title %}Consommation enregistrée · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">CONSOMMATION</p><h1>{{ consumption.article_name }}</h1><p class="subtitle">Référence : {{ consumption.sku }}</p></div><a href="{{ path('consumptions_new') }}">Enregistrer une autre consommation</a></div>
+<section class="card"><h2>{{ consumption.quantity }} unité{{ consumption.quantity > 1 ? 's' : '' }} retirée{{ consumption.quantity > 1 ? 's' : '' }}</h2>
+<p><strong>Magasin :</strong> {{ consumption.store_code }} · {{ consumption.store_name }}</p>
+<p><strong>Technicien bénéficiaire :</strong> {{ consumption.consumer_name }}</p><p><strong>Opérateur :</strong> {{ consumption.author_name }}</p>
+<p><strong>Date :</strong> {{ consumption.created_at|date('d/m/Y H:i',app.user.timezone) }}</p>
+<p><strong>Référence d’intervention, chantier ou client :</strong> {{ consumption.reference is null or consumption.reference == '' ? 'Non renseignée' : consumption.reference }}</p>
+<p><strong>Commentaire :</strong> {{ consumption.comment is null or consumption.comment == '' ? 'Aucun' : consumption.comment }}</p>
+{% if is_granted('APP_STOCK_READ',stock_target) %}<p><a class="button" href="{{ path('stocks_detail',{storeId:consumption.store_id,articleId:consumption.article_id}) }}">Consulter le stock actualisé</a></p>{% endif %}
+</section>
+{% endblock %}
