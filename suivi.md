@@ -239,7 +239,7 @@ Sources : MAG-01,02,05.
 
 Critères d’acceptation : Archivage conserve mouvements et données ; doublon de code rejeté.
 
-Livraison vérifiée : liste autorisée, formulaires sans JavaScript et API de création/modification/archivage/réactivation. Code unique conservé ; création idempotente et audit atomiques. Désactivation refusée si un inventaire est en cours ou en attente de validation. Migration `Version20261018130000`. Recette : 94 tests PHP / 1 304 assertions et quatre validations OpenAPI réussis, dont créations simultanées par deux processus. [Guide](docs/gestion-magasins.md) · [Validation](docs/validation-mag01.md).
+Livraison pour revue : [PR #59](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/59), branche `codex/mag-01-store-administration`. Liste autorisée, formulaires sans JavaScript et API de création/modification/archivage/réactivation. Code unique conservé ; création idempotente et audit atomiques. Désactivation refusée si un inventaire est en cours ou en attente de validation. Migration `Version20261018130000`. Recette : 94 tests PHP / 1 304 assertions et quatre validations OpenAPI réussis, dont créations simultanées par deux processus. [Guide](docs/gestion-magasins.md) · [Validation](docs/validation-mag01.md).
 
 ### ART-01 — Catalogue global, catégories et archivage
 
