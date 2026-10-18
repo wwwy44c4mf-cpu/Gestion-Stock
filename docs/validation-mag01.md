@@ -1,5 +1,7 @@
 # Validation MAG-01 — 18 octobre 2026
 
+Livraison : [PR #59](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/59).
+
 ## Résultat
 
 **94 tests PHP / 1 304 assertions** réussis depuis les images Docker construites, ainsi que les quatre validations indépendantes OpenAPI. Aucune dépendance supplémentaire. La migration `Version20261018130000` a été appliquée explicitement par la commande de migration sur la base locale.
