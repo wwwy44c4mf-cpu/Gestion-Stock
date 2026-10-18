@@ -2,7 +2,7 @@
 
 ## Résultat
 
-Version livrée pour revue : branche `codex/auth-01-authentication`, issue [#5](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5). Base : SOC-04 intégré sur `main` (`9cb250fbe2c34bef1c004d000d05ee6bf09a8206`).
+Version livrée pour revue : [PR #55](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/55), branche `codex/auth-01-authentication`, issue [#5](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5). Base : SOC-04 intégré sur `main` (`9cb250fbe2c34bef1c004d000d05ee6bf09a8206`).
 
 - **55 tests PHP / 809 assertions réussis**, dans Docker, dont 17 scénarios AUTH : 16 parcours applicatifs et un parcours PHP natif séparé. Les régressions des socles précédents restent couvertes.
 - **4 tests indépendants du contrat** réussis : OpenAPI 3.1 officiel, schémas JSON Schema et références locales ; 58 opérations, dont sept disponibles et 51 planifiées.
