@@ -109,7 +109,7 @@ final class SchemaTest extends KernelTestCase
     public function testMigrationReexecutionIsANoop(): void
     {
         $this->migrate('latest');
-        self::assertSame(6, (int) $this->db->fetchOne('SELECT count(*) FROM doctrine_migration_versions'));
+        self::assertSame(7, (int) $this->db->fetchOne('SELECT count(*) FROM doctrine_migration_versions'));
     }
 
     public function testReferencesAndStockPairsAreUnique(): void
@@ -317,6 +317,15 @@ final class SchemaTest extends KernelTestCase
         self::assertNotSame(0, $this->runMigration('0', $output));
         self::assertStringContainsString('résultats de propositions présents', $output->fetch());
         self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM proposal_requests'));
+    }
+
+    public function testStockEventsPreventDestructiveMigrationRollback(): void
+    {
+        $f = $this->fixtures(); $movement = $this->movement($f,'entry','1',null,$f['a']);
+        $this->db->executeStatement('INSERT INTO stock_change_events (movement_id,article_id,store_ids) VALUES (?,?,?::uuid[])',[$movement,$f['article'],'{'.$f['a'].'}']);
+        $output = new BufferedOutput(); self::assertNotSame(0,$this->runMigration('DoctrineMigrations\\Version20261018150000',$output));
+        self::assertSame(1,(int)$this->db->fetchOne('SELECT count(*) FROM stock_change_events'));self::assertSame(1,(int)$this->db->fetchOne('SELECT count(*) FROM stock_movements'));
+        $this->rejected('UPDATE stock_change_events SET store_ids = ?::uuid[] WHERE movement_id = ?',['{}',$movement]);
     }
 
 }
