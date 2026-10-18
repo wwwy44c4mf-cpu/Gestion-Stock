@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+{% block title %}Enregistrer une entrée · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">RÉAPPROVISIONNEMENT</p><h1>Enregistrer une entrée</h1><p class="subtitle">Ajoutez les articles reçus au stock de votre magasin.</p></div><a href="{{ path('stocks_list') }}">Retour aux stocks</a></div>
+<section class="card account-form">
+{% if error %}{% include 'components/notice.html.twig' with {kind:'error',message:error} only %}<p><a href="{{ path('stocks_entry_new') }}">Ouvrir un nouveau formulaire</a></p>{% endif %}
+{% if stores is empty %}<p class="notice">Aucun magasin actif ne permet d’enregistrer une entrée avec vos droits actuels.</p>{% endif %}
+{% if articles is empty %}<p class="notice">Le catalogue ne contient aucun article actif. Un administrateur doit d’abord en créer ou réactiver un.</p>{% endif %}
+<form method="post" action="{{ path('stocks_entry_new') }}">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token('stock_entry') }}"><input type="hidden" name="_movement_key" value="{{ movement_key }}">
+<div class="field"><label for="entry-store">Magasin (obligatoire)</label><select id="entry-store" name="store_id" required><option value="">Choisir un magasin</option>{% for store in stores %}<option value="{{ store.id }}" {% if item.store_id == store.id %}selected{% endif %}>{{ store.code }} · {{ store.name }}</option>{% endfor %}</select></div>
+<div class="field"><label for="entry-article">Article (obligatoire)</label><select id="entry-article" name="article_id" required><option value="">Choisir un article</option>{% for article in articles %}<option value="{{ article.id }}" {% if item.article_id == article.id %}selected{% endif %}>{{ article.sku }} · {{ article.name }}</option>{% endfor %}</select></div>
+<div class="field"><label for="entry-quantity">Quantité reçue (obligatoire)</label><input id="entry-quantity" name="quantity" type="text" inputmode="numeric" pattern="[1-9][0-9]*" maxlength="16" value="{{ item.quantity }}" aria-describedby="entry-unit" required><p id="entry-unit" class="muted">En unités entières, de 1 à 9 007 199 254 740 991.</p></div>
+<div class="field"><label for="entry-reason">Motif (obligatoire)</label><textarea id="entry-reason" name="reason" rows="3" maxlength="2000" required>{{ item.reason }}</textarea></div>
+<div class="field"><label for="entry-reference">Référence (facultative)</label><input id="entry-reference" name="reference" maxlength="255" value="{{ item.reference }}"><p class="muted">Par exemple : un numéro de bon de livraison.</p></div>
+<button class="button" type="submit" {% if stores is empty or articles is empty %}disabled{% endif %}>Enregistrer l’entrée</button>
+</form>
+</section>
+{% endblock %}

@@ -38,7 +38,9 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 | `GET /api/v1/articles/{id}/stocks` | Total exact autorisé et détail paginé |
 | `GET /api/v1/stores/{storeId}/stocks/{articleId}/movements` | Journal local sans identité distante, ADMIN/MANAGER autorisés |
 
-Ces trente et une opérations portent `x-implementation: available`. Les 28 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
+| `POST /api/v1/movements/entries` | Entrée autorisée, atomique et idempotente |
+
+Ces trente-deux opérations portent `x-implementation: available`. Les 27 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
 
 Les routes `/health/live` et `/health/ready` de SOC-01 restent disponibles pour Docker ; la nouvelle sonde API ne remplace pas le contrôle PostgreSQL de readiness.
 
@@ -135,3 +137,7 @@ AUTH-02 active les opérations de comptes ; voir [leur guide](administration-com
 ## Consultation des stocks
 
 Les lectures `/stocks`, `/stores/{storeId}/stocks` et `/articles/{id}/stocks` appliquent les magasins autorisés avant pagination et total. Les articles sans solde apparaissent à zéro sans écriture. Le journal local `/stores/{storeId}/stocks/{articleId}/movements` est réservé à ADMIN/MANAGER autorisés et ne retourne ni identités ni magasin distant. [Guide](stocks.md).
+
+## Entrées de stock
+
+Le formulaire et `POST /api/v1/movements/entries` utilisent le moteur transactionnel de STK-02. Motif obligatoire, référence facultative, auteur et date serveur ; événement durable de recalcul en attente des futurs traitements d’alertes. [Guide](entrees-stock.md) · [Recette](validation-stk03.md).

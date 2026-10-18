@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -77,8 +77,8 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | ART-02 | 1 | Propositions d’articles et validation administrative | ART-01,02; décision utilisateur | ART-01 | Terminé | [#11](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/11) |
 | ART-03 | 1 | Recherche et consultation du catalogue | ART-04 | ART-01, SOC-04 | Terminé | [#12](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/12) |
 | STK-01 | 2 | Consultation des stocks et consolidation | STK-01; MAG-04 | ART-01, AUTH-03 | Terminé | [#13](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13) |
-| STK-02 | 2 | Moteur transactionnel, concurrence et idempotence | STK-06,07,10; §4 | SOC-02, AUTH-03 | En revue | [#14](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14) |
-| STK-03 | 2 | Entrées et réapprovisionnements | STK-02; parcours 5.3 | STK-02, STK-01 | À faire | [#15](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/15) |
+| STK-02 | 2 | Moteur transactionnel, concurrence et idempotence | STK-06,07,10; §4 | SOC-02, AUTH-03 | Terminé | [#14](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14) |
+| STK-03 | 2 | Entrées et réapprovisionnements | STK-02; parcours 5.3 | STK-02, STK-01 | En revue | [#15](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/15) |
 | STK-04 | 2 | Consommations et bénéficiaire tiers | STK-03; CON-01,02; CON-05 partiel | STK-02, STK-01 | À faire | [#16](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16) |
 | STK-05 | 2 | Ajustements et corrections par contre-mouvement | STK-04,09 | STK-02 | À faire | [#17](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17) |
 | STK-06 | 2 | Transferts atomiques entre magasins | STK-05 | STK-02 | À faire | [#18](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/18) |
@@ -301,7 +301,7 @@ Livraison pour revue : [PR #62](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### STK-02 — Moteur transactionnel, concurrence et idempotence
 
-Issue : [#14](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14) · En revue · Dépendances : [SOC-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
+Issue : [#14](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14) · Terminé · Dépendances : [SOC-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
 
 Sources : STK-06,07,10; §4.
 
@@ -315,15 +315,17 @@ Livraison pour revue : [PR #63](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### STK-03 — Entrées et réapprovisionnements
 
-Issue : [#15](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/15) · À faire · Dépendances : [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14), [STK-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13).
+Issue : [#15](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/15) · En revue · Dépendances : [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14), [STK-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13).
 
 Sources : STK-02; parcours 5.3.
 
-- [ ] Créer formulaire et API d’entrée pour admin/gestionnaire autorisé
-- [ ] Valider quantité entière strictement positive, motif et référence facultative
-- [ ] Enregistrer auteur et date serveur avec événement de recalcul des alertes
+- [x] Créer formulaire et API d’entrée pour admin/gestionnaire autorisé
+- [x] Valider quantité entière strictement positive, motif et référence facultative
+- [x] Enregistrer auteur et date serveur avec événement de recalcul des alertes
 
 Critères d’acceptation : Stock 5 + entrée 10 = 15 ; refus utilisateur simple ; REC-03.
+
+Formulaire sans JavaScript et API d’entrée raccordés au moteur STK-02. Options limitées aux magasins actifs autorisés et articles actifs ; présélection contextuelle, validations serveur, CSRF, valeurs conservées en erreur, redirection vers le solde actualisé, rejeu sans doublon. Auteur et date serveur, événement durable pour les futurs traitements d’alertes. Aucun nouveau schéma de base. Recette : 155 tests PHP / 2 290 assertions et quatre validations OpenAPI réussis, contrôle ordinateur/mobile. [Guide](docs/entrees-stock.md) · [Validation](docs/validation-stk03.md).
 
 ### STK-04 — Consommations et bénéficiaire tiers
 
@@ -799,3 +801,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 18 octobre 2026 : STK-01 et compléments ART-03 développés et vérifiés pour revue (PR #62). Affichage des articles sans solde à zéro confirmé par l’utilisateur. Limite temporaire d’approbation résolue ; recette complète réussie (132 tests / 1 908 assertions + 4 validations OpenAPI).
 
 - 18 octobre 2026 : PR #61 et #62 intégrées à main. STK-02 développé et vérifié pour revue : moteur interne, événements durables, concurrence réelle et atomicité. Recette complète : 146 tests / 2 173 assertions + 4 validations OpenAPI.
+
+- 18 octobre 2026 : PR #63 intégrée à main. STK-03 développé et vérifié pour revue : formulaire et API d’entrée, scénario 5 + 10 = 15, permissions et doubles envois. Recette : 155 tests / 2 290 assertions + 4 validations OpenAPI.

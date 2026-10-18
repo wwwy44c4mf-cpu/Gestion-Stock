@@ -3083,7 +3083,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -3105,13 +3105,6 @@
                   "type": "string",
                   "maxLength": 32
                 }
-              },
-              "Location": {
-                "schema": {
-                  "type": "string",
-                  "maxLength": 500
-                },
-                "description": "URI relative de la ressource créée."
               }
             }
           },
