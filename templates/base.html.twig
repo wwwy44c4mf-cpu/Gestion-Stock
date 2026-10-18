@@ -25,7 +25,15 @@
     <div class="workspace">
         <header class="topbar">
             <span>Gestion des stocks <span class="muted">/ {{ page_title }}</span></span>
-            {% if app.user %}<div><label for="magasin">Magasin</label> <select id="magasin" disabled aria-describedby="magasin-aide"><option>Aucun magasin affecté</option></select></div>{% endif %}
+            {% if app.user %}<form method="post" action="{{ path('store_context') }}" class="store-context">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('magasin') }}">
+                <label for="magasin">Magasin</label>
+                <select id="magasin" name="store_id" aria-describedby="magasin-aide" {% if store_options is empty %}disabled{% endif %}>
+                    <option value="">{{ store_options is empty ? 'Aucun magasin accessible' : 'Tous mes magasins' }}</option>
+                    {% for store in store_options %}<option value="{{ store.id }}" {% if selected_store == store.id %}selected{% endif %}>{{ store.name }}{{ store.active ? '' : ' (désactivé)' }}</option>{% endfor %}
+                </select>
+                {% if store_options is not empty %}<button class="button" type="submit">Choisir</button>{% endif %}
+            </form>{% endif %}
             <div class="account-actions">
             {% if app.user %}
                 <a href="{{ path('profile') }}" {% if current_section == 'profile' %}aria-current="page"{% endif %}>Mon profil</a>
@@ -34,7 +42,7 @@
             </div>
         </header>
         <main id="contenu" tabindex="-1">
-            {% if app.user %}<p id="magasin-aide" class="context-note">La sélection du magasin sera disponible avec la gestion des affectations.</p>{% endif %}
+            {% if app.user %}<p id="magasin-aide" class="context-note">Le contexte sélectionné s’applique aux écrans de gestion. Vos droits restent limités aux magasins autorisés.</p>{% endif %}
             {% for type, messages in app.flashes %}{% for message in messages %}{% include 'components/notice.html.twig' with {message: message, kind: type} only %}{% endfor %}{% endfor %}
             {% block content %}{% endblock %}
         </main>

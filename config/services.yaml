@@ -10,3 +10,6 @@ services:
       - '../src/Api/Pagination.php'
       - '../src/Api/DateRange.php'
       - '../src/Security/StockUser.php'
+      - '../src/Security/AccessTarget.php'
+      - '../src/Security/SqlScope.php'
+      - '../src/Security/Permission.php'

@@ -19,7 +19,7 @@ use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted('ROLE_ADMIN')]
+#[IsGranted('APP_ACCOUNTS_ADMIN')]
 final class UserAdministrationController extends AbstractController
 {
     public function __construct(private readonly UserAdministration $users) {}

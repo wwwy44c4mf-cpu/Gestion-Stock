@@ -108,3 +108,7 @@ Pour essayer l’interface localement : [administrateur de test réservé au mod
 ## Administration des comptes (AUTH-02)
 
 Le menu **Administration** permet aux administrateurs de créer et modifier les comptes, leurs rôles et leurs affectations, puis de désactiver/réactiver les accès. Les anciennes sessions sont invalidées. [Guide](docs/administration-comptes.md) · [Recette](docs/validation-auth02.md). Appliquer la migration `Version20261018120000` avant la mise en service.
+
+## Rôles et accès aux magasins (AUTH-03)
+
+Le sélecteur **Magasin** propose les magasins autorisés et conserve le contexte choisi. Les permissions sont vérifiées côté serveur indépendamment de ce choix. Les magasins désactivés restent consultables uniquement par les administrateurs ; les utilisateurs conservent leurs lectures et retours personnels hors affectation pour une origine active. [Règles et intégration](docs/controle-acces.md) · [Recette](docs/validation-auth03.md).

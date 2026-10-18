@@ -20,3 +20,6 @@
 .checkbox-row { display:flex!important; align-items:center; gap:.6rem; padding:.4rem 0; font-weight:400!important; }
 .checkbox-row input { width:auto!important; min-height:24px!important; }
 .account-form fieldset { border:1px solid #788d81; border-radius:6px; margin:1.5rem 0; }
+.store-context { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; min-width:0; max-width:100%; margin:0; }
+.store-context select { min-width:0; max-width:min(240px,100%); }
+@media(max-width:760px) { .store-context { width:100%; } }

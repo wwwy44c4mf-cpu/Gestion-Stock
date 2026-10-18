@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 et SOC-02 intégrés à main (PR #51 et #52) ; SOC-03 implémenté et vérifié localement, en revue ; SOC-04 implémenté et vérifié localement (raccordement identité/magasins dans AUTH) ; les autres fonctionnalités restent à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -13,12 +13,13 @@ Les décisions ci-dessous précisent ou remplacent les options correspondantes d
 | Architecture | Application et dépendances intégralement sous Docker ; API REST /api/v1, PostgreSQL, worker et scheduler conteneurisés. Symfony 8.x proposé par le CDC ; versions PHP et dépendances compatibles à vérifier et épingler à l’implémentation. |
 | Catalogue global | Les gestionnaires proposent créations et modifications ; un administrateur valide avant publication. Les administrateurs administrent directement le catalogue. |
 | Consommation pour autrui | Réservée aux administrateurs et gestionnaires autorisés sur le magasin ; tout technicien actif peut être bénéficiaire, même sans affectation à ce magasin. |
-| Consultation personnelle | Les utilisateurs consultent leur historique et leurs statistiques de consommation. Cette permission n’ouvre pas les stocks des magasins non affectés. |
+| Magasin désactivé | Stocks et historiques accessibles uniquement aux administrateurs ; aucune écriture de stock. |
+| Consultation personnelle | Les utilisateurs consultent leur historique et leurs statistiques de consommation, y compris pour un magasin actif non affecté. Un magasin désactivé reste réservé aux administrateurs. Cette permission n’ouvre pas les stocks des magasins non affectés. |
 | Référence métier | Référence d’intervention, chantier ou client facultative dès le MVP ; gestion structurée des interventions en V2. |
 | Inventaire | Mouvements du magasin bloqués pendant comptage et validation, y compris entrées, sorties, ajustements, retours et transferts impliquant le magasin. Seuls administrateurs et gestionnaires autorisés saisissent et valident. |
 | Quantités | Une seule unité : « unité » ; nombres entiers uniquement. Les décimales et autres unités ne sont pas nécessaires au MVP. |
 | Dates | Date et heure serveur à la saisie, sans rétroactivité ; stockage UTC, affichage local, Europe/Paris par défaut. |
-| Retours | Dès le MVP, retours liés à la consommation initiale, dans le magasin d’origine ; administrateurs/gestionnaires selon périmètre, utilisateurs pour leurs propres consommations. Cumul limité à la quantité sortie. |
+| Retours | Dès le MVP, retours liés à la consommation initiale, dans le magasin d’origine ; administrateurs/gestionnaires selon périmètre, utilisateurs pour leurs propres consommations. Cumul limité à la quantité sortie. L’utilisateur conserve le droit de retour personnel après retrait d’affectation si le magasin d’origine est actif. |
 | Seuils | Personnalisables par article et magasin. La dernière précision remplace l’idée initiale de valeurs par défaut : aucune valeur globale chiffrée n’a été validée. |
 | Alertes immédiates | Courriels à toute heure lors des franchissements de seuil ; destinataires par défaut : gestionnaires du magasin et administrateurs. |
 | Rappels | Dès le MVP, récapitulatif quotidien par destinataire à 08 h Europe/Paris tant que des alertes persistent. |
@@ -36,7 +37,7 @@ Ces sujets ne constituent pas des choix déjà validés. Ils seront précisés u
 - Avant production : responsable de maintenance, supervision et restauration ; responsable de traitement des données.
 - Avant anonymisation en production : date de référence du délai d’un an, données de comptes actifs et statistiques personnelles, méthode empêchant la réidentification et traitement des sauvegardes restaurées. Préserver le journal quantitatif.
 - Avant diffusion : licence du code.
-- À préciser dans la conception : règles fines sur articles/magasins inactifs hors nouvelles consommations et changements de seuils. La configuration absente doit rester distincte d’un seuil zéro.
+- À préciser dans la conception : règles fines sur articles inactifs et changements de seuils. La configuration absente doit rester distincte d’un seuil zéro.
 
 ## Organisation et ordre de réalisation
 
@@ -65,8 +66,8 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | SOC-03 | 1 | Contrats API REST et erreurs normalisées | §9 | SOC-01 | Terminé | [#3](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/3) |
 | SOC-04 | 1 | Interface française responsive et navigation | §6 | SOC-01 | Terminé | [#4](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/4) |
 | AUTH-01 | 1 | Connexion, sessions et profil | AUTH-01,02,03,07; §10.1 | SOC-02, SOC-03, SOC-04 | Terminé | [#5](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5) |
-| AUTH-02 | 1 | Administration des comptes et désactivation | AUTH-04,09 | AUTH-01 | En revue | [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6) |
-| AUTH-03 | 1 | Rôles, affectations et contrôle des accès | AUTH-05; MAG-03; §2,4 | AUTH-02 | À faire | [#7](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7) |
+| AUTH-02 | 1 | Administration des comptes et désactivation | AUTH-04,09 | AUTH-01 | Terminé | [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6) |
+| AUTH-03 | 1 | Rôles, affectations et contrôle des accès | AUTH-05; MAG-03; §2,4 | AUTH-02 | En revue | [#7](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7) |
 | AUTH-04 | 1 | Réinitialisation sécurisée du mot de passe | AUTH-06; MAIL-02 | AUTH-01, MAIL-01 | À faire | [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) |
 | MAG-01 | 1 | Création, modification et archivage des magasins | MAG-01,02,05 | AUTH-03 | À faire | [#9](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/9) |
 | ART-01 | 1 | Catalogue global, catégories et archivage | ART-01,02,03; §4 | MAG-01 | À faire | [#10](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10) |
@@ -185,7 +186,7 @@ Livraison AUTH-01 : [PR #55](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pul
 
 ### AUTH-02 — Administration des comptes et désactivation
 
-Issue : [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6) · En revue · Dépendances : [AUTH-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5).
+Issue : [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6) · Terminé · Dépendances : [AUTH-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5).
 
 Sources : AUTH-04,09.
 
@@ -199,15 +200,19 @@ Livraison AUTH-02 : [PR #57](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pul
 
 ### AUTH-03 — Rôles, affectations et contrôle des accès
 
-Issue : [#7](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7) · À faire · Dépendances : [AUTH-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6).
+Issue : [#7](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7) · En revue · Dépendances : [AUTH-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6).
 
 Sources : AUTH-05; MAG-03; §2,4.
 
-- [ ] Implémenter ADMIN, MANAGER, USER et affectations multiples
-- [ ] Centraliser les contrôles serveur sur ressources, listes, agrégats et actions
-- [ ] Limiter les utilisateurs à leurs données personnelles ; bénéficiaire tiers actif sélectionnable par admin/gestionnaire sans ouvrir son profil complet
+- [x] Implémenter ADMIN, MANAGER, USER et affectations multiples
+- [x] Centraliser les contrôles serveur sur ressources, listes, agrégats et actions
+- [x] Limiter les utilisateurs à leurs données personnelles ; bénéficiaire tiers actif sélectionnable par admin/gestionnaire sans ouvrir son profil complet
 
 Critères d’acceptation : Accès inter-magasins refusé sur écrans et API ; aucun stock modifié ; REC-02,12.
+
+Règle validée : les magasins désactivés, leurs stocks et leurs historiques sont réservés aux administrateurs ; écritures bloquées pour tous. Mise en œuvre vérifiée des contrôles centralisés, des listes filtrées, de la sélection du contexte magasin et du répertoire minimal des bénéficiaires. Retour personnel autorisé même après retrait d’affectation, uniquement pour une consommation propre et un magasin d’origine actif. [Guide](docs/controle-acces.md).
+
+Livraison pour revue : [PR #58](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/58), branche `codex/auth-03-access-control`. Recette : 84 tests PHP / 1 186 assertions et quatre validations indépendantes du contrat réussis. [Validation](docs/validation-auth03.md). Les opérations de stock, inventaires et statistiques des lots suivants devront intégrer la politique commune ; leurs écrans restent en préparation.
 
 ### AUTH-04 — Réinitialisation sécurisée du mot de passe
 
@@ -767,3 +772,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 18 octobre 2026 : AUTH-01 intégré (PR #55). Ajout demandé d’un administrateur de test réservé à `APP_ENV=dev` : création explicite, marqueur persistant et refus hors développement pour les connexions et les sessions existantes. [Guide](docs/administrateur-test.md).
 
 - 18 octobre 2026 : administrateur de test intégré (PR #56). AUTH-02 implémenté pour revue : administration des comptes, création idempotente et révocation des sessions.
+
+- 18 octobre 2026 : AUTH-02 intégré à main (PR #57). AUTH-03 implémenté et vérifié pour revue ; décisions sur magasins désactivés et retours hors affectation intégrées.
