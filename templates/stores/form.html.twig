@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ is_new ? 'Créer un magasin' : 'Modifier un magasin' }} · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">ADMINISTRATION</p><h1>{{ is_new ? 'Créer un magasin' : 'Modifier un magasin' }}</h1></div><a href="{{ path('stores_list') }}">Retour aux magasins</a></div>
+<section class="card account-form">
+{% if error %}{% include 'components/notice.html.twig' with {kind:'error',message:error} only %}{% endif %}
+<form method="post">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token(token_id) }}">
+{% if is_new %}<input type="hidden" name="_creation_key" value="{{ creation_key }}">{% endif %}
+<div class="field"><label for="store-code">Code (obligatoire)</label><input id="store-code" name="code" value="{{ store.code }}" maxlength="40" required {% if not is_new %}disabled aria-describedby="code-help"{% endif %}>{% if not is_new %}<p id="code-help" class="muted">Le code est conservé pour identifier ce magasin dans la durée.</p>{% endif %}</div>
+<div class="field"><label for="store-name">Nom (obligatoire)</label><input id="store-name" name="name" value="{{ store.name }}" maxlength="160" required></div>
+<div class="field"><label for="store-description">Description</label><textarea id="store-description" name="description" rows="4" maxlength="5000">{{ store.description }}</textarea></div>
+<div class="field"><label for="store-address">Adresse (facultative)</label><textarea id="store-address" name="address" rows="3" maxlength="1000">{{ store.address ?? '' }}</textarea></div>
+<div class="field"><label class="checkbox-row"><input type="checkbox" name="active" value="1" {% if store.active %}checked{% endif %}> Magasin actif</label><p class="muted">La désactivation conserve les données et l’historique. Seuls les administrateurs pourront consulter ce magasin. Terminez ou annulez tout inventaire en cours avant de le désactiver.</p></div>
+<button class="button" type="submit">{{ is_new ? 'Créer le magasin' : 'Enregistrer les modifications' }}</button>
+</form>
+</section>
+{% endblock %}

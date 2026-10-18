@@ -16,6 +16,7 @@ final class UiController extends AbstractController
             $this->denyAccessUnlessGranted('APP_ACCOUNTS_ADMIN');
             return $this->redirectToRoute('admin_users');
         }
+        if ($section === 'magasins') { return $this->redirectToRoute('stores_list'); }
         $permission = match ($section) {
             'mouvements' => \App\Security\Permission::MOVEMENT_READ,
             'inventaires' => \App\Security\Permission::INVENTORY_READ,

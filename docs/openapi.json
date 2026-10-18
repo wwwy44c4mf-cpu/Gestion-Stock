@@ -1284,7 +1284,7 @@
           "ADMIN"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -1452,7 +1452,7 @@
       "patch": {
         "operationId": "updateStore",
         "summary": "Modifier ou archiver un magasin",
-        "description": "Archivage logique ; aucune suppression physique de l’historique.",
+        "description": "Modification des informations et archivage logique ; code conservé. Désactivation refusée (409) si un inventaire est en cours ou en attente de validation. Aucune suppression physique de l’historique.",
         "tags": [
           "stores"
         ],
@@ -1466,7 +1466,7 @@
           "ADMIN"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",

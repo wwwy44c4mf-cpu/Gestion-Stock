@@ -27,6 +27,7 @@ final class UiSubscriber implements EventSubscriberInterface
         $section = in_array($route, ['login', 'profile'], true) ? $route : $event->getRequest()->attributes->get('section', 'home');
         if (str_starts_with($route ?? '', 'admin_users')) { $section = 'administration'; }
         $context = $user instanceof StockUser ? $this->context->read($event->getRequest(), $user) : ['options' => [], 'selected' => null];
+        if (str_starts_with($route ?? '', 'stores_')) { $section = 'magasins'; }
         $this->twig->addGlobal('store_options', $context['options']);
         $this->twig->addGlobal('selected_store', $context['selected']);
         $this->twig->addGlobal('navigation_items', $this->navigation->items($user instanceof StockUser ? $user->getRoles() : [], $context['selected'] ?? ($context['options'][0]['id'] ?? null)));

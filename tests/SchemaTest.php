@@ -109,7 +109,7 @@ final class SchemaTest extends KernelTestCase
     public function testMigrationReexecutionIsANoop(): void
     {
         $this->migrate('latest');
-        self::assertSame(3, (int) $this->db->fetchOne('SELECT count(*) FROM doctrine_migration_versions'));
+        self::assertSame(4, (int) $this->db->fetchOne('SELECT count(*) FROM doctrine_migration_versions'));
     }
 
     public function testReferencesAndStockPairsAreUnique(): void
@@ -276,6 +276,16 @@ final class SchemaTest extends KernelTestCase
         self::assertNotSame(0, $this->runMigration('0', $output));
         self::assertStringContainsString('créations de comptes présentes', $output->fetch());
         self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM user_creation_requests'));
+    }
+
+    public function testStoreCreationReplaySurvivesRejectedRollback(): void
+    {
+        $f = $this->fixtures();
+        $this->db->executeStatement('INSERT INTO store_creation_requests (actor_id,request_key,request_fingerprint,store_id,response) VALUES (?,?,?,?,?::jsonb)', [$f['user'],'schema-store-key',str_repeat('b',64),$f['a'],'{}']);
+        $output = new BufferedOutput();
+        self::assertNotSame(0, $this->runMigration('0', $output));
+        self::assertStringContainsString('créations de magasins présentes', $output->fetch());
+        self::assertSame(1, (int) $this->db->fetchOne('SELECT count(*) FROM store_creation_requests'));
     }
 
 }
