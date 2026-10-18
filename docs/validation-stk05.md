@@ -26,4 +26,4 @@ Migration `Version20261018223000` appliquée en développement : huit migrations
 
 Contrat : **60 opérations et 91 schémas**, **36 disponibles / 24 planifiées**. Ajout de `correctMovement`, disponibilité de `createAdjustment` et `reverseMovement`, schémas de correction définis. Les lectures globales d’historique et statistiques restent dans leurs lots ; le journal API local ne divulgue aucun magasin distant.
 
-Livraison pour revue : branche `codex/stk-05-stock-corrections`, basée sur main après intégration de la PR #65. [Guide](corrections-stock.md).
+Livraison pour revue : [PR #66](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/66), branche `codex/stk-05-stock-corrections`, basée sur main après intégration de la PR #65. [Guide](corrections-stock.md).

@@ -354,7 +354,7 @@ Sources : STK-04,09.
 
 Critères d’acceptation : Mouvement original inchangé ; correction liée et justifiée ; toute opération invalide laisse le stock intact.
 
-Livraison pour revue : branche `codex/stk-05-stock-corrections`. Ajustement signé et correction directe de quantité, avec motif obligatoire pour ADMIN/MANAGER. Origine immuable, contre-mouvement exact et remplacement liés atomiquement ; solde net, stock non négatif, inventaires bloquants, droits sur tous les magasins, rejeu et double annulation contrôlés. Migration `Version20261018223000`. Recette : 185 tests PHP / 2 653 assertions et quatre validations OpenAPI réussis, dont corrections et annulations concurrentes par deux processus et panne injectée ; interface vérifiée sur ordinateur/mobile, stock local conservé. [Guide](docs/corrections-stock.md) · [Validation](docs/validation-stk05.md).
+Livraison pour revue : [PR #66](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/66), branche `codex/stk-05-stock-corrections`. Ajustement signé et correction directe de quantité, avec motif obligatoire pour ADMIN/MANAGER. Origine immuable, contre-mouvement exact et remplacement liés atomiquement ; solde net, stock non négatif, inventaires bloquants, droits sur tous les magasins, rejeu et double annulation contrôlés. Migration `Version20261018223000`. Recette : 185 tests PHP / 2 653 assertions et quatre validations OpenAPI réussis, dont corrections et annulations concurrentes par deux processus et panne injectée ; interface vérifiée sur ordinateur/mobile, stock local conservé. [Guide](docs/corrections-stock.md) · [Validation](docs/validation-stk05.md).
 
 ### STK-06 — Transferts atomiques entre magasins
 
