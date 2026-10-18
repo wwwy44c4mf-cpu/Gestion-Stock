@@ -1,0 +1,3 @@
+api_probes:
+  resource: '../../../tests/Fixtures/ApiProbeController.php'
+  type: attribute
