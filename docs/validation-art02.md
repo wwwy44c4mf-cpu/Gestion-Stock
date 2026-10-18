@@ -1,5 +1,7 @@
 # Validation ART-02 — 18 octobre 2026
 
+Livraison : [PR #61](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/61).
+
 ## Résultat
 
 **124 tests PHP / 1 717 assertions** réussis depuis les images Docker finales, ainsi que les quatre validations indépendantes OpenAPI. Migration `Version20261018150000` appliquée explicitement sur la base locale.
