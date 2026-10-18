@@ -1,5 +1,7 @@
 # Validation AUTH-03 — 18 octobre 2026
 
+Livraison : [PR #58](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/58).
+
 ## Résultat
 
 Recette complète depuis les images Docker : **84 tests PHP / 1 186 assertions**, tous réussis. Les quatre validations indépendantes du contrat OpenAPI réussissent également. Les 11 nouveaux tests de contrôle d’accès représentent 185 assertions. Aucune migration supplémentaire ni donnée métier permanente n’est nécessaire.
