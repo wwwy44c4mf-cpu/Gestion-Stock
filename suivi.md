@@ -181,7 +181,7 @@ Sources : AUTH-01,02,03,07; §10.1.
 
 Critères d’acceptation : Connexion valide acceptée, invalide refusée ; session expirée rejetée ; REC-01.
 
-Livraison AUTH-01 : connexion interface/API, profil et fuseau, Argon2id, sessions avec expiration (30 minutes d’inactivité, 12 heures absolues), CSRF renouvelé, limites partagées et audit pseudonymisé. Commande interactive de premier administrateur ; aucun compte par défaut. [Guide](docs/authentification.md), [recette](docs/validation-auth01.md). Recette : 55 tests PHP / 809 assertions et quatre tests indépendants du contrat réussis. L’administration des comptes et les contrôles métier par magasin restent dans AUTH-02/03.
+Livraison AUTH-01 : [PR #55](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/55), branche `codex/auth-01-authentication`. Connexion interface/API, profil et fuseau, Argon2id, sessions avec expiration (30 minutes d’inactivité, 12 heures absolues), CSRF renouvelé, limites partagées et audit pseudonymisé. Commande interactive de premier administrateur ; aucun compte par défaut. [Guide](docs/authentification.md), [recette](docs/validation-auth01.md). Recette : 55 tests PHP / 809 assertions et quatre tests indépendants du contrat réussis. L’administration des comptes et les contrôles métier par magasin restent dans AUTH-02/03.
 
 ### AUTH-02 — Administration des comptes et désactivation
 
