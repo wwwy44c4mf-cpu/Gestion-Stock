@@ -212,7 +212,7 @@ Critères d’acceptation : Accès inter-magasins refusé sur écrans et API ; a
 
 Règle validée : les magasins désactivés, leurs stocks et leurs historiques sont réservés aux administrateurs ; écritures bloquées pour tous. Mise en œuvre vérifiée des contrôles centralisés, des listes filtrées, de la sélection du contexte magasin et du répertoire minimal des bénéficiaires. Retour personnel autorisé même après retrait d’affectation, uniquement pour une consommation propre et un magasin d’origine actif. [Guide](docs/controle-acces.md).
 
-Recette : 84 tests PHP / 1 186 assertions et quatre validations indépendantes du contrat réussis. [Validation](docs/validation-auth03.md). Les opérations de stock, inventaires et statistiques des lots suivants devront intégrer la politique commune ; leurs écrans restent en préparation.
+Livraison pour revue : [PR #58](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/58), branche `codex/auth-03-access-control`. Recette : 84 tests PHP / 1 186 assertions et quatre validations indépendantes du contrat réussis. [Validation](docs/validation-auth03.md). Les opérations de stock, inventaires et statistiques des lots suivants devront intégrer la politique commune ; leurs écrans restent en préparation.
 
 ### AUTH-04 — Réinitialisation sécurisée du mot de passe
 
