@@ -57,7 +57,7 @@ Les dates `date_from` et `date_to` sont inclusives dans le fuseau utilisateur. `
 
 ## Erreurs JSON
 
-Toutes les erreurs sous `/api/v1` sont des `application/problem+json`, y compris une route inconnue ou une méthode refusée :
+Toutes les erreurs traitées par Symfony sous `/api/v1` sont des `application/problem+json`, y compris une route inconnue ou une méthode refusée :
 
 ```json
 {
