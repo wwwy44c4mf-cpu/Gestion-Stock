@@ -42,7 +42,10 @@ final class StockCorrectionEngine
                 if ($previous['request_fingerprint'] === null || !hash_equals($previous['request_fingerprint'],$fingerprint)) { throw new ApiProblem(409,'idempotency_conflict','Cette clé correspond à une autre opération.'); }
                 return $cancel ? ['data'=>$this->movements->resource($previous)] : $this->result($id,$previous);
             }
-            // All corrections/returns for the same origin must serialize on this row.
+            // A return's consumption is locked first, including cancellation, so every
+            // change to the returned total follows consumption -> return -> balance.
+            $original = $this->db->fetchAssociative('SELECT * FROM stock_movements WHERE id = ?',[$id]);
+            if ($original['type'] === 'return') { $this->db->fetchOne('SELECT id FROM stock_movements WHERE id = ? FOR UPDATE',[$original['related_movement_id']]); }
             $original = $this->db->fetchAssociative('SELECT * FROM stock_movements WHERE id = ? FOR UPDATE',[$id]);
             if ($original['type'] === 'reversal' || $original['inventory_id'] !== null) { throw new ApiProblem(409,'uncorrectable_movement','Ce mouvement ne peut pas être corrigé ici.'); }
             if ($this->db->fetchOne("SELECT 1 FROM stock_movements WHERE type = 'reversal' AND related_movement_id = ?",[$id])) { throw new ApiProblem(409,'already_reversed','Ce mouvement a déjà été annulé ou corrigé.'); }

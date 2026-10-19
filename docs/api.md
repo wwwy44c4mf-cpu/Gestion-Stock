@@ -40,12 +40,13 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 
 | `POST /api/v1/movements/entries` | Entrée autorisée, atomique et idempotente |
 | `POST /api/v1/movements/consumptions` | Consommation pour soi ou tiers autorisé, confirmation HTML dans Location |
+| `POST /api/v1/movements/returns` | Retour borné lié à sa consommation, magasin imposé, confirmation HTML dans Location |
 | `POST /api/v1/movements/transfers` | Débit/crédit atomiques, droits sur les deux magasins, confirmation HTML dans Location |
 | `POST /api/v1/movements/adjustments` | Écart signé justifié |
 | `POST /api/v1/movements/{id}/correct` | Bonne quantité, contre-mouvement et remplacement atomiques liés |
 | `POST /api/v1/movements/{id}/reverse` | Annulation exacte unique et justifiée |
 
-Ces trente-sept opérations portent `x-implementation: available`. Les 23 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
+Ces trente-huit opérations portent `x-implementation: available`. Les 22 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
 
 Les routes `/health/live` et `/health/ready` de SOC-01 restent disponibles pour Docker ; la nouvelle sonde API ne remplace pas le contrôle PostgreSQL de readiness.
 

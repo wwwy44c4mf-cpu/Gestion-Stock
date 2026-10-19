@@ -88,7 +88,7 @@ final class ConsumptionController extends AbstractController
     public function receipt(string $id, \App\Access\ConsumptionDirectory $receipts): Response
     {
         $row = $receipts->get($this->actor(), $id);
-        return $this->render('consumptions/receipt.html.twig', ['consumption'=>$row,'stock_target'=>AccessTarget::store($row['store_id'])]);
+        return $this->render('consumptions/receipt.html.twig', ['consumption'=>$row,'consumption_target'=>AccessTarget::consumption($row['id']),'stock_target'=>AccessTarget::store($row['store_id'])]);
     }
 
     private function actor(): StockUser

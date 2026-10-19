@@ -12,7 +12,7 @@ Le formulaire fonctionne sans JavaScript et conserve les valeurs et la clé de r
 
 Stock insuffisant, article désactivé et inventaire en cours ou en attente de validation empêchent toute nouvelle sortie. Le moteur STK-02 écrit ensemble solde, mouvement, audit et événement durable ; une erreur annule tout. Auteur et date sont fixés par le serveur. Les événements attendent les futurs traitements d’alertes ; cet écran n’annonce pas d’envoi de courriel.
 
-L’historique personnel complet et les statistiques restent dans CON-01 et STAT-01. Les corrections sont disponibles dans STK-05 pour ADMIN/MANAGER autorisés ; les retours restent le lot STK-07. La confirmation signale les consommations corrigées ou annulées. Aucun mouvement enregistré n’est modifié en place.
+L’historique personnel complet et les statistiques restent dans CON-01 et STAT-01. La confirmation indique les unités rendues et encore à rendre. Les corrections sont disponibles dans STK-05 pour ADMIN/MANAGER autorisés ; les retours partiels ou totaux sont disponibles dans STK-07 via « Rendre des articles ». La confirmation signale les consommations corrigées ou annulées. Aucun mouvement enregistré n’est modifié en place.
 
 ## API
 

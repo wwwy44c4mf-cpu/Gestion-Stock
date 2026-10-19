@@ -3467,7 +3467,7 @@
           "USER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -3495,7 +3495,7 @@
                   "type": "string",
                   "maxLength": 500
                 },
-                "description": "URI relative de la ressource créée."
+                "description": "URI relative de la confirmation HTML /consommations/retours/{id}, selon les droits sur la consommation d’origine."
               }
             }
           },
