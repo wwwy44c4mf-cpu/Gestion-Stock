@@ -368,7 +368,7 @@ Sources : STK-05.
 
 Critères d’acceptation : Transfert 3 : source -3, destination +3 ou aucun changement ; REC-07.
 
-Livraison pour revue : branche `codex/stk-06-stock-transfers`. Formulaire sans JavaScript et API de transfert raccordés au moteur STK-02. Départ/arrivée distincts, droits sur les deux magasins actifs, quantité entière et motif facultatif ; débit/crédit atomiques avec identifiant commun, rejeu sans doublon, inventaires et capacité contrôlés. Confirmation HTML exigeant le double périmètre de lecture ; journal local sans données distantes. Aucune nouvelle migration. Recette : 199 tests PHP / 2 909 assertions et quatre validations OpenAPI réussis ; 14 tests dédiés / 256 assertions, concurrence réelle, panne injectée et contrôle ordinateur/mobile. [Guide](docs/transferts-stock.md) · [Validation](docs/validation-stk06.md).
+Livraison pour revue : [PR #67](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/67), branche `codex/stk-06-stock-transfers`. Formulaire sans JavaScript et API de transfert raccordés au moteur STK-02. Départ/arrivée distincts, droits sur les deux magasins actifs, quantité entière et motif facultatif ; débit/crédit atomiques avec identifiant commun, rejeu sans doublon, inventaires et capacité contrôlés. Confirmation HTML exigeant le double périmètre de lecture ; journal local sans données distantes. Aucune nouvelle migration. Recette : 199 tests PHP / 2 909 assertions et quatre validations OpenAPI réussis ; 14 tests dédiés / 256 assertions, concurrence réelle, panne injectée et contrôle ordinateur/mobile. [Guide](docs/transferts-stock.md) · [Validation](docs/validation-stk06.md).
 
 ### STK-07 — Retours liés à une consommation
 

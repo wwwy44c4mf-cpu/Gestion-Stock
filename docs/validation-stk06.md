@@ -29,4 +29,4 @@ La base locale n’a qu’un magasin actif : l’état indiquant deux magasins n
 
 Contrat : **60 opérations / 91 schémas ; 37 disponibles / 23 planifiées**. `createTransfer` disponible ; Location désigne la confirmation HTML, pas un détail d’API encore planifié. Le journal API local conserve sa projection sans détails distants. [Guide](transferts-stock.md).
 
-Livraison pour revue : branche `codex/stk-06-stock-transfers`, basée sur main après intégration de la PR #66.
+Livraison pour revue : [PR #67](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/67), branche `codex/stk-06-stock-transfers`, basée sur main après intégration de la PR #66.
