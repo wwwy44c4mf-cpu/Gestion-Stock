@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+{% block title %}Transfert enregistré · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">TRANSFERT DE STOCK</p><h1>{{ transfer.article_name }}</h1><p class="subtitle">Référence : {{ transfer.sku }}</p></div><a href="{{ path('stocks_transfer_new') }}">Enregistrer un autre transfert</a></div>
+{% if transfer.reversed_by %}<p class="notice">{{ transfer.replacement_id ? 'Ce transfert a été corrigé. Les informations ci-dessous correspondent au mouvement d’origine.' : 'Ce transfert a été annulé. Il est conservé pour la traçabilité.' }}{% if transfer.replacement_id %} <a href="{{ path('stocks_transfer_receipt',{id:transfer.replacement_id}) }}">Consulter le transfert corrigé</a>{% endif %}</p>{% endif %}
+<section class="card"><h2>{{ transfer.quantity }} unité{{ transfer.quantity > 1 ? 's' : '' }} transférée{{ transfer.quantity > 1 ? 's' : '' }}</h2>
+<p><strong>Départ :</strong> {{ transfer.source_code }} · {{ transfer.source_name }} (−{{ transfer.quantity }} unités)</p><p><strong>Arrivée :</strong> {{ transfer.destination_code }} · {{ transfer.destination_name }} (+{{ transfer.quantity }} unités)</p>
+<p><strong>Opérateur :</strong> {{ transfer.author_name }}</p><p><strong>Date :</strong> {{ transfer.created_at|date('d/m/Y H:i',app.user.timezone) }}</p>
+<p><strong>Motif :</strong> {{ transfer.reason is null or transfer.reason == '' ? 'Non renseigné' : transfer.reason }}</p>
+<p><strong>Identifiant commun du transfert :</strong> {{ transfer.id }}</p>
+<p><a href="{{ path('stocks_detail',{storeId:transfer.source_store_id,articleId:transfer.article_id}) }}">Consulter le stock de départ</a></p><p><a href="{{ path('stocks_detail',{storeId:transfer.destination_store_id,articleId:transfer.article_id}) }}">Consulter le stock d’arrivée</a></p>
+{% if can_correct and not transfer.reversed_by %}<p><a class="button" href="{{ path('stocks_correct',{id:transfer.id}) }}">Corriger la quantité transférée</a></p>{% endif %}
+</section>
+{% endblock %}

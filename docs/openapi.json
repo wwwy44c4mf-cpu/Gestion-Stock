@@ -3367,7 +3367,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -3395,7 +3395,7 @@
                   "type": "string",
                   "maxLength": 500
                 },
-                "description": "URI relative de la ressource créée."
+                "description": "URI relative de la confirmation HTML /stocks/transferts/{id}, accessible avec les droits de lecture sur les deux magasins."
               }
             }
           },

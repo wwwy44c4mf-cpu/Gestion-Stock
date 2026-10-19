@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -81,8 +81,8 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | STK-02 | 2 | Moteur transactionnel, concurrence et idempotence | STK-06,07,10; §4 | SOC-02, AUTH-03 | Terminé | [#14](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14) |
 | STK-03 | 2 | Entrées et réapprovisionnements | STK-02; parcours 5.3 | STK-02, STK-01 | Terminé | [#15](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/15) |
 | STK-04 | 2 | Consommations et bénéficiaire tiers | STK-03; CON-01,02; CON-05 partiel | STK-02, STK-01 | Terminé | [#16](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16) |
-| STK-05 | 2 | Ajustements et corrections par contre-mouvement | STK-04,09 | STK-02 | En revue | [#17](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17) |
-| STK-06 | 2 | Transferts atomiques entre magasins | STK-05 | STK-02 | À faire | [#18](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/18) |
+| STK-05 | 2 | Ajustements et corrections par contre-mouvement | STK-04,09 | STK-02 | Terminé | [#17](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17) |
+| STK-06 | 2 | Transferts atomiques entre magasins | STK-05 | STK-02 | En revue | [#18](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/18) |
 | STK-07 | 2 | Retours liés à une consommation | Décision utilisateur; STAT-06 | STK-04 | À faire | [#19](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19) |
 | STK-08 | 4 | Historique des mouvements filtrable | STK-08,09,10 | STK-03, STK-04, STK-05, STK-06, STK-07 | À faire | [#20](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/20) |
 | INV-01 | 3 | Campagnes d’inventaire et gel des mouvements | INV-01,07 | STK-02 | À faire | [#21](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/21) |
@@ -344,7 +344,7 @@ Intégré à main le 18 octobre 2026 : [PR #65](https://github.com/wwwy44c4mf-cp
 
 ### STK-05 — Ajustements et corrections par contre-mouvement
 
-Issue : [#17](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17) · En revue · Dépendances : [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14).
+Issue : [#17](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17) · Terminé · Dépendances : [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14).
 
 Sources : STK-04,09.
 
@@ -354,19 +354,21 @@ Sources : STK-04,09.
 
 Critères d’acceptation : Mouvement original inchangé ; correction liée et justifiée ; toute opération invalide laisse le stock intact.
 
-Livraison pour revue : [PR #66](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/66), branche `codex/stk-05-stock-corrections`. Ajustement signé et correction directe de quantité, avec motif obligatoire pour ADMIN/MANAGER. Origine immuable, contre-mouvement exact et remplacement liés atomiquement ; solde net, stock non négatif, inventaires bloquants, droits sur tous les magasins, rejeu et double annulation contrôlés. Migration `Version20261018223000`. Recette : 185 tests PHP / 2 653 assertions et quatre validations OpenAPI réussis, dont corrections et annulations concurrentes par deux processus et panne injectée ; interface vérifiée sur ordinateur/mobile, stock local conservé. [Guide](docs/corrections-stock.md) · [Validation](docs/validation-stk05.md).
+Intégré à main le 18 octobre 2026 : [PR #66](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/66), branche `codex/stk-05-stock-corrections`. Ajustement signé et correction directe de quantité, avec motif obligatoire pour ADMIN/MANAGER. Origine immuable, contre-mouvement exact et remplacement liés atomiquement ; solde net, stock non négatif, inventaires bloquants, droits sur tous les magasins, rejeu et double annulation contrôlés. Migration `Version20261018223000`. Recette : 185 tests PHP / 2 653 assertions et quatre validations OpenAPI réussis, dont corrections et annulations concurrentes par deux processus et panne injectée ; interface vérifiée sur ordinateur/mobile, stock local conservé. [Guide](docs/corrections-stock.md) · [Validation](docs/validation-stk05.md).
 
 ### STK-06 — Transferts atomiques entre magasins
 
-Issue : [#18](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/18) · À faire · Dépendances : [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14).
+Issue : [#18](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/18) · En revue · Dépendances : [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14).
 
 Sources : STK-05.
 
-- [ ] Vérifier droits sur source et destination distinctes
-- [ ] Débiter et créditer dans une transaction avec identifiant commun
-- [ ] Gérer concurrence, stock insuffisant et inventaire bloquant
+- [x] Vérifier droits sur source et destination distinctes
+- [x] Débiter et créditer dans une transaction avec identifiant commun
+- [x] Gérer concurrence, stock insuffisant et inventaire bloquant
 
 Critères d’acceptation : Transfert 3 : source -3, destination +3 ou aucun changement ; REC-07.
+
+Livraison pour revue : branche `codex/stk-06-stock-transfers`. Formulaire sans JavaScript et API de transfert raccordés au moteur STK-02. Départ/arrivée distincts, droits sur les deux magasins actifs, quantité entière et motif facultatif ; débit/crédit atomiques avec identifiant commun, rejeu sans doublon, inventaires et capacité contrôlés. Confirmation HTML exigeant le double périmètre de lecture ; journal local sans données distantes. Aucune nouvelle migration. Recette : 199 tests PHP / 2 909 assertions et quatre validations OpenAPI réussis ; 14 tests dédiés / 256 assertions, concurrence réelle, panne injectée et contrôle ordinateur/mobile. [Guide](docs/transferts-stock.md) · [Validation](docs/validation-stk06.md).
 
 ### STK-07 — Retours liés à une consommation
 
@@ -810,3 +812,4 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 18 octobre 2026 : PR #63 intégrée à main. STK-03 développé et vérifié pour revue : formulaire et API d’entrée, scénario 5 + 10 = 15, permissions et doubles envois. Recette : 155 tests / 2 290 assertions + 4 validations OpenAPI.
 - 18 octobre 2026 : STK-03 intégré (PR #64). STK-04 livré pour revue : consommations pour soi ou tiers autorisé, confirmation personnelle sans fuite de stock, 167 tests / 2 432 assertions et quatre validations OpenAPI.
 - 18 octobre 2026 : choix utilisateur STK-05 : saisir directement la quantité correcte. STK-04 intégré (PR #65) ; STK-05 livré pour revue avec ajustements signés, corrections atomiques liées et migration `Version20261018223000`. 185 tests / 2 653 assertions et quatre validations OpenAPI réussis.
+- 19 octobre 2026 : STK-05 intégré (PR #66, fusion du 18 octobre). STK-06 livré pour revue : transferts atomiques, confirmation commune sous double périmètre, 199 tests / 2 909 assertions et quatre validations OpenAPI réussis. Aucun mouvement local de démonstration.
