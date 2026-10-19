@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+{% block title %}Transférer du stock · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">TRANSFERT ENTRE MAGASINS</p><h1>Transférer du stock</h1><p class="subtitle">Les unités quittent le magasin de départ et sont ajoutées au magasin d’arrivée en une seule opération.</p></div><a href="{{ path('stocks_list') }}">Retour aux stocks</a></div>
+<section class="card account-form">
+{% if error %}{% include 'components/notice.html.twig' with {kind:'error',message:error} only %}<p><a href="{{ path('stocks_transfer_new') }}">Ouvrir un nouveau formulaire</a></p>{% endif %}
+{% if stores|length < 2 %}<p class="notice">Deux magasins actifs autorisés sont nécessaires pour enregistrer un transfert.</p>{% if app.user.role == 'ADMIN' %}<p><a href="{{ path('stores_list') }}">Gérer les magasins</a></p>{% endif %}{% endif %}
+{% if articles is empty %}<p class="notice">Le catalogue ne contient aucun article actif.</p>{% endif %}
+<form method="post" action="{{ path('stocks_transfer_new') }}">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token('stock_transfer') }}"><input type="hidden" name="_movement_key" value="{{ movement_key }}">
+<div class="field"><label for="transfer-source">Magasin de départ (obligatoire)</label><select id="transfer-source" name="source_store_id" required><option value="">Choisir le départ</option>{% for store in stores %}<option value="{{ store.id }}" {% if item.source_store_id == store.id %}selected{% endif %}>{{ store.code }} · {{ store.name }}</option>{% endfor %}</select></div>
+<div class="field"><label for="transfer-destination">Magasin d’arrivée (obligatoire)</label><select id="transfer-destination" name="destination_store_id" required><option value="">Choisir l’arrivée</option>{% for store in stores %}<option value="{{ store.id }}" {% if item.destination_store_id == store.id %}selected{% endif %}>{{ store.code }} · {{ store.name }}</option>{% endfor %}</select><p class="muted">Le départ et l’arrivée doivent être différents.</p></div>
+<div class="field"><label for="transfer-article">Article (obligatoire)</label><select id="transfer-article" name="article_id" required><option value="">Choisir un article</option>{% for article in articles %}<option value="{{ article.id }}" {% if item.article_id == article.id %}selected{% endif %}>{{ article.sku }} · {{ article.name }}</option>{% endfor %}</select></div>
+<div class="field"><label for="transfer-quantity">Quantité transférée (obligatoire)</label><input id="transfer-quantity" name="quantity" type="text" inputmode="numeric" pattern="[1-9][0-9]*" maxlength="16" value="{{ item.quantity }}" aria-describedby="transfer-unit" required><p id="transfer-unit" class="muted">Quantité positive en unités entières, disponible dans le magasin de départ.</p></div>
+<div class="field"><label for="transfer-reason">Motif (facultatif)</label><textarea id="transfer-reason" name="reason" rows="3" maxlength="2000">{{ item.reason }}</textarea></div>
+<button class="button" type="submit" {% if stores|length < 2 or articles is empty %}disabled{% endif %}>Enregistrer le transfert</button>
+</form>
+</section>
+{% endblock %}

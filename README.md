@@ -144,3 +144,7 @@ Depuis **Consommations** ou les stocks, enregistrer une sortie pour soi-même ; 
 ## Ajustements et corrections (STK-05)
 
 Depuis une fiche stock, **Corriger** permet de saisir directement la bonne quantité et un motif. L’original reste conservé, avec contre-mouvement et remplacement liés, sans double correction ni stock négatif. **Ajuster le stock** enregistre un écart signé pour les administrateurs et gestionnaires autorisés. Appliquer la migration `Version20261018223000` avant les nouvelles pages. [Guide](docs/corrections-stock.md) · [Recette](docs/validation-stk05.md).
+
+## Transferts de stock (STK-06)
+
+Depuis **Stocks → Transférer du stock**, administrateurs et gestionnaires autorisés déplacent une quantité entre deux magasins actifs. Débit/crédit atomiques, identifiant commun, confirmation et doubles envois protégés. Les droits sur les deux magasins sont obligatoires ; un inventaire sur l’un bloque le transfert. [Guide](docs/transferts-stock.md) · [Recette](docs/validation-stk06.md).
