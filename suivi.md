@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 et MAIL-01 intégrés à main (PR #73/#74). ALT-02 intégré à main (PR #75). ALT-03 en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 et MAIL-01 intégrés à main (PR #73/#74). ALT-02 intégré à main (PR #75). ALT-03, MAIL-02 et MAIL-03 en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -92,8 +92,8 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | ALT-02 | 3 | Cycle de vie des alertes et franchissements | ALT-01,03,04 | ALT-01, STK-02, MAIL-01 | Intégré | [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25) |
 | ALT-03 | 3 | Écran des alertes et destinataires | ALT-02,05 | ALT-02 | En revue | [#26](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26) |
 | MAIL-01 | 1 | SMTP, file durable et modèles de courriels | MAIL-01,02,04,05,06,08 | SOC-02 | Intégré | [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27) |
-| MAIL-02 | 3 | Messages d’information ciblés | MAIL-03 | MAIL-01, AUTH-03 | À faire | [#28](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/28) |
-| MAIL-03 | 3 | Récapitulatif quotidien des alertes à 08 h | ALT-06 partiel; MAIL-07 partiel; décision utilisateur | ALT-03, MAIL-01 | À faire | [#29](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29) |
+| MAIL-02 | 3 | Messages d’information ciblés | MAIL-03 | MAIL-01, AUTH-03 | En revue | [#28](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/28) |
+| MAIL-03 | 3 | Récapitulatif quotidien des alertes à 08 h | ALT-06 partiel; MAIL-07 partiel; décision utilisateur | ALT-03, MAIL-01 | En revue | [#29](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29) |
 | CON-01 | 4 | Historique personnel et suivi des consommations | CON-03,04; décision utilisateur | STK-04, STK-07, AUTH-03 | À faire | [#30](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30) |
 | STAT-01 | 4 | Statistiques de consommation et filtres | STAT-01,02,03,04,06 | CON-01 | À faire | [#31](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31) |
 | STAT-02 | 4 | Tableau de bord et indicateurs | STAT-05; §6 | STAT-01, ALT-03, STK-01 | À faire | [#32](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32) |
@@ -514,15 +514,19 @@ Livraison pour revue : [PR #77](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### MAIL-03 — Récapitulatif quotidien des alertes à 08 h
 
-Issue : [#29](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29) · À faire · Dépendances : [ALT-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
+Issue : [#29](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29) · En revue · Dépendances : [ALT-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
 
 Sources : ALT-06 partiel; MAIL-07 partiel; décision utilisateur.
 
-- [ ] Planifier chaque jour à 08 h Europe/Paris dans un conteneur scheduler
-- [ ] Produire un seul récapitulatif par destinataire des alertes persistantes dans son périmètre
-- [ ] Dédupliquer par destinataire/date locale ; gérer redémarrage, changement d’heure et exclusion des alertes résolues
+- [x] Planifier chaque jour à 08 h Europe/Paris dans un conteneur scheduler
+- [x] Produire un seul récapitulatif par destinataire des alertes persistantes dans son périmètre
+- [x] Dédupliquer par destinataire/date locale ; gérer redémarrage, changement d’heure et exclusion des alertes résolues
 
 Critères d’acceptation : Deux exécutions le même jour ne doublonnent pas ; alertes immédiates restent envoyées à toute heure.
+
+Choix confirmé : rattrapage du jour après un arrêt à 08 h, sans envoyer les journées précédentes. Un seul courriel par destinataire, préférences respectées et éléments résolus ou devenus inaccessibles retirés avant livraison. Lots quotidiens et audiences conservés pour éviter les doublons après redémarrage. [Guide](docs/recapitulatif-quotidien.md) · [Validation](docs/validation-mail03.md).
+
+Recette : 326 tests PHP / 4 319 assertions et quatre validations OpenAPI. Migration 16 installée localement ; cinq mouvements, stock total 12 et un inventaire conservés. Aucun courriel réel envoyé.
 
 ### CON-01 — Historique personnel et suivi des consommations
 
