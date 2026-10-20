@@ -3652,7 +3652,7 @@
       "get": {
         "operationId": "listMovements",
         "summary": "Consulter le journal des mouvements",
-        "description": "Administrateur : global ; gestionnaire : magasins affectés. Historique immuable. Utilisateur simple : historique de ses consommations via /consumptions.",
+        "description": "Administrateur : global ; gestionnaire : magasins affectés. Historique immuable. Utilisateur simple : historique de ses consommations via /consumptions. Les transferts partiellement autorisés affichent uniquement le magasin accessible, la date, le type, l’article et la quantité. Personnes, textes et liens extérieurs sont masqués avant filtrage ; aucun filtre ne permet de les déduire.",
         "tags": [
           "movements"
         ],
@@ -3666,7 +3666,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/Page"
@@ -3757,7 +3757,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MovementPage"
+                  "$ref": "#/components/schemas/HistoryMovementPage"
                 }
               }
             },
@@ -3810,7 +3810,7 @@
       "get": {
         "operationId": "getMovement",
         "summary": "Consulter une opération autorisée",
-        "description": "Consulter une opération autorisée",
+        "description": "Consulter une opération autorisée Les transferts partiellement autorisés affichent uniquement le magasin accessible, la date, le type, l’article et la quantité. Personnes, textes et liens extérieurs sont masqués avant filtrage ; aucun filtre ne permet de les déduire.",
         "tags": [
           "movements"
         ],
@@ -3824,7 +3824,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -3842,7 +3842,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MovementResource"
+                  "$ref": "#/components/schemas/HistoryMovementResource"
                 }
               }
             },
@@ -9062,6 +9062,222 @@
         "additionalProperties": false,
         "required": [
           "data"
+        ]
+      },
+      "HistoryMovement": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string",
+            "maxLength": 16,
+            "enum": [
+              "entry",
+              "consumption",
+              "adjustment",
+              "transfer",
+              "return",
+              "reversal"
+            ]
+          },
+          "article_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "source_store_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "destination_store_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "quantity": {
+            "$ref": "#/components/schemas/PositiveQuantity"
+          },
+          "author_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "consumer_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "related_movement_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "inventory_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 2000
+          },
+          "reference": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 255
+          },
+          "comment": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 2000
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "author_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 160
+          },
+          "consumer_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 160
+          },
+          "article_sku": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "article_name": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "source_store_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 160
+          },
+          "destination_store_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 160
+          },
+          "restricted": {
+            "type": "boolean",
+            "description": "Si vrai, seuls les magasins autorisés sont identifiés ; personnes, textes et liens extérieurs sont masqués."
+          },
+          "reversed_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "replacement_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "corrects_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "article_id",
+          "source_store_id",
+          "destination_store_id",
+          "quantity",
+          "author_id",
+          "consumer_id",
+          "related_movement_id",
+          "inventory_id",
+          "reason",
+          "reference",
+          "comment",
+          "created_at",
+          "author_name",
+          "consumer_name",
+          "article_sku",
+          "article_name",
+          "source_store_name",
+          "destination_store_name",
+          "restricted",
+          "reversed_by",
+          "replacement_id",
+          "corrects_id"
+        ],
+        "description": "Projection de lecture immuable. consumer_id désigne aussi le bénéficiaire de la consommation liée pour un retour ou une annulation."
+      },
+      "HistoryMovementResource": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/HistoryMovement"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ]
+      },
+      "HistoryMovementPage": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HistoryMovement"
+            },
+            "maxItems": 100
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PageMeta"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta"
         ]
       }
     }

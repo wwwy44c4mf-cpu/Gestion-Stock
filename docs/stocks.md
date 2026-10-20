@@ -12,7 +12,7 @@ Les filtres portent sur le magasin, l’article, la catégorie exacte, la réfé
 
 Depuis **Magasins**, le nom ouvre les stocks du magasin. Depuis la fiche article, le total et le détail paginé des magasins sont affichés ; le lien de filtrage ouvre les stocks de cet article. Le total exact est calculé sur l’ensemble du périmètre et du filtre avant pagination, et reste identique sur une page vide. Les sommes sont des chaînes d’entiers décimaux dans l’API ; les quantités individuelles sont des entiers JSON.
 
-La fiche de stock indique le solde, l’unité, les seuils et les éventuels statuts désactivés. ADMIN et MANAGER disposent d’un journal local paginé : type, variation signée et date. Aucun auteur, bénéficiaire ou identifiant de magasin distant n’est renvoyé par ce journal. USER n’y a pas accès ; ses consommations personnelles relèvent du lot dédié. Le journal général, ses filtres métier et les annulations restent dans STK-08/09.
+La fiche de stock indique le solde, l’unité, les seuils et les éventuels statuts désactivés. ADMIN et MANAGER disposent d’un journal local paginé : type, variation signée et date. Aucun auteur, bénéficiaire ou identifiant de magasin distant n’est renvoyé par ce journal. USER n’y a pas accès ; ses consommations personnelles relèvent du lot dédié. Le [journal général et ses filtres métier](historique-mouvements.md) sont disponibles dans STK-08 ; les corrections et annulations relèvent de STK-05.
 
 ## Droits
 

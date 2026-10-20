@@ -1,6 +1,6 @@
 # Contrats et socle API — SOC-03
 
-Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décrit 60 opérations et 91 schémas de données pour le MVP. Aucun appel à un service externe n’est nécessaire pour le lire ou pour le valider.
+Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décrit 60 opérations et 94 schémas de données pour le MVP. Aucun appel à un service externe n’est nécessaire pour le lire ou pour le valider.
 
 ## Ce qui fonctionne déjà
 
@@ -38,6 +38,8 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 | `GET /api/v1/articles/{id}/stocks` | Total exact autorisé et détail paginé |
 | `GET /api/v1/stores/{storeId}/stocks/{articleId}/movements` | Journal local sans identité distante, ADMIN/MANAGER autorisés |
 
+| `GET /api/v1/movements` et `GET /api/v1/movements/{id}` | Journal général filtrable et détail avec masquage des informations hors périmètre |
+
 | `POST /api/v1/movements/entries` | Entrée autorisée, atomique et idempotente |
 | `POST /api/v1/movements/consumptions` | Consommation pour soi ou tiers autorisé, confirmation HTML dans Location |
 | `POST /api/v1/movements/returns` | Retour borné lié à sa consommation, magasin imposé, confirmation HTML dans Location |
@@ -46,7 +48,7 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 | `POST /api/v1/movements/{id}/correct` | Bonne quantité, contre-mouvement et remplacement atomiques liés |
 | `POST /api/v1/movements/{id}/reverse` | Annulation exacte unique et justifiée |
 
-Ces trente-huit opérations portent `x-implementation: available`. Les 22 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
+Ces quarante opérations portent `x-implementation: available`. Les 20 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
 
 Les routes `/health/live` et `/health/ready` de SOC-01 restent disponibles pour Docker ; la nouvelle sonde API ne remplace pas le contrôle PostgreSQL de readiness.
 
@@ -89,7 +91,7 @@ Les quantités élémentaires en réponse sont des entiers. Les **sommes** poten
 
 `QueryParameters` lit les paramètres à partir de l’operationId ; `Pagination` fournit l’offset et le format commun, sans calcul flottant. Le total correspond à la recherche autorisée avant pagination. Le total de stock d’un article est calculé sur tous les magasins autorisés correspondant aux filtres, avant pagination de son détail.
 
-Les dates `date_from` et `date_to` sont inclusives dans le fuseau utilisateur. `DateRange` produit un début UTC inclus et le début du jour suivant UTC exclu. Cela couvre correctement les journées de 23/25 heures aux changements d’heure ; éviter les bornes artificielles « 23:59:59 ». Une période inversée ou une date impossible donne 422.
+Les dates `date_from` et `date_to` sont inclusives dans le fuseau utilisateur. `DateRange` et `MovementDates` produisent un début UTC inclus et le début du jour suivant UTC exclu. Cela couvre correctement les journées de 23/25 heures aux changements d’heure ; éviter les bornes artificielles « 23:59:59 ». Une période inversée ou une date impossible donne 422.
 
 ## Erreurs JSON
 
@@ -148,4 +150,4 @@ Les lectures `/stocks`, `/stores/{storeId}/stocks` et `/articles/{id}/stocks` ap
 
 Le formulaire et `POST /api/v1/movements/entries` utilisent le moteur transactionnel de STK-02. Motif obligatoire, référence facultative, auteur et date serveur ; événement durable de recalcul en attente des futurs traitements d’alertes. [Guide](entrees-stock.md) · [Recette](validation-stk03.md).
 
-STK-05 : [corrections et ajustements](corrections-stock.md). Les réponses d’écriture de ces trois nouvelles opérations n’annoncent pas de Location vers un détail API encore planifié.
+STK-05 : [corrections et ajustements](corrections-stock.md). Les réponses d’écriture de ces trois nouvelles opérations n’annoncent pas de Location vers un détail API ; sa lecture est disponible depuis STK-08.

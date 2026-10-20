@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+{% block title %}Détail du mouvement · Gestion de stock{% endblock %}
+{% block content %}
+{% set types = {'entry':'Entrée','consumption':'Consommation','adjustment':'Ajustement','transfer':'Transfert','return':'Retour','reversal':'Annulation'} %}
+<div class="page-heading"><div><p class="eyebrow">HISTORIQUE</p><h1>{{ types[movement.type] }}</h1><p class="subtitle">{{ movement.article_sku }} · {{ movement.article_name }}</p></div><a href="{{ path('movements_list',{store_id:''}) }}">Retour aux mouvements</a></div>
+{% if movement.restricted %}<p class="notice">Ce mouvement concerne aussi un magasin hors de votre périmètre. Les personnes, les commentaires et les liens extérieurs sont masqués.</p>{% endif %}
+<section class="card"><h2>{{ movement.quantity }} unité{{ movement.quantity > 1 ? 's' : '' }}</h2>
+<p><strong>Date :</strong> {{ movement.created_at|date('d/m/Y H:i:s',app.user.timezone) }} ({{ app.user.timezone }})</p>
+{% for key,label in {'source':'Magasin de départ','destination':'Magasin d’arrivée'} %}<p><strong>{{ label }} :</strong> {% if movement[key ~ '_store_id'] %}<a href="{{ path('stocks_detail',{storeId:movement[key ~ '_store_id'],articleId:movement.article_id}) }}">{{ movement[key ~ '_store_name'] }}</a>{% else %}{{ movement.restricted ? 'Magasin hors périmètre' : '—' }}{% endif %}</p>{% endfor %}
+{% if not movement.restricted %}
+<p><strong>Opérateur :</strong> {{ movement.author_name|default('Compte anonymisé') }}</p><p><strong>Technicien bénéficiaire :</strong> {{ movement.consumer_name|default('—') }}</p>
+<p><strong>Motif :</strong> {{ movement.reason|default('Non renseigné') }}</p><p><strong>Référence :</strong> {{ movement.reference|default('Non renseignée') }}</p><p><strong>Commentaire :</strong> {{ movement.comment|default('Aucun') }}</p>
+{% if movement.related_movement_id %}<p><a href="{{ path('movements_detail',{id:movement.related_movement_id}) }}">Consulter le mouvement d’origine</a></p>{% endif %}
+{% if movement.type == 'consumption' %}<p><a href="{{ path('consumptions_receipt',{id:movement.id}) }}">Consulter la consommation et ses retours</a></p>{% elseif movement.type == 'return' %}<p><a href="{{ path('consumptions_return_receipt',{id:movement.id}) }}">Consulter le retour</a></p>{% elseif movement.type == 'transfer' %}<p><a href="{{ path('stocks_transfer_receipt',{id:movement.id}) }}">Consulter le transfert</a></p>{% endif %}
+{% if movement.reversed_by %}<p class="notice">{{ movement.replacement_id ? 'Ce mouvement a été corrigé.' : 'Ce mouvement a été annulé.' }} <a href="{{ path('movements_detail',{id:movement.reversed_by}) }}">Consulter l’annulation</a>{% if movement.replacement_id %} · <a href="{{ path('movements_detail',{id:movement.replacement_id}) }}">Consulter le mouvement corrigé</a>{% endif %}</p>{% elseif correction and correction.editable %}<p><a class="button" href="{{ path('stocks_correct',{id:movement.id}) }}">Corriger ou annuler ce mouvement</a></p>{% endif %}
+{% if movement.corrects_id %}<p><a href="{{ path('movements_detail',{id:movement.corrects_id}) }}">Consulter le mouvement corrigé d’origine</a></p>{% endif %}
+{% endif %}
+<p class="muted">Les opérations validées restent conservées dans l’historique.</p></section>
+{% endblock %}
