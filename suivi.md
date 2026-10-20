@@ -452,7 +452,7 @@ Sources : ART-05; ALT-01.
 
 Critères d’acceptation : Un article peut avoir des seuils différents selon magasin ; zéro est un seuil valide.
 
-Livraison pour revue : seuils personnalisés, champs vides et zéro distincts, contrôles serveur et audit avant/après. Stock et journal conservés ; formulaire protégé contre les modifications concurrentes. Recette : 258 tests PHP / 3 742 assertions et quatre validations OpenAPI ; 9 nouveaux tests, concurrence réelle et panne injectée. Aucun changement de données locales pour la démonstration. [Guide](docs/seuils-stock.md) · [Validation](docs/validation-alt01.md).
+Livraison pour revue : [PR #73](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/73), branche `codex/alt-01-stock-thresholds`. Seuils personnalisés, champs vides et zéro distincts, contrôles serveur et audit avant/après. Stock et journal conservés ; formulaire protégé contre les modifications concurrentes. Recette : 258 tests PHP / 3 742 assertions et quatre validations OpenAPI ; 9 nouveaux tests, concurrence réelle et panne injectée. Aucun changement de données locales pour la démonstration. [Guide](docs/seuils-stock.md) · [Validation](docs/validation-alt01.md).
 
 ### ALT-02 — Cycle de vie des alertes et franchissements
 

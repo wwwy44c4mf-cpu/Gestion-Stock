@@ -9,3 +9,5 @@ Deux connexions PostgreSQL réelles vérifient les deux ordres de création d’
 Interface vérifiée sur ordinateur et à 390 pixels de large, sans débordement horizontal. Formulaire ouvert sur les données existantes sans enregistrement : quantité conservée à 13, seuils laissés non configurés. Application, base, traitements et serveur web sains après mise à jour locale. Aucune nouvelle migration nécessaire.
 
 Les tests d’écriture utilisent des schémas PostgreSQL isolés et supprimés après exécution. Aucun seuil, mouvement ou inventaire de démonstration ajouté aux données réelles. Le cycle persistant des alertes et les courriels restent à développer dans ALT-02 et les lots MAIL.
+
+Livraison : [PR #73](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/73), issue [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24).
