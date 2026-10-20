@@ -27,4 +27,4 @@ Aucun retour de démonstration ni aucune autre écriture de stock soumise sur la
 
 Contrat : **60 opérations / 91 schémas ; 38 disponibles / 22 planifiées**. `createReturn` est disponible ; Location désigne une confirmation HTML autorisée. Le journal conserve les retours comme opérations distinctes. L’historique personnel complet et les statistiques restent dans CON-01/STAT-01 ; cette livraison fournit les origines éligibles, les compteurs et les confirmations.
 
-Livraison pour revue : branche `codex/stk-07-consumption-returns`, basée sur main après intégration de la PR #67. [Guide](retours-stock.md).
+Livraison pour revue : [PR #68](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/68), branche `codex/stk-07-consumption-returns`, basée sur main après intégration de la PR #67. [Guide](retours-stock.md).
