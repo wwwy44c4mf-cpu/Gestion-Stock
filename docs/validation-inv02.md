@@ -35,4 +35,4 @@ La dixième migration `Version20261020230000` ajoute la version des lignes et so
 
 Contrat : **60 opérations / 94 schémas, 48 disponibles / 12 planifiées**. `writeInventoryLines` disponible ; `CountInput.expected_version` obligatoire ; `InventoryLine.version` et `delta_percent` exposés. Validation/clôture avec ajustements dans INV-03.
 
-INV-01 intégré dans main (PR #70). Branche de livraison : `codex/inv-02-inventory-counts`. [Guide](inventaires.md).
+INV-01 intégré dans main (PR #70). Livraison : [PR #71](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/71), branche `codex/inv-02-inventory-counts`. [Guide](inventaires.md).

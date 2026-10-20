@@ -424,7 +424,7 @@ Sources : INV-02,03.
 
 Critères d’acceptation : Comptage zéro conservé ; aucun calcul de pourcentage avec division par zéro ; utilisateur simple refusé.
 
-Livraison : branche `codex/inv-02-inventory-counts`. Saisie article par article, zéro explicite, écarts et pourcentages décimaux, progression globale et soumission complète. Versions contre écrasement concurrent, lots API atomiques/idempotents et audit avant/après. Stock inchangé ; clôture et ajustements dans INV-03. Recette : 240 tests PHP / 3 520 assertions et quatre validations OpenAPI ; 8 tests ciblés / 126 assertions, concurrence réelle. Migration 10 appliquée localement. [Guide](docs/inventaires.md) · [Validation](docs/validation-inv02.md).
+Livraison pour revue : [PR #71](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/71), branche `codex/inv-02-inventory-counts`. Saisie article par article, zéro explicite, écarts et pourcentages décimaux, progression globale et soumission complète. Versions contre écrasement concurrent, lots API atomiques/idempotents et audit avant/après. Stock inchangé ; clôture et ajustements dans INV-03. Recette : 240 tests PHP / 3 520 assertions et quatre validations OpenAPI ; 8 tests ciblés / 126 assertions, concurrence réelle. Migration 10 appliquée localement. [Guide](docs/inventaires.md) · [Validation](docs/validation-inv02.md).
 
 ### INV-03 — Validation atomique et clôture d’inventaire
 
