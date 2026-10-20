@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+{% block title %}Configurer les seuils · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">SEUILS DE STOCK</p><h1>{{ labels.articles[stock.article_id].name }}</h1><p class="subtitle">{{ labels.articles[stock.article_id].sku }} · {{ labels.stores[stock.store_id].name }}</p></div><a href="{{ path('stocks_detail',{storeId:stock.store_id,articleId:stock.article_id}) }}">Retour au stock</a></div>
+<section class="card"><h2>Configurer les seuils de ce magasin</h2><p>Quantité actuelle : {{ stock.quantity }} unité{{ stock.quantity > 1 ? 's' : '' }}. Ces seuils sont propres à cet article dans ce magasin.</p>
+{% if error %}<p class="notice notice-error" role="alert">{{ error }}</p><p><a href="{{ path('stocks_thresholds',{storeId:stock.store_id,articleId:stock.article_id}) }}">Recharger les seuils actuels</a></p>{% endif %}
+<form method="post"><input type="hidden" name="_csrf_token" value="{{ csrf_token('stock_thresholds_' ~ stock.store_id ~ '_' ~ stock.article_id) }}"><input type="hidden" name="_threshold_revision" value="{{ revision }}">
+{% for field,label in {'low_threshold':'Seuil bas','critical_threshold':'Seuil critique'} %}<div class="field"><label for="threshold-{{ field }}">{{ label }} (unités)</label><input type="number" id="threshold-{{ field }}" name="{{ field }}" min="0" max="9007199254740991" step="1" inputmode="numeric" value="{{ item[field] }}" aria-describedby="threshold-help"></div>{% endfor %}
+<p id="threshold-help">Laissez un champ vide pour ne pas configurer ce seuil. Zéro est une valeur valide. Le seuil critique doit être inférieur ou égal au seuil bas ; il nécessite un seuil bas configuré.</p><p>Les seuils sont atteints lorsque la quantité est inférieure ou égale à leur valeur. Leur enregistrement conserve les quantités de stock.</p><button class="button">Enregistrer les seuils</button></form></section>
+{% endblock %}

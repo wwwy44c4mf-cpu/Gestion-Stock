@@ -168,3 +168,7 @@ Dans une campagne en cours, « Compter » et « Modifier » enregistrent la quan
 ## Validation et clôture (INV-03)
 
 Un inventaire complet et soumis peut être validé par un administrateur ou gestionnaire du magasin. Les stocks sont alignés sur les comptages, les ajustements et audits restent traçables, puis le magasin est libéré. Toute panne annule l’opération entière. [Guide](docs/inventaires.md).
+
+## Seuils par article et magasin (ALT-01)
+
+Depuis une fiche de stock, les administrateurs et gestionnaires autorisés peuvent configurer les seuils bas et critique. Champs vides et zéro sont distincts ; les quantités et mouvements sont conservés. [Guide](docs/seuils-stock.md).

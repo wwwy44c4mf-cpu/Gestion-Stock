@@ -52,7 +52,7 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 | `GET /api/v1/inventories/{id}/lines` | Référence figée paginée, tri et filtre article |
 | `POST /api/v1/inventories/{id}/start`, `/submit`, `/cancel` | Démarrage atomique, soumission complète et annulation tracée ; gel pendant comptage/validation |
 
-Ces quarante-neuf opérations portent `x-implementation: available`. Les 11 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
+Ces cinquante opérations portent `x-implementation: available`. Les 10 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
 
 Les routes `/health/live` et `/health/ready` de SOC-01 restent disponibles pour Docker ; la nouvelle sonde API ne remplace pas le contrôle PostgreSQL de readiness.
 
@@ -161,3 +161,5 @@ INV-01 : [campagnes et gel des mouvements](inventaires.md). La saisie des compta
 INV-02 : `POST /api/v1/inventories/{id}/lines` enregistre un lot atomique et idempotent. `expected_version` est obligatoire ; une saisie obsolète renvoie 409. La lecture expose `version` et `delta_percent`, nul si la référence est zéro ou la quantité non saisie. Le comptage ne modifie aucun stock.
 
 INV-03 : `POST /api/v1/inventories/{id}/validate` clôture une campagne complète et soumise. Réponse : inventaire et identifiants de tous les ajustements. Sans corps ni recherche ; CSRF, clé idempotente et droits requis. Clôture, soldes, journal, événements et audits atomiques. Les écarts nuls ne produisent aucun mouvement.
+
+ALT-01 : `PATCH /api/v1/stores/{storeId}/stocks/{articleId}/thresholds` configure les seuils du couple article/magasin sans mouvement. [Guide](seuils-stock.md).

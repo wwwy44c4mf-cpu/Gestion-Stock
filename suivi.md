@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -87,8 +87,8 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | STK-08 | 4 | Historique des mouvements filtrable | STK-08,09,10 | STK-03, STK-04, STK-05, STK-06, STK-07 | Intégré | [#20](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/20) |
 | INV-01 | 3 | Campagnes d’inventaire et gel des mouvements | INV-01,07 | STK-02 | Intégré | [#21](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/21) |
 | INV-02 | 3 | Saisie des comptages et calcul des écarts | INV-02,03 | INV-01 | Intégré | [#22](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/22) |
-| INV-03 | 3 | Validation atomique et clôture d’inventaire | INV-04,05,06 | INV-02, STK-05 | En revue | [#23](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23) |
-| ALT-01 | 3 | Seuils personnalisés par article et magasin | ART-05; ALT-01 | ART-01, AUTH-03 | À faire | [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24) |
+| INV-03 | 3 | Validation atomique et clôture d’inventaire | INV-04,05,06 | INV-02, STK-05 | Intégré | [#23](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23) |
+| ALT-01 | 3 | Seuils personnalisés par article et magasin | ART-05; ALT-01 | ART-01, AUTH-03 | En revue | [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24) |
 | ALT-02 | 3 | Cycle de vie des alertes et franchissements | ALT-01,03,04 | ALT-01, STK-02, MAIL-01 | À faire | [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25) |
 | ALT-03 | 3 | Écran des alertes et destinataires | ALT-02,05 | ALT-02 | À faire | [#26](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26) |
 | MAIL-01 | 1 | SMTP, file durable et modèles de courriels | MAIL-01,02,04,05,06,08 | SOC-02 | À faire | [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27) |
@@ -442,15 +442,17 @@ Livraison pour revue : [PR #72](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### ALT-01 — Seuils personnalisés par article et magasin
 
-Issue : [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24) · À faire · Dépendances : [ART-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
+Issue : [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24) · En revue · Dépendances : [ART-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
 
 Sources : ART-05; ALT-01.
 
-- [ ] Créer saisie des seuils bas et critique par couple article/magasin
-- [ ] Valider nombres entiers non négatifs et critique inférieur ou égal au bas
-- [ ] Ne pas imposer de seuil global chiffré non validé ; distinguer non configuré et zéro
+- [x] Créer saisie des seuils bas et critique par couple article/magasin
+- [x] Valider nombres entiers non négatifs et critique inférieur ou égal au bas
+- [x] Ne pas imposer de seuil global chiffré non validé ; distinguer non configuré et zéro
 
 Critères d’acceptation : Un article peut avoir des seuils différents selon magasin ; zéro est un seuil valide.
+
+Livraison pour revue : [PR #73](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/73), branche `codex/alt-01-stock-thresholds`. Seuils personnalisés, champs vides et zéro distincts, contrôles serveur et audit avant/après. Stock et journal conservés ; formulaire protégé contre les modifications concurrentes. Recette : 258 tests PHP / 3 742 assertions et quatre validations OpenAPI ; 9 nouveaux tests, concurrence réelle et panne injectée. Aucun changement de données locales pour la démonstration. [Guide](docs/seuils-stock.md) · [Validation](docs/validation-alt01.md).
 
 ### ALT-02 — Cycle de vie des alertes et franchissements
 
