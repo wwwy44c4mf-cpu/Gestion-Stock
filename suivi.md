@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 en revue (PR #73). MAIL-01 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -91,7 +91,7 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | ALT-01 | 3 | Seuils personnalisés par article et magasin | ART-05; ALT-01 | ART-01, AUTH-03 | En revue | [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24) |
 | ALT-02 | 3 | Cycle de vie des alertes et franchissements | ALT-01,03,04 | ALT-01, STK-02, MAIL-01 | À faire | [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25) |
 | ALT-03 | 3 | Écran des alertes et destinataires | ALT-02,05 | ALT-02 | À faire | [#26](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26) |
-| MAIL-01 | 1 | SMTP, file durable et modèles de courriels | MAIL-01,02,04,05,06,08 | SOC-02 | À faire | [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27) |
+| MAIL-01 | 1 | SMTP, file durable et modèles de courriels | MAIL-01,02,04,05,06,08 | SOC-02 | En revue | [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27) |
 | MAIL-02 | 3 | Messages d’information ciblés | MAIL-03 | MAIL-01, AUTH-03 | À faire | [#28](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/28) |
 | MAIL-03 | 3 | Récapitulatif quotidien des alertes à 08 h | ALT-06 partiel; MAIL-07 partiel; décision utilisateur | ALT-03, MAIL-01 | À faire | [#29](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29) |
 | CON-01 | 4 | Historique personnel et suivi des consommations | CON-03,04; décision utilisateur | STK-04, STK-07, AUTH-03 | À faire | [#30](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30) |
@@ -480,15 +480,17 @@ Critères d’acceptation : Gestionnaire ne voit que ses magasins ; administrate
 
 ### MAIL-01 — SMTP, file durable et modèles de courriels
 
-Issue : [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27) · À faire · Dépendances : [SOC-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2).
+Issue : [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27) · En revue · Dépendances : [SOC-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2).
 
 Sources : MAIL-01,02,04,05,06,08.
 
-- [ ] Configurer Symfony Mailer via secrets, SMTP externe existant et modèles lisibles
-- [ ] Créer worker Messenger et événements persistés dans la transaction métier ; reprises bornées et file d’échecs
-- [ ] Garantir idempotence, journal technique et absence de blocage du stock en panne SMTP
+- [x] Configurer Symfony Mailer via secrets, SMTP externe existant et modèles lisibles
+- [x] Créer worker Messenger et événements persistés dans la transaction métier ; reprises bornées et file d’échecs
+- [x] Garantir idempotence, journal technique et absence de blocage du stock en panne SMTP
 
 Critères d’acceptation : SMTP inaccessible : mouvement validé, message durable en attente ; REC-08,13 ; aucun secret journalisé.
+
+Livraison pour revue : [PR #74](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/74), branche `codex/mail-01-durable-notifications`, empilée sur la PR #73. SMTP via secret Docker, modèles HTML/texte, événements transactionnels et répartition vers Messenger atomique. Quatre essais bornés, file d’échecs, reprise opérateur auditée et Message-ID stable. Recette : 270 tests PHP / 3 870 assertions et quatre validations OpenAPI ; 12 nouveaux tests, worker réel, dialogue SMTP local et concurrence PostgreSQL. Migration 12 appliquée localement ; données métier conservées et envoi réel désactivé. [Guide](docs/courriels.md) · [Validation](docs/validation-mail01.md).
 
 ### MAIL-02 — Messages d’information ciblés
 
@@ -837,3 +839,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 20 octobre 2026 : INV-01 intégré (PR #70). INV-02 livré pour revue : comptages versionnés, écarts exacts, audit et soumission ; 240 tests / 3 520 assertions et quatre validations OpenAPI réussis.
 
 - 20 octobre 2026 : INV-02 intégré (PR #71). INV-03 livré pour revue : clôture atomique et ajustements traçables, REC-10, 249 tests / 3 660 assertions et quatre validations OpenAPI réussis. Aucun inventaire de démonstration créé.
+
+- 20 octobre 2026 : MAIL-01 livré pour revue. SMTP et modèles prêts pour les prochains producteurs métier ; aucune notification réelle émise. 270 tests PHP / 3 870 assertions et quatre validations OpenAPI.

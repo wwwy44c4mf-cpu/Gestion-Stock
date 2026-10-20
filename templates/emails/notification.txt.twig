@@ -1,0 +1,27 @@
+GESTION DE STOCK
+{% if type in ['stock_low','stock_critical'] %}
+{{ type == 'stock_critical' ? 'Stock critique' : 'Stock bas' }}
+Article : {{ payload.article }}
+Magasin : {{ payload.store }}
+Quantité disponible : {{ payload.quantity }} unités
+Seuil : {{ payload.threshold }} unités
+Constaté le {{ payload.occurred_at|date('d/m/Y à H:i','Europe/Paris') }}
+Consulter le stock : {{ base_url ~ payload.path }}
+{% elseif type == 'information' %}
+{{ payload.subject }}
+{{ payload.body }}
+Ouvrir l’application : {{ base_url ~ payload.path }}
+{% elseif type == 'password_reset' %}
+Une réinitialisation de votre mot de passe a été demandée.
+Si vous n’êtes pas à l’origine de cette demande, ignorez ce courriel.
+Choisir un nouveau mot de passe : {{ base_url ~ payload.path }}
+{% elseif type == 'daily_summary' %}
+Vos alertes de stock
+{% for item in payload.items %}
+{{ item.article }} · {{ item.store }}
+Disponible : {{ item.quantity }} unités · seuil : {{ item.threshold }} unités
+Constaté le {{ item.occurred_at|date('d/m/Y à H:i','Europe/Paris') }}
+Consulter le stock : {{ base_url ~ item.path }}
+{% endfor %}
+{% endif %}
+Ce courriel est envoyé automatiquement par votre application de gestion de stock.

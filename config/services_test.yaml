@@ -10,3 +10,11 @@ services:
     public: true
   App\Stock\StockReturnEngine:
     public: true
+  App\Notification\NotificationOutbox:
+    public: true
+  App\Notification\NotificationRenderer:
+    public: true
+  App\Notification\NotificationPayload:
+    public: true
+  App\Notification\NotificationDeliveryHandler:
+    public: true

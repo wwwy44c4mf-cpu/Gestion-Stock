@@ -172,3 +172,7 @@ Un inventaire complet et soumis peut être validé par un administrateur ou gest
 ## Seuils par article et magasin (ALT-01)
 
 Depuis une fiche de stock, les administrateurs et gestionnaires autorisés peuvent configurer les seuils bas et critique. Champs vides et zéro sont distincts ; les quantités et mouvements sont conservés. [Guide](docs/seuils-stock.md).
+
+## Courriels persistants (MAIL-01)
+
+SMTP, modèles HTML/texte et file PostgreSQL sont prêts pour les prochains producteurs métier. L’envoi reste désactivé jusqu’à configuration du service SMTP et de l’expéditeur. Quatre essais maximum par cycle, file d’échecs et reprise opérateur tracée. [Configuration et exploitation](docs/courriels.md).
