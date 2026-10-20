@@ -71,3 +71,7 @@ STK-05 ajoute `Version20261018223000` (huitième migration) pour `movement_corre
 ## Campagnes d’inventaire
 
 `Version20261020220000` (neuvième migration) ajoute `inventory_requests`, le registre immuable des créations/transitions rejouables, et les protections des campagnes et lignes. Les références théoriques ne sont pas modifiables, le comptage est réservé à l’état en cours, et les campagnes clôturées/annulées restent immuables. Son retour arrière est refusé dès qu’une campagne existe. Exécuter explicitement la migration avant d’utiliser le nouveau menu ; le service init ne l’exécute pas. Aucune campagne ni quantité de stock n’est créée par cette migration. [Guide](inventaires.md).
+
+## Versions des comptages
+
+`Version20261020230000` (dixième migration) ajoute `inventory_lines.version` et un incrément automatique à chaque mise à jour. Une saisie doit présenter la version lue ; le workflow sérialise le lot avec les transitions et refuse les versions obsolètes. Le retour arrière est refusé si une ligne a une version positive, afin de préserver cette protection. Aucune campagne ni quantité de stock créée par la migration.

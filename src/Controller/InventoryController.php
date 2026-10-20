@@ -46,6 +46,11 @@ final class InventoryController extends AbstractController
     {
         return $this->json($this->inventories->lines($this->actor(),$id,$query->read($request,'listInventoryLines')));
     }
+    #[Route('/api/v1/inventories/{id}/lines',name:'api_inventories_counts',methods:['POST'])]
+    public function write(string $id,Request $request,JsonBody $json,IdempotencyKey $key): JsonResponse
+    {
+        return $this->json($this->workflow->write($this->actor(),$id,$json->read($request,'CountsWrite'),$key->read($request)));
+    }
     #[Route('/api/v1/inventories/{id}/{action}',name:'api_inventories_transition',requirements:['action'=>'start|submit|cancel'],methods:['POST'])]
     public function change(string $id,string $action,Request $request,IdempotencyKey $key): JsonResponse
     {
@@ -81,7 +86,7 @@ final class InventoryController extends AbstractController
     public function detail(string $id,Request $request,QueryParameters $query): Response
     {
         $actor=$this->actor();$filters=$query->read($request,'listInventoryLines');$inventory=$this->inventories->get($actor,$id)['data'];$lines=$this->inventories->lines($actor,$id,$filters);
-        return $this->render('inventories/detail.html.twig',['inventory'=>$inventory,'lines'=>$lines,'filters'=>$filters,'labels'=>$this->inventories->labels([$inventory],$lines['data']),'inventory_target'=>AccessTarget::inventory($id),'request_key'=>bin2hex(random_bytes(16))]);
+        return $this->render('inventories/detail.html.twig',['inventory'=>$inventory,'lines'=>$lines,'filters'=>$filters,'labels'=>$this->inventories->labels([$inventory],$lines['data']),'inventory_target'=>AccessTarget::inventory($id),'progress'=>$this->inventories->progress($actor,$id),'request_key'=>bin2hex(random_bytes(16))]);
     }
     #[Route('/inventaires/{id}/{action}',name:'inventories_transition',requirements:['action'=>'start|submit|cancel'],methods:['POST'])]
     public function transition(string $id,string $action,Request $request,CsrfTokenManagerInterface $csrf): Response
@@ -90,6 +95,30 @@ final class InventoryController extends AbstractController
         $this->workflow->transition($actor,$id,$action,$data['_request_key']??'');
         $this->addFlash('success',match($action) {'start'=>'L’inventaire a démarré. Les mouvements du magasin sont bloqués.','submit'=>'L’inventaire attend sa validation. Le magasin reste bloqué.','cancel'=>'L’inventaire a été annulé. Les mouvements du magasin sont à nouveau autorisés.'});
         return $this->redirectToRoute('inventories_detail',['id'=>$id],303);
+    }
+    #[Route('/inventaires/{id}/comptage/{articleId}',name:'inventories_count',requirements:['articleId'=>'[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}'],methods:['GET','POST'])]
+    public function count(string $id,string $articleId,Request $request,QueryParameters $query,CsrfTokenManagerInterface $csrf): Response
+    {
+        $id=strtolower($id);$articleId=strtolower($articleId);
+        $actor=$this->actor();$filters=$query->read($request,'listInventoryLines');$inventory=$this->inventories->get($actor,$id)['data'];
+        $this->denyAccessUnlessGranted('APP_INVENTORY_WRITE',AccessTarget::inventory($id));
+        if($inventory['status']!=='in_progress') {throw new ApiProblem(409,'invalid_inventory_state','La saisie est possible uniquement pendant le comptage.');}
+        $rows=$this->inventories->lines($actor,$id,['article_id'=>$articleId,'limit'=>1])['data'];if($rows===[]) {throw new ApiProblem(404,'inventory_line_not_found','Ligne d’inventaire introuvable.');}$line=$rows[0];
+        $value=$line['counted_qty']===null?'':(string)$line['counted_qty'];$version=(string)$line['version'];$key=bin2hex(random_bytes(16));$error=null;$status=200;
+        if($request->isMethod('POST')) {
+            try {
+                if(strlen($request->getContent())>65536) {throw new ApiProblem(413,'payload_too_large','Le formulaire est trop volumineux.');}
+                if($request->files->count()>0) {throw new ApiProblem(422,'invalid_form','Aucun fichier n’est accepté.');}$data=$request->request->all();
+                foreach($data as $name=>$item) {if(!in_array($name,['counted_qty','expected_version','_request_key','_csrf_token'],true) || !is_string($item)) {throw new ApiProblem(422,'invalid_form','Un champ du formulaire est invalide.');}}
+                $value=$data['counted_qty']??'';$version=$data['expected_version']??'';$key=$data['_request_key']??'';
+                if(!$csrf->isTokenValid(new CsrfToken('inventory_count_'.$id.'_'.$articleId,$data['_csrf_token']??''))) {throw new ApiProblem(403,'invalid_csrf_token','Formulaire expiré. Rechargez la page.');}
+                foreach([$value,$version] as $number) {if(!preg_match('/^(0|[1-9][0-9]{0,15})$/D',$number) || (int)$number>9007199254740991) {throw new ApiProblem(422,'invalid_quantity','Saisissez un nombre entier positif ou zéro, sans décimale.');}}
+                $this->workflow->write($actor,$id,(object)['lines'=>[(object)['article_id'=>$articleId,'counted_qty'=>(int)$value,'expected_version'=>(int)$version]]],$key);
+                $this->addFlash('success','Le comptage a été enregistré. Le stock reste inchangé jusqu’à la validation de l’inventaire.');
+                return $this->redirectToRoute('inventories_detail',[...$filters,'id'=>$id],303);
+            } catch(ApiProblem $problem) {$error=$problem->getMessage();$status=$problem->status;}
+        }
+        return $this->render('inventories/count.html.twig',['inventory'=>$inventory,'line'=>$line,'labels'=>$this->inventories->labels([$inventory],[$line]),'filters'=>$filters,'value'=>$value,'version'=>$version,'request_key'=>$key,'error'=>$error],new Response(status:$status));
     }
     private function formData(Request $request,array $allowed,CsrfTokenManagerInterface $csrf,string $tokenId): array
     {

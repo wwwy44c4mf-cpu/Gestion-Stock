@@ -34,6 +34,14 @@ final class InventoryWorkflow
         $this->policy->assert($actor,Permission::INVENTORY_WRITE,AccessTarget::inventory($id));
         return $this->execute($actor,$action,strtolower($id),new \stdClass(),$key);
     }
+    public function write(StockUser $actor,string $id,\stdClass $body,string $key): array
+    {
+        $this->identity->requireRole($actor,Permission::INVENTORY_WRITE);
+        if(!$this->contract->valid($body,['$ref'=>'#/components/schemas/CountsWrite'])) {throw new ApiProblem(422,'validation_failed','Vérifiez les quantités et les versions des lignes.');}
+        $this->policy->assert($actor,Permission::INVENTORY_WRITE,AccessTarget::inventory($id));
+        $lines=[];foreach($body->lines as $line) {$line=clone $line;$line->article_id=strtolower($line->article_id);if(isset($lines[$line->article_id])) {throw new ApiProblem(422,'duplicate_article','Un article apparaît plusieurs fois dans le comptage.');}$lines[$line->article_id]=$line;}
+        ksort($lines,SORT_STRING);return $this->execute($actor,'counts',strtolower($id),(object)['lines'=>array_values($lines)],$key);
+    }
     private function execute(StockUser $actor,string $action,?string $id,\stdClass $body,string $key): array
     {
         if(!preg_match('/^[A-Za-z0-9._:-]{8,160}$/D',$key)) {throw new ApiProblem(422,'invalid_idempotency_key','Clé d’opération invalide.');}
@@ -48,26 +56,43 @@ final class InventoryWorkflow
             $this->db->fetchOne('SELECT id FROM stores WHERE id=? FOR UPDATE',[$store]);
             $previous=$this->db->fetchAssociative('SELECT request_fingerprint,response FROM inventory_requests WHERE actor_id=? AND request_key=?',[$actor->id,$key]);
             if($previous) {if(!hash_equals($previous['request_fingerprint'],$fingerprint)) {throw new ApiProblem(409,'idempotency_conflict','Cette clé a déjà servi pour une autre opération.');}return ['data'=>$this->directory->resource(json_decode($previous['response'],true,flags:JSON_THROW_ON_ERROR)['data'])];}
+            $context=[];
             if($action==='create') {
                 $row=$this->db->fetchAssociative('INSERT INTO inventories (store_id,created_by,created_at) VALUES (?,?,clock_timestamp()) RETURNING *',[$store,$actor->id]);
             } else {
                 $row=$this->db->fetchAssociative('SELECT * FROM inventories WHERE id=? FOR UPDATE',[$id]);
-                $allowed=match($action) {'start'=>['draft'],'submit'=>['in_progress'],'cancel'=>['draft','in_progress','pending_validation']};
+                $allowed=match($action) {'start'=>['draft'],'submit'=>['in_progress'],'counts'=>['in_progress'],'cancel'=>['draft','in_progress','pending_validation']};
                 if(!in_array($row['status'],$allowed,true)) {throw new ApiProblem(409,'invalid_inventory_state','L’état de cet inventaire ne permet plus cette action.');}
                 if($action==='start') {
                     if($this->db->fetchOne("SELECT 1 FROM inventories WHERE store_id=? AND status IN ('in_progress','pending_validation')",[$store])) {throw new ApiProblem(409,'inventory_in_progress','Un inventaire bloque déjà ce magasin.');}
                     $row=$this->db->fetchAssociative("UPDATE inventories SET status='in_progress',snapshot_at=clock_timestamp() WHERE id=? RETURNING *",[$id]);
                     $this->snapshot($id,$store);
+                } elseif($action==='counts') {
+                    $context['lines']=$this->count($actor,$id,$body->lines);
                 } elseif($action==='submit') {
                     if($this->db->fetchOne('SELECT 1 FROM inventory_lines WHERE inventory_id=? AND counted_qty IS NULL',[$id])) {throw new ApiProblem(409,'incomplete_inventory','Toutes les quantités doivent être comptées avant la soumission.');}
                     $row=$this->db->fetchAssociative("UPDATE inventories SET status='pending_validation' WHERE id=? RETURNING *",[$id]);
                 } else {$row=$this->db->fetchAssociative("UPDATE inventories SET status='cancelled',cancelled_at=clock_timestamp() WHERE id=? RETURNING *",[$id]);}
             }
             $result=['data'=>$this->directory->resource($row)];
-            $this->db->executeStatement("INSERT INTO audit_logs (actor_id,store_id,action,target_type,target_id,context) VALUES (?,?,?,'inventory',?,?::jsonb)",[$actor->id,$store,'inventory.'.$action,$row['id'],json_encode(['status'=>$row['status']],JSON_THROW_ON_ERROR)]);
+            $this->db->executeStatement("INSERT INTO audit_logs (actor_id,store_id,action,target_type,target_id,context) VALUES (?,?,?,'inventory',?,?::jsonb)",[$actor->id,$store,'inventory.'.$action,$row['id'],json_encode(['status'=>$row['status'],...$context],JSON_THROW_ON_ERROR)]);
             $this->db->executeStatement('INSERT INTO inventory_requests (actor_id,request_key,request_fingerprint,inventory_id,response) VALUES (?,?,?,?,?::jsonb)',[$actor->id,$key,$fingerprint,$row['id'],json_encode($result,JSON_THROW_ON_ERROR)]);
             return $result;
         });
+    }
+    private function count(StockUser $actor,string $id,array $lines): array
+    {
+        // Validate the whole batch under the campaign guard before changing any row.
+        $changes=[];
+        foreach($lines as $line) {
+            $current=$this->db->fetchAssociative('SELECT version,counted_qty FROM inventory_lines WHERE inventory_id=? AND article_id=? FOR UPDATE',[$id,$line->article_id]);
+            if(!$current) {throw new ApiProblem(422,'article_outside_inventory','Un article ne fait pas partie de la référence de cet inventaire.');}
+            if((int)$current['version']!==$line->expected_version) {throw new ApiProblem(409,'stale_inventory_line','Un comptage a changé depuis l’ouverture de cet écran. Rechargez les lignes avant de réessayer.');}
+            $changes[]=['article_id'=>$line->article_id,'previous_qty'=>$current['counted_qty']===null?null:(int)$current['counted_qty'],'counted_qty'=>$line->counted_qty,'previous_version'=>(int)$current['version'],'version'=>(int)$current['version']+1];
+            if($line->expected_version>=9007199254740991) {throw new ApiProblem(409,'inventory_version_limit','La limite de version de ce comptage est atteinte.');}
+        }
+        foreach($lines as $line) {$this->db->executeStatement('UPDATE inventory_lines SET counted_qty=?,counted_by=?,counted_at=clock_timestamp() WHERE inventory_id=? AND article_id=?',[$line->counted_qty,$actor->id,$id,$line->article_id]);}
+        return $changes;
     }
     private function snapshot(string $id,string $store): void
     {
