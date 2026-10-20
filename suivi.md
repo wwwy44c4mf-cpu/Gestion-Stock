@@ -438,7 +438,7 @@ Sources : INV-04,05,06.
 
 Critères d’acceptation : 10 théoriques / 8 comptés donnent un seul ajustement -2, stock 8 ; REC-10.
 
-Livraison : branche `codex/inv-03-inventory-validation`. Validation autorisée d’une campagne complète et soumise, ajustements non nuls liés, événements et audits atomiques, marqueurs de clôture et résultat idempotent. Refus des soldes divergents ; campagnes et ajustements conservés immuables ; liens entre référence et journal. Recette : 249 tests PHP / 3 660 assertions, quatre validations OpenAPI ; 9 tests ciblés / 140 assertions et concurrence réelle. Migration 11 appliquée localement. [Guide](docs/inventaires.md) · [Validation](docs/validation-inv03.md).
+Livraison pour revue : [PR #72](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/72), branche `codex/inv-03-inventory-validation`. Validation autorisée d’une campagne complète et soumise, ajustements non nuls liés, événements et audits atomiques, marqueurs de clôture et résultat idempotent. Refus des soldes divergents ; campagnes et ajustements conservés immuables ; liens entre référence et journal. Recette : 249 tests PHP / 3 660 assertions, quatre validations OpenAPI ; 9 tests ciblés / 140 assertions et concurrence réelle. Migration 11 appliquée localement. [Guide](docs/inventaires.md) · [Validation](docs/validation-inv03.md).
 
 ### ALT-01 — Seuils personnalisés par article et magasin
 

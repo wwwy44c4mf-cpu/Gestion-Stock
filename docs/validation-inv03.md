@@ -32,4 +32,4 @@ La onzième migration `Version20261021000000` ajoute l’index unique et les con
 
 Contrat : **60 opérations / 94 schémas : 49 disponibles / 11 planifiées**. `validateInventory` disponible, réponse `InventoryValidationResource`. Les identifiants retournés couvrent toute la campagne, sans limite liée à une page ou à l’ancien plafond de résultat planifié.
 
-INV-02 intégré dans main (PR #71). Branche de livraison : `codex/inv-03-inventory-validation`. [Guide](inventaires.md).
+INV-02 intégré dans main (PR #71). Livraison : [PR #72](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/72), branche `codex/inv-03-inventory-validation`. [Guide](inventaires.md).
