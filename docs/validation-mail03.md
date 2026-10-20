@@ -24,3 +24,5 @@ Aucune route API ajoutée : contrat inchangé, 61 opérations / 96 schémas, don
 Décision utilisateur : rattraper uniquement le jour courant après un arrêt à 08 h, sans rappel des journées précédentes.
 
 [Guide](recapitulatif-quotidien.md) · [Issue #29](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29).
+
+Livraison : [PR #78](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/78), empilée sur la PR #77.

@@ -528,6 +528,8 @@ Choix confirmé : rattrapage du jour après un arrêt à 08 h, sans envoyer les 
 
 Recette : 326 tests PHP / 4 319 assertions et quatre validations OpenAPI. Migration 16 installée localement ; cinq mouvements, stock total 12 et un inventaire conservés. Aucun courriel réel envoyé.
 
+Livraison pour revue : [PR #78](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/78), branche `codex/mail-03-daily-alert-summary`, empilée sur la PR #77.
+
 ### CON-01 — Historique personnel et suivi des consommations
 
 Issue : [#30](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30) · À faire · Dépendances : [STK-04](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16), [STK-07](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
