@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+{% block title %}Inventaires · Gestion de stock{% endblock %}
+{% block content %}
+{% set statuses = {'draft':'Brouillon','in_progress':'En cours','pending_validation':'À valider','closed':'Clôturé','cancelled':'Annulé'} %}
+<div class="page-heading"><div><p class="eyebrow">COMPTAGE</p><h1>Inventaires</h1><p class="subtitle">Préparez les campagnes et retrouvez leur historique.</p></div>{% if can_create %}<a class="button" href="{{ path('inventories_new') }}">Préparer un inventaire</a>{% endif %}</div>
+<section class="card"><form method="get" class="account-filters" aria-label="Filtrer les inventaires">
+<div class="field"><label for="inventory-store">Magasin</label><select id="inventory-store" name="store_id"><option value="">Tous mes magasins autorisés</option>{% for store in stores %}<option value="{{ store.id }}" {% if filters.store_id|default('') == store.id %}selected{% endif %}>{{ store.name }}{{ store.active ? '' : ' (désactivé)' }}</option>{% endfor %}</select></div>
+<div class="field"><label for="inventory-status">État</label><select id="inventory-status" name="status"><option value="">Tous les états</option>{% for key,label in statuses %}<option value="{{ key }}" {% if filters.status|default('') == key %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+<div class="field"><label for="inventory-order">Ordre</label><select id="inventory-order" name="order"><option value="desc" {% if filters.order == 'desc' %}selected{% endif %}>Plus récents d’abord</option><option value="asc" {% if filters.order == 'asc' %}selected{% endif %}>Plus anciens d’abord</option></select></div>
+<button class="button">Filtrer</button><a href="{{ path('inventories_list',{store_id:''}) }}">Réinitialiser</a></form>
+<p>{{ result.meta.total }} inventaire{{ result.meta.total > 1 ? 's' : '' }}</p>
+<div class="table-scroll"><table><thead><tr><th>Création</th><th>Magasin</th><th>État</th><th>Mouvements</th><th>Détail</th></tr></thead><tbody>{% for inventory in result.data %}<tr><td>{{ inventory.created_at|date('d/m/Y H:i',app.user.timezone) }}</td><td>{{ labels.stores[inventory.store_id].name }}</td><td>{{ statuses[inventory.status] }}</td><td>{{ inventory.status in ['in_progress','pending_validation'] ? 'Bloqués' : 'Autorisés' }}</td><td><a href="{{ path('inventories_detail',{id:inventory.id}) }}">Consulter</a></td></tr>{% else %}<tr><td colspan="5">Aucun inventaire ne correspond aux filtres.</td></tr>{% endfor %}</tbody></table></div>
+{% include 'components/pagination.html.twig' with {page:result.meta.page,pages:result.meta.total_pages,route:'inventories_list',parameters:filters|filter((v,k) => k != 'page')|merge({store_id:filters.store_id|default('')})} only %}
+</section>{% endblock %}

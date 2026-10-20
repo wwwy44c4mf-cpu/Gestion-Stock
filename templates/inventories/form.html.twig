@@ -1,0 +1,8 @@
+{% extends 'base.html.twig' %}
+{% block title %}Préparer un inventaire · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">INVENTAIRE</p><h1>Préparer un inventaire</h1><p class="subtitle">Le brouillon ne bloque aucun mouvement. Le stock sera figé au démarrage.</p></div><a href="{{ path('inventories_list') }}">Retour aux inventaires</a></div>
+<section class="card">{% if error %}<p class="notice notice-error" role="alert">{{ error }}</p>{% endif %}
+{% if stores is empty %}<p>Aucun magasin actif ne permet de préparer un inventaire avec vos droits actuels.</p>{% else %}<form method="post"><input type="hidden" name="_csrf_token" value="{{ csrf_token('inventory_create') }}"><input type="hidden" name="_request_key" value="{{ request_key }}">
+<div class="field"><label for="inventory-store">Magasin</label><select id="inventory-store" name="store_id" required><option value="">Choisir un magasin</option>{% for store in stores %}<option value="{{ store.id }}" {% if store_id == store.id %}selected{% endif %}>{{ store.code }} · {{ store.name }}</option>{% endfor %}</select></div><button class="button">Créer le brouillon</button></form>{% endif %}</section>
+{% endblock %}

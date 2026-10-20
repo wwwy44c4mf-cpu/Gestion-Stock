@@ -156,3 +156,7 @@ Depuis **Consommations → Rendre des articles**, enregistrer un retour partiel 
 ## Historique des mouvements (STK-08)
 
 Le menu **Mouvements** propose un journal paginé filtrable par période, article, magasin, type, opérateur et bénéficiaire. Les heures suivent le fuseau du compte. Les transferts hors périmètre sont affichés avec leurs informations extérieures masquées. [Guide](docs/historique-mouvements.md).
+
+## Campagnes d’inventaire (INV-01)
+
+Le menu **Inventaires** permet de préparer un brouillon, démarrer une référence figée et bloquer les mouvements, puis annuler la campagne pour libérer le magasin. Le périmètre comprend les articles actifs et les articles désactivés encore en stock. Saisie et clôture relèvent des lots INV-02 et INV-03. [Guide](docs/inventaires.md).

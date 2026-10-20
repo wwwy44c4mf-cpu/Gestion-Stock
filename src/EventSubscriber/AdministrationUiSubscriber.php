@@ -23,13 +23,15 @@ final class AdministrationUiSubscriber implements EventSubscriberInterface
         $proposals = str_starts_with($route, 'proposals_');
         $catalog = str_starts_with($route, 'catalog_') || $proposals;
         $consumptions = str_starts_with($route, 'consumptions_');
+        $inventories = str_starts_with($route, 'inventories_');
         $movements = str_starts_with($route, 'movements_');
         $stocks = str_starts_with($route, 'stocks_');
         $stores = str_starts_with($route, 'stores_');
         $accounts = str_starts_with($route, 'admin_users');
-        if (!$event->isMainRequest() || (!$accounts && !$stores && !$catalog && !$stocks && !$consumptions && !$movements && !$adminAlias)) { return; }
+        if (!$event->isMainRequest() || (!$accounts && !$stores && !$catalog && !$stocks && !$consumptions && !$movements && !$inventories && !$adminAlias)) { return; }
         $returnRoute = $consumptions ? (str_starts_with($route,'consumptions_return_') ? 'consumptions_return_list' : 'consumptions_new') : ($stocks ? 'stocks_list' : ($proposals ? 'proposals_list' : ($catalog ? (str_contains($route, 'categor') ? 'catalog_categories' : 'catalog_list') : ($stores ? 'stores_list' : 'admin_users'))));
         $returnLabel = $consumptions ? (str_starts_with($route,'consumptions_return_') ? 'Retour aux consommations à rendre' : 'Nouvelle consommation') : ($stocks ? 'Retour aux stocks' : ($proposals ? 'Retour aux propositions' : ($catalog ? (str_contains($route, 'categor') ? 'Retour aux catégories' : 'Retour aux articles') : ($stores ? 'Retour aux magasins' : 'Retour aux comptes'))));
+        if ($inventories) { $returnRoute = 'inventories_list'; $returnLabel = 'Retour aux inventaires'; }
         if ($movements) { $returnRoute = 'movements_list'; $returnLabel = 'Retour aux mouvements'; }
         $error = $event->getThrowable();
         if ($error instanceof AccessDeniedHttpException) {

@@ -4277,7 +4277,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/Page"
@@ -4399,7 +4399,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -4497,7 +4497,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -4582,7 +4582,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -4783,7 +4783,7 @@
       "post": {
         "operationId": "startInventory",
         "summary": "Démarrer le comptage et geler les mouvements",
-        "description": "Transition vers in_progress. Contrôler l’état de départ et les droits. Comptage/validation : toutes entrées, sorties, retours, ajustements et transferts impliquant le magasin sont bloqués. Annulation tracée ; campagne clôturée immuable.",
+        "description": "Transition vers in_progress. Contrôler l’état de départ et les droits. Comptage/validation : toutes entrées, sorties, retours, ajustements et transferts impliquant le magasin sont bloqués. Annulation tracée ; campagne clôturée immuable. Référence : tous les articles actifs, plus les articles désactivés dont le stock du magasin est positif, au démarrage. Les quantités théoriques sont figées sans créer de solde à zéro. Un seul inventaire en cours ou à valider par magasin. Aucun corps ni paramètre de recherche accepté. Rejeu idempotent : réponse d’origine, sans répéter la transition ; autorisations réévaluées.",
         "tags": [
           "inventories"
         ],
@@ -4798,7 +4798,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -4872,7 +4872,7 @@
       "post": {
         "operationId": "submitInventory",
         "summary": "Soumettre les écarts à validation",
-        "description": "Transition vers pending_validation. Contrôler l’état de départ et les droits. Comptage/validation : toutes entrées, sorties, retours, ajustements et transferts impliquant le magasin sont bloqués. Annulation tracée ; campagne clôturée immuable.",
+        "description": "Transition vers pending_validation. Contrôler l’état de départ et les droits. Comptage/validation : toutes entrées, sorties, retours, ajustements et transferts impliquant le magasin sont bloqués. Annulation tracée ; campagne clôturée immuable. Toutes les lignes doivent être comptées. La saisie des comptages est livrée dans INV-02 et la clôture avec ajustements dans INV-03. Aucun corps ni paramètre de recherche accepté. Rejeu idempotent : réponse d’origine, sans répéter la transition ; autorisations réévaluées.",
         "tags": [
           "inventories"
         ],
@@ -4887,7 +4887,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -4961,7 +4961,7 @@
       "post": {
         "operationId": "cancelInventory",
         "summary": "Annuler et libérer le magasin",
-        "description": "Transition vers cancelled. Contrôler l’état de départ et les droits. Comptage/validation : toutes entrées, sorties, retours, ajustements et transferts impliquant le magasin sont bloqués. Annulation tracée ; campagne clôturée immuable.",
+        "description": "Transition vers cancelled. Contrôler l’état de départ et les droits. Comptage/validation : toutes entrées, sorties, retours, ajustements et transferts impliquant le magasin sont bloqués. Annulation tracée ; campagne clôturée immuable. Aucun corps ni paramètre de recherche accepté. Rejeu idempotent : réponse d’origine, sans répéter la transition ; autorisations réévaluées.",
         "tags": [
           "inventories"
         ],
@@ -4976,7 +4976,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
