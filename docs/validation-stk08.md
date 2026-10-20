@@ -26,4 +26,4 @@ Recette mobile à 390 × 844 : page sans débordement horizontal global (`scroll
 
 **60 opérations / 94 schémas : 40 disponibles / 20 planifiées.** `listMovements` et `getMovement` sont disponibles. Les schémas de lecture `HistoryMovement*` portent le masquage sans modifier les réponses d’écriture `MovementResource`. Aucune nouvelle migration ; les huit migrations existantes sont conservées.
 
-Branche : `codex/stk-08-movement-history`. [Guide utilisateur et API](historique-mouvements.md). L’historique personnel USER reste dans CON-01.
+Livraison : [PR #69](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/69), branche `codex/stk-08-movement-history`. [Guide utilisateur et API](historique-mouvements.md). L’historique personnel USER reste dans CON-01.

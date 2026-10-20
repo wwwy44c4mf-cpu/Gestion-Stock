@@ -396,7 +396,7 @@ Sources : STK-08,09,10.
 
 Critères d’acceptation : Une recherche combine correctement les filtres et ne divulgue aucun magasin interdit.
 
-Livraison : branche `codex/stk-08-movement-history`. Journal général, détail, filtres combinés et pagination stable ; heures locales, comptes anonymisés, relations de retour et correction, magasins archivés selon droits. Décision utilisateur du 20 octobre : une ligne limitée au magasin accessible pour les transferts partiellement autorisés, avec masquage des personnes, textes et liens extérieurs avant filtrage. [Guide](docs/historique-mouvements.md) · [Validation](docs/validation-stk08.md). Recette : 223 tests PHP / 3 251 assertions et quatre validations OpenAPI réussis ; 9 tests ciblés / 102 assertions. Aucune migration.
+Livraison pour revue : [PR #69](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/69), branche `codex/stk-08-movement-history`. Journal général, détail, filtres combinés et pagination stable ; heures locales, comptes anonymisés, relations de retour et correction, magasins archivés selon droits. Décision utilisateur du 20 octobre : une ligne limitée au magasin accessible pour les transferts partiellement autorisés, avec masquage des personnes, textes et liens extérieurs avant filtrage. [Guide](docs/historique-mouvements.md) · [Validation](docs/validation-stk08.md). Recette : 223 tests PHP / 3 251 assertions et quatre validations OpenAPI réussis ; 9 tests ciblés / 102 assertions. Aucune migration.
 
 ### INV-01 — Campagnes d’inventaire et gel des mouvements
 
