@@ -176,3 +176,7 @@ Depuis une fiche de stock, les administrateurs et gestionnaires autorisés peuve
 ## Courriels persistants (MAIL-01)
 
 SMTP, modèles HTML/texte et file PostgreSQL sont prêts pour les prochains producteurs métier. L’envoi reste désactivé jusqu’à configuration du service SMTP et de l’expéditeur. Quatre essais maximum par cycle, file d’échecs et reprise opérateur tracée. [Configuration et exploitation](docs/courriels.md).
+
+## Cycle des alertes (ALT-02)
+
+Les changements de quantité et de seuil recalculent les niveaux normal, bas et critique. Franchissements et résolutions sont historisés ; les alertes basses et critiques préparent un courriel aux administrateurs et gestionnaires autorisés, sans bloquer les mouvements lors d’une panne SMTP. [Règles et installation](docs/cycle-alertes.md). L’écran dédié sera livré dans ALT-03.
