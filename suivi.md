@@ -466,7 +466,7 @@ Sources : ALT-01,03,04.
 
 Critères d’acceptation : Franchissement produit un événement ; réapprovisionnement résout ; REC-08,09.
 
-Livraison pour revue : recalcul atomique après changements de quantité et de seuil, priorité critique, ouverture/résolution et transitions immuables. Notifications persistantes par destinataire autorisé, sans émission sur consultation ou rejeu. Corrections sur solde net et validation d’inventaire couvertes. Recette : 283 tests PHP / 3 981 assertions et quatre validations OpenAPI ; 13 nouveaux tests et concurrence PostgreSQL. Migration 13 appliquée localement ; données métier conservées. [Guide](docs/cycle-alertes.md) · [Validation](docs/validation-alt02.md).
+Livraison pour revue : [PR #75](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/75), branche `codex/alt-02-alert-lifecycle`. Recalcul atomique après changements de quantité et de seuil, priorité critique, ouverture/résolution et transitions immuables. Notifications persistantes par destinataire autorisé, sans émission sur consultation ou rejeu. Corrections sur solde net et validation d’inventaire couvertes. Recette : 283 tests PHP / 3 981 assertions et quatre validations OpenAPI ; 13 nouveaux tests et concurrence PostgreSQL. Migration 13 appliquée localement ; données métier conservées. [Guide](docs/cycle-alertes.md) · [Validation](docs/validation-alt02.md).
 
 ### ALT-03 — Écran des alertes et destinataires
 

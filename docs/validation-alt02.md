@@ -23,3 +23,5 @@ Les écritures de recette utilisent des schémas PostgreSQL isolés, annulés ou
 L’écran des alertes et les destinataires configurables restent dans ALT-03 ; le rappel quotidien dans MAIL-03. ALT-02 n’ajoute aucune nouvelle route API.
 
 [Guide du cycle des alertes](cycle-alertes.md).
+
+Livraison : [PR #75](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/75), issue [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25).
