@@ -36,4 +36,4 @@ La migration `Version20261020220000` a été appliquée explicitement dans l’e
 
 **60 opérations / 94 schémas : 47 disponibles / 13 planifiées.** Liste, création, détail, référence paginée, démarrage, soumission et annulation disponibles. Saisie des quantités dans INV-02 ; validation avec ajustements et clôture dans INV-03. [Guide](inventaires.md).
 
-Branche de livraison : `codex/inv-01-inventory-campaigns`.
+Livraison : [PR #70](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/70), branche `codex/inv-01-inventory-campaigns`.

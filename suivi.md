@@ -410,7 +410,7 @@ Sources : INV-01,07.
 
 Critères d’acceptation : Aucun mouvement ne passe durant le gel ; un inventaire actif par magasin ; fin ou annulation libère le magasin.
 
-Périmètre confirmé par l’utilisateur le 20 octobre 2026 : tous les articles actifs et les articles désactivés dont le stock du magasin est positif. Référence figée au démarrage, sans création de solde à zéro. Brouillons, démarrage, soumission complète et annulation idempotents, audit atomique et protection des campagnes terminées. Saisie dans INV-02 ; clôture avec ajustements dans INV-03. Recette : 232 tests PHP / 3 394 assertions, quatre validations OpenAPI réussis et concurrence réelle. Migration 9 appliquée localement. Branche `codex/inv-01-inventory-campaigns`. [Guide](docs/inventaires.md) · [Validation](docs/validation-inv01.md).
+Périmètre confirmé par l’utilisateur le 20 octobre 2026 : tous les articles actifs et les articles désactivés dont le stock du magasin est positif. Référence figée au démarrage, sans création de solde à zéro. Brouillons, démarrage, soumission complète et annulation idempotents, audit atomique et protection des campagnes terminées. Saisie dans INV-02 ; clôture avec ajustements dans INV-03. Recette : 232 tests PHP / 3 394 assertions, quatre validations OpenAPI réussis et concurrence réelle. Migration 9 appliquée localement. Livraison : [PR #70](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/70), branche `codex/inv-01-inventory-campaigns`. [Guide](docs/inventaires.md) · [Validation](docs/validation-inv01.md).
 
 ### INV-02 — Saisie des comptages et calcul des écarts
 
