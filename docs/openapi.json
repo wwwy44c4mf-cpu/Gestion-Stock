@@ -2961,7 +2961,7 @@
       "patch": {
         "operationId": "updateThresholds",
         "summary": "Configurer les seuils article/magasin",
-        "description": "Gestionnaire affecté au magasin ou administrateur. Aucun seuil global imposé ; zéro distinct d’absence ; critique <= bas lorsqu’il existe.",
+        "description": "Gestionnaire affecté au magasin ou administrateur. Aucun seuil global imposé ; zéro distinct d’absence ; critique <= bas lorsqu’il existe. low_threshold est requis et peut être null. critical_threshold omis conserve sa valeur actuelle ; null le retire. Le couple final doit rester cohérent. Aucun changement de quantité, de version de mouvement ou de journal ; aucun audit supplémentaire pour une répétition sans changement. Articles désactivés configurables ; magasin actif requis. Autorisé pendant un inventaire, car aucun mouvement n’est créé.",
         "tags": [
           "stores"
         ],
@@ -2976,7 +2976,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "storeId",

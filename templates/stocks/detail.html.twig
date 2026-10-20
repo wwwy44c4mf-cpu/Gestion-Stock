@@ -5,6 +5,7 @@
 <div class="page-heading"><div><p class="eyebrow">STOCK PAR MAGASIN</p><h1>{{ article.name }}</h1><p class="subtitle">{{ article.sku }} · {{ store.name }}</p></div><a href="{{ path('stocks_list',{store_id:stock.store_id}) }}">Retour aux stocks du magasin</a></div>
 <section class="card"><h2>Quantité actuelle : {{ stock.quantity }} unité{{ stock.quantity > 1 ? 's' : '' }}</h2>
 <p>Seuil bas : {{ stock.low_threshold is null ? 'Non configuré' : stock.low_threshold }} · Seuil critique : {{ stock.critical_threshold is null ? 'Non configuré' : stock.critical_threshold }}</p>
+{% if is_granted('APP_THRESHOLD_WRITE',threshold_target) %}<p><a class="button" href="{{ path('stocks_thresholds',{storeId:stock.store_id,articleId:stock.article_id}) }}">Configurer les seuils</a></p>{% endif %}
 {% if not article.active %}<p class="notice">Cet article est désactivé. Les nouvelles consommations sont interdites.</p>{% endif %}{% if not store.active %}<p class="notice">Ce magasin est désactivé. Aucun mouvement n’est autorisé.</p>{% endif %}
 <a href="{{ path('catalog_article',{id:stock.article_id}) }}">Consulter l’article et son total autorisé</a>
 {% if can_register_consumption %}<p><a class="button" href="{{ path('consumptions_new',{store_id:stock.store_id,article_id:stock.article_id}) }}">Enregistrer une consommation</a></p>{% endif %}
