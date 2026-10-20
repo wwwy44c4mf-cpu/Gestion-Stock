@@ -25,7 +25,7 @@ final class UiSubscriber implements EventSubscriberInterface
         $user = $this->security->getUser();
         $route = $event->getRequest()->attributes->get('_route');
         $section = in_array($route, ['login', 'profile'], true) ? $route : $event->getRequest()->attributes->get('section', 'home');
-        if (str_starts_with($route ?? '', 'admin_users')) { $section = 'administration'; }
+        if (str_starts_with($route ?? '', 'admin_users') || str_starts_with($route ?? '', 'information_')) { $section = 'administration'; }
         $context = $user instanceof StockUser ? $this->context->read($event->getRequest(), $user) : ['options' => [], 'selected' => null];
         if (str_starts_with($route ?? '', 'consumptions_')) { $section = 'consommations'; }
         if (str_starts_with($route ?? '', 'alerts_')) { $section = 'alertes'; }

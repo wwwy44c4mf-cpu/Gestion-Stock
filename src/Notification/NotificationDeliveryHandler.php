@@ -29,6 +29,7 @@ final class NotificationDeliveryHandler
                 $type=match($event['type']) {'stock_low'=>'low','stock_critical'=>'critical',default=>'daily_summary'};
                 $allowed=(bool)$this->db->fetchOne('SELECT 1 FROM effective_alert_recipients(?,?) WHERE user_id=?',[$event['store_id'],$type,$event['recipient_id']]);
             }
+            if($allowed&&$event['type']==='information'&&($event['information_id']??null)!==null) {$allowed=(bool)$this->db->fetchOne('SELECT information_recipient_eligible(?)',[$event['id']]);}
             $attempt=(int)$event['attempts']+1;$code=null;
             if(!$allowed) {$code='recipient_unavailable';}
             else {try {$email=$this->renderer->render($event,$recipient['email']);}catch(\Throwable) {$code='notification_render_failed';}
