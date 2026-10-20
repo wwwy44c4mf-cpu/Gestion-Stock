@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+{% block title %}Compter un article · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">COMPTAGE</p><h1>{{ labels.articles[line.article_id].name }}</h1><p class="subtitle">{{ labels.articles[line.article_id].sku }} · {{ labels.stores[inventory.store_id].name }}</p></div><a href="{{ path('inventories_detail',filters|merge({id:inventory.id})) }}">Retour à l’inventaire</a></div>
+<section class="card"><p><strong>Stock théorique figé :</strong> {{ line.theoretical_qty }} unité{{ line.theoretical_qty > 1 ? 's' : '' }}</p><p><strong>Dernier comptage enregistré :</strong> {{ line.counted_qty is null ? 'Non saisi' : line.counted_qty }}{% if line.counted_at %} · {{ line.counted_at|date('d/m/Y H:i:s',app.user.timezone) }}{% endif %}</p>
+{% if error %}<p class="notice notice-error" role="alert">{{ error }}</p><p><a href="{{ path('inventories_count',filters|merge({id:inventory.id,articleId:line.article_id})) }}">Recharger le dernier comptage</a></p>{% endif %}
+<form method="post"><input type="hidden" name="_csrf_token" value="{{ csrf_token('inventory_count_' ~ inventory.id ~ '_' ~ line.article_id) }}"><input type="hidden" name="_request_key" value="{{ request_key }}"><input type="hidden" name="expected_version" value="{{ version }}">
+<div class="field"><label for="count-quantity">Quantité réellement comptée</label><input type="number" id="count-quantity" name="counted_qty" min="0" max="9007199254740991" step="1" inputmode="numeric" value="{{ value }}" required aria-describedby="count-help"></div>
+<p id="count-help">Saisissez zéro si aucun article n’a été trouvé. Quitter sans enregistrer conserve le comptage précédent. Le stock sera ajusté uniquement après validation de l’inventaire.</p><button class="button">Enregistrer le comptage</button></form></section>
+{% endblock %}

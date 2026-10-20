@@ -4682,7 +4682,7 @@
       "post": {
         "operationId": "writeInventoryLines",
         "summary": "Saisir les quantités comptées",
-        "description": "Administrateurs/gestionnaires du périmètre uniquement ; zéro est valide, absent signifie non compté. Refuser les articles dupliqués dans le lot et une campagne clôturée.",
+        "description": "Administrateurs/gestionnaires du périmètre uniquement ; zéro est valide, absent signifie non compté. Refuser les articles dupliqués dans le lot et une campagne clôturée. Uniquement en cours. Lots atomiques de 1 à 100 lignes de la référence ; expected_version provient de la lecture, sinon conflit 409. Article omis : inchangé, jamais transformé en zéro. Idempotence partagée avec le cycle de vie et droits revérifiés. Le comptage ne modifie pas le stock.",
         "tags": [
           "inventories"
         ],
@@ -4697,7 +4697,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -7808,12 +7808,18 @@
           },
           "counted_qty": {
             "$ref": "#/components/schemas/NonNegativeQuantity"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
           }
         },
         "additionalProperties": false,
         "required": [
           "article_id",
-          "counted_qty"
+          "counted_qty",
+          "expected_version"
         ]
       },
       "CountsWrite": {
@@ -7872,6 +7878,19 @@
               "null"
             ],
             "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "delta_percent": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 40,
+            "description": "Écart / référence × 100, arrondi à deux décimales, calcul décimal exact. Null si référence nulle ou quantité non saisie."
           }
         },
         "additionalProperties": false,
@@ -7881,7 +7900,9 @@
           "counted_qty",
           "delta",
           "counted_by",
-          "counted_at"
+          "counted_at",
+          "version",
+          "delta_percent"
         ]
       },
       "InventoryValidation": {

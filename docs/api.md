@@ -52,7 +52,7 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 | `GET /api/v1/inventories/{id}/lines` | Référence figée paginée, tri et filtre article |
 | `POST /api/v1/inventories/{id}/start`, `/submit`, `/cancel` | Démarrage atomique, soumission complète et annulation tracée ; gel pendant comptage/validation |
 
-Ces quarante-sept opérations portent `x-implementation: available`. Les 13 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
+Ces quarante-huit opérations portent `x-implementation: available`. Les 12 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
 
 Les routes `/health/live` et `/health/ready` de SOC-01 restent disponibles pour Docker ; la nouvelle sonde API ne remplace pas le contrôle PostgreSQL de readiness.
 
@@ -156,4 +156,6 @@ Le formulaire et `POST /api/v1/movements/entries` utilisent le moteur transactio
 
 STK-05 : [corrections et ajustements](corrections-stock.md). Les réponses d’écriture de ces trois nouvelles opérations n’annoncent pas de Location vers un détail API ; sa lecture est disponible depuis STK-08.
 
-INV-01 : [campagnes et gel des mouvements](inventaires.md). La saisie des comptages et la validation avec ajustements restent dans INV-02 et INV-03.
+INV-01 : [campagnes et gel des mouvements](inventaires.md). La saisie des comptages est disponible dans INV-02 ; la validation avec ajustements reste dans INV-03.
+
+INV-02 : `POST /api/v1/inventories/{id}/lines` enregistre un lot atomique et idempotent. `expected_version` est obligatoire ; une saisie obsolète renvoie 409. La lecture expose `version` et `delta_percent`, nul si la référence est zéro ou la quantité non saisie. Le comptage ne modifie aucun stock.

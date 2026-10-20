@@ -35,10 +35,16 @@ final class InventoryDirectory
         $order=$filters['order']??'asc';if(!in_array($order,['asc','desc'],true) || ($filters['sort']??'sku')!=='sku') {throw new ApiProblem(422,'invalid_query','Tri invalide.');}
         $where='l.inventory_id = ?';$parameters=[$id];if(isset($filters['article_id'])) {$where.=' AND l.article_id = ?';$parameters[]=$filters['article_id'];}
         $ordering='sku '.strtoupper($order).',article_id '.strtoupper($order);
-        $result=$this->db->fetchAssociative('WITH scoped AS (SELECT l.article_id,l.theoretical_qty,l.counted_qty,l.delta,l.counted_by,l.counted_at,a.sku FROM inventory_lines l JOIN articles a ON a.id=l.article_id WHERE '.$where.'), page AS (SELECT * FROM scoped ORDER BY '.$ordering.' LIMIT '.$pagination->limit.' OFFSET '.$pagination->offset().') SELECT (SELECT count(*) FROM scoped) total,coalesce((SELECT json_agg(page ORDER BY '.$ordering.') FROM page),\'[]\'::json) rows',$parameters);
+        $result=$this->db->fetchAssociative('WITH scoped AS (SELECT l.article_id,l.theoretical_qty,l.counted_qty,l.delta,l.counted_by,l.counted_at,l.version,CASE WHEN l.theoretical_qty>0 AND l.counted_qty IS NOT NULL THEN round((l.delta*100)::numeric(60,30)/l.theoretical_qty,2)::text END delta_percent,a.sku FROM inventory_lines l JOIN articles a ON a.id=l.article_id WHERE '.$where.'), page AS (SELECT * FROM scoped ORDER BY '.$ordering.' LIMIT '.$pagination->limit.' OFFSET '.$pagination->offset().') SELECT (SELECT count(*) FROM scoped) total,coalesce((SELECT json_agg(page ORDER BY '.$ordering.') FROM page),\'[]\'::json) rows',$parameters);
         $rows=json_decode($result['rows'],true,flags:JSON_THROW_ON_ERROR);
-        foreach($rows as &$row) {unset($row['sku']);foreach(['theoretical_qty','counted_qty','delta'] as $key) {if($row[$key]!==null) {$row[$key]=(int)$row[$key];}}if($row['counted_at']!==null) {$row['counted_at']=(new \DateTimeImmutable($row['counted_at']))->format(DATE_RFC3339);}}unset($row);
+        foreach($rows as &$row) {unset($row['sku']);foreach(['theoretical_qty','counted_qty','delta','version'] as $key) {if($row[$key]!==null) {$row[$key]=(int)$row[$key];}}if($row['counted_at']!==null) {$row['counted_at']=(new \DateTimeImmutable($row['counted_at']))->format(DATE_RFC3339);}}unset($row);
         return $pagination->response($rows,(int)$result['total']);
+    }
+    /** Decimal arithmetic stays in PostgreSQL: no floating point quantity conversion. */
+    public function progress(StockUser $actor,string $id): array
+    {
+        $this->get($actor,$id);$row=$this->db->fetchAssociative('SELECT count(*) total,count(counted_qty) counted FROM inventory_lines WHERE inventory_id=?',[$id]);
+        return ['total'=>(int)$row['total'],'counted'=>(int)$row['counted'],'remaining'=>(int)$row['total']-(int)$row['counted']];
     }
     public function labels(array $inventories,array $lines=[]): array
     {
