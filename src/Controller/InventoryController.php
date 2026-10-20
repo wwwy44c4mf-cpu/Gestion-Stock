@@ -51,7 +51,7 @@ final class InventoryController extends AbstractController
     {
         return $this->json($this->workflow->write($this->actor(),$id,$json->read($request,'CountsWrite'),$key->read($request)));
     }
-    #[Route('/api/v1/inventories/{id}/{action}',name:'api_inventories_transition',requirements:['action'=>'start|submit|cancel'],methods:['POST'])]
+    #[Route('/api/v1/inventories/{id}/{action}',name:'api_inventories_transition',requirements:['action'=>'start|submit|cancel|validate'],methods:['POST'])]
     public function change(string $id,string $action,Request $request,IdempotencyKey $key): JsonResponse
     {
         if($request->query->count()>0 || trim($request->getContent())!=='') {throw new ApiProblem(422,'invalid_body','Cette action n’accepte ni corps ni paramètre de recherche.');}
@@ -86,14 +86,15 @@ final class InventoryController extends AbstractController
     public function detail(string $id,Request $request,QueryParameters $query): Response
     {
         $actor=$this->actor();$filters=$query->read($request,'listInventoryLines');$inventory=$this->inventories->get($actor,$id)['data'];$lines=$this->inventories->lines($actor,$id,$filters);
-        return $this->render('inventories/detail.html.twig',['inventory'=>$inventory,'lines'=>$lines,'filters'=>$filters,'labels'=>$this->inventories->labels([$inventory],$lines['data']),'inventory_target'=>AccessTarget::inventory($id),'progress'=>$this->inventories->progress($actor,$id),'request_key'=>bin2hex(random_bytes(16))]);
+        return $this->render('inventories/detail.html.twig',['inventory'=>$inventory,'lines'=>$lines,'filters'=>$filters,'labels'=>$this->inventories->labels([$inventory],$lines['data']),'inventory_target'=>AccessTarget::inventory($id),'progress'=>$this->inventories->progress($actor,$id),'people'=>$this->inventories->people($actor,$id),'adjustments'=>$this->inventories->adjustments($actor,$id,$lines['data']),'request_key'=>bin2hex(random_bytes(16))]);
     }
-    #[Route('/inventaires/{id}/{action}',name:'inventories_transition',requirements:['action'=>'start|submit|cancel'],methods:['POST'])]
+    #[Route('/inventaires/{id}/{action}',name:'inventories_transition',requirements:['action'=>'start|submit|cancel|validate'],methods:['POST'])]
     public function transition(string $id,string $action,Request $request,CsrfTokenManagerInterface $csrf): Response
     {
-        $actor=$this->actor();$data=$this->formData($request,['_request_key','_csrf_token'],$csrf,'inventory_'.$id.'_'.$action);
+        $actor=$this->actor();$data=$this->formData($request,$action==='validate'?['_request_key','_csrf_token','confirm']:['_request_key','_csrf_token'],$csrf,'inventory_'.$id.'_'.$action);
+        if($action==='validate' && ($data['confirm']??'')!=='1') {throw new ApiProblem(422,'confirmation_required','Confirmez la vérification des comptages avant de clôturer.');}
         $this->workflow->transition($actor,$id,$action,$data['_request_key']??'');
-        $this->addFlash('success',match($action) {'start'=>'L’inventaire a démarré. Les mouvements du magasin sont bloqués.','submit'=>'L’inventaire attend sa validation. Le magasin reste bloqué.','cancel'=>'L’inventaire a été annulé. Les mouvements du magasin sont à nouveau autorisés.'});
+        $this->addFlash('success',match($action) {'start'=>'L’inventaire a démarré. Les mouvements du magasin sont bloqués.','submit'=>'L’inventaire attend sa validation. Le magasin reste bloqué.','validate'=>'L’inventaire a été validé. Les stocks sont ajustés et les mouvements sont à nouveau autorisés.','cancel'=>'L’inventaire a été annulé. Les mouvements du magasin sont à nouveau autorisés.'});
         return $this->redirectToRoute('inventories_detail',['id'=>$id],303);
     }
     #[Route('/inventaires/{id}/comptage/{articleId}',name:'inventories_count',requirements:['articleId'=>'[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}'],methods:['GET','POST'])]

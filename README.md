@@ -159,8 +159,12 @@ Le menu **Mouvements** propose un journal paginé filtrable par période, articl
 
 ## Campagnes d’inventaire (INV-01)
 
-Le menu **Inventaires** permet de préparer un brouillon, démarrer une référence figée et bloquer les mouvements, puis annuler la campagne pour libérer le magasin. Le périmètre comprend les articles actifs et les articles désactivés encore en stock. La saisie et les écarts sont disponibles dans INV-02 ; la clôture relève d’INV-03. [Guide](docs/inventaires.md).
+Le menu **Inventaires** permet de préparer un brouillon, démarrer une référence figée et bloquer les mouvements, puis annuler la campagne pour libérer le magasin. Le périmètre comprend les articles actifs et les articles désactivés encore en stock. La saisie et les écarts sont disponibles dans INV-02 ; la clôture est disponible dans INV-03. [Guide](docs/inventaires.md).
 
 ## Comptages et écarts (INV-02)
 
-Dans une campagne en cours, « Compter » et « Modifier » enregistrent la quantité constatée, y compris zéro, sans modifier le stock. Les écarts et pourcentages sont affichés ; les saisies concurrentes sont protégées. Une campagne complète peut être soumise à validation. La clôture avec ajustements reste INV-03. [Guide](docs/inventaires.md).
+Dans une campagne en cours, « Compter » et « Modifier » enregistrent la quantité constatée, y compris zéro, sans modifier le stock. Les écarts et pourcentages sont affichés ; les saisies concurrentes sont protégées. Une campagne complète peut être soumise à validation. La clôture avec ajustements est disponible dans INV-03. [Guide](docs/inventaires.md).
+
+## Validation et clôture (INV-03)
+
+Un inventaire complet et soumis peut être validé par un administrateur ou gestionnaire du magasin. Les stocks sont alignés sur les comptages, les ajustements et audits restent traçables, puis le magasin est libéré. Toute panne annule l’opération entière. [Guide](docs/inventaires.md).

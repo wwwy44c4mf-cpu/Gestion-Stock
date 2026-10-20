@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -86,8 +86,8 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | STK-07 | 2 | Retours liés à une consommation | Décision utilisateur; STAT-06 | STK-04 | Intégré | [#19](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19) |
 | STK-08 | 4 | Historique des mouvements filtrable | STK-08,09,10 | STK-03, STK-04, STK-05, STK-06, STK-07 | Intégré | [#20](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/20) |
 | INV-01 | 3 | Campagnes d’inventaire et gel des mouvements | INV-01,07 | STK-02 | Intégré | [#21](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/21) |
-| INV-02 | 3 | Saisie des comptages et calcul des écarts | INV-02,03 | INV-01 | En revue | [#22](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/22) |
-| INV-03 | 3 | Validation atomique et clôture d’inventaire | INV-04,05,06 | INV-02, STK-05 | À faire | [#23](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23) |
+| INV-02 | 3 | Saisie des comptages et calcul des écarts | INV-02,03 | INV-01 | Intégré | [#22](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/22) |
+| INV-03 | 3 | Validation atomique et clôture d’inventaire | INV-04,05,06 | INV-02, STK-05 | En revue | [#23](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23) |
 | ALT-01 | 3 | Seuils personnalisés par article et magasin | ART-05; ALT-01 | ART-01, AUTH-03 | À faire | [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24) |
 | ALT-02 | 3 | Cycle de vie des alertes et franchissements | ALT-01,03,04 | ALT-01, STK-02, MAIL-01 | À faire | [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25) |
 | ALT-03 | 3 | Écran des alertes et destinataires | ALT-02,05 | ALT-02 | À faire | [#26](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26) |
@@ -414,7 +414,7 @@ Périmètre confirmé par l’utilisateur le 20 octobre 2026 : tous les articles
 
 ### INV-02 — Saisie des comptages et calcul des écarts
 
-Issue : [#22](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/22) · En revue · Dépendances : [INV-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/21).
+Issue : [#22](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/22) · Intégré (PR #71) · Dépendances : [INV-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/21).
 
 Sources : INV-02,03.
 
@@ -428,15 +428,17 @@ Livraison pour revue : [PR #71](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### INV-03 — Validation atomique et clôture d’inventaire
 
-Issue : [#23](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23) · À faire · Dépendances : [INV-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/22), [STK-05](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17).
+Issue : [#23](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23) · En revue · Dépendances : [INV-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/22), [STK-05](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17).
 
 Sources : INV-04,05,06.
 
-- [ ] Contrôler complétude et rôle admin/gestionnaire
-- [ ] Générer ajustements liés et clôturer en une transaction idempotente
-- [ ] Conserver auteurs, validateur, dates et écarts ; rendre clôture immuable
+- [x] Contrôler complétude et rôle admin/gestionnaire
+- [x] Générer ajustements liés et clôturer en une transaction idempotente
+- [x] Conserver auteurs, validateur, dates et écarts ; rendre clôture immuable
 
 Critères d’acceptation : 10 théoriques / 8 comptés donnent un seul ajustement -2, stock 8 ; REC-10.
+
+Livraison : branche `codex/inv-03-inventory-validation`. Validation autorisée d’une campagne complète et soumise, ajustements non nuls liés, événements et audits atomiques, marqueurs de clôture et résultat idempotent. Refus des soldes divergents ; campagnes et ajustements conservés immuables ; liens entre référence et journal. Recette : 249 tests PHP / 3 660 assertions, quatre validations OpenAPI ; 9 tests ciblés / 140 assertions et concurrence réelle. Migration 11 appliquée localement. [Guide](docs/inventaires.md) · [Validation](docs/validation-inv03.md).
 
 ### ALT-01 — Seuils personnalisés par article et magasin
 
@@ -831,3 +833,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 20 octobre 2026 : INV-01 livré pour revue. Référence conforme à l’arbitrage, gel transactionnel, annulation tracée ; 232 tests / 3 394 assertions et quatre validations OpenAPI réussis. Saisie et clôture dans INV-02/03.
 
 - 20 octobre 2026 : INV-01 intégré (PR #70). INV-02 livré pour revue : comptages versionnés, écarts exacts, audit et soumission ; 240 tests / 3 520 assertions et quatre validations OpenAPI réussis.
+
+- 20 octobre 2026 : INV-02 intégré (PR #71). INV-03 livré pour revue : clôture atomique et ajustements traçables, REC-10, 249 tests / 3 660 assertions et quatre validations OpenAPI réussis. Aucun inventaire de démonstration créé.
