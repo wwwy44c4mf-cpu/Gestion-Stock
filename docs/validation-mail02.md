@@ -18,3 +18,5 @@ Migration 15 appliquée localement. Avant/après : 5 mouvements, somme des quant
 Contrôle visuel du formulaire, de la prévisualisation vide et de l’historique sur ordinateur ; formulaire à 390 pixels, largeur de page 390 pixels, sans débordement horizontal. Les essais d’écriture et de concurrence utilisent des schémas PostgreSQL isolés, annulés ou supprimés à la fin.
 
 [Guide](messages-information.md) · [Issue #28](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/28).
+
+Livraison : [PR #77](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/77), empilée sur la PR #76.

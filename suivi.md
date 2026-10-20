@@ -510,6 +510,8 @@ Critères d’acceptation : Seul un administrateur déclenche l’envoi ; destin
 
 Recette : 311 tests PHP / 4 212 assertions et quatre validations OpenAPI. Migration 15 appliquée localement, données métier conservées, envoi SMTP réel désactivé. Choix confirmé : magasin et rôle se cumulent ; uniquement les gestionnaires affectés au magasin sélectionné. Prévisualisation signée, confirmation explicite, audience dédoublonnée et nouvelle vérification avant livraison. [Guide](docs/messages-information.md) · [Validation](docs/validation-mail02.md).
 
+Livraison pour revue : [PR #77](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/77), branche `codex/mail-02-targeted-information`, empilée sur la PR #76.
+
 ### MAIL-03 — Récapitulatif quotidien des alertes à 08 h
 
 Issue : [#29](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29) · À faire · Dépendances : [ALT-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
