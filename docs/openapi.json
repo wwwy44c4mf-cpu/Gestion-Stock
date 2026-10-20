@@ -5050,7 +5050,7 @@
       "post": {
         "operationId": "validateInventory",
         "summary": "Valider les écarts et clôturer atomiquement",
-        "description": "Exiger tous les comptages. Générer les ajustements justifiés une seule fois, conserver auteur/validateur, clôturer et libérer le gel en une transaction.",
+        "description": "Exiger tous les comptages. Générer les ajustements justifiés une seule fois, conserver auteur/validateur, clôturer et libérer le gel en une transaction. Réservé à l’état pending_validation. Aucun corps ni paramètre de recherche. Les écarts nuls ne génèrent aucun mouvement ; les articles désactivés de la référence restent validables. Refuser une dérive du solde depuis la référence. Le résultat contient tous les ajustements de la campagne ; un rejeu restitue ce résultat sans réécrire les stocks.",
         "tags": [
           "inventories"
         ],
@@ -5065,7 +5065,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -7916,8 +7916,7 @@
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "maxItems": 1000
+            }
           }
         },
         "additionalProperties": false,

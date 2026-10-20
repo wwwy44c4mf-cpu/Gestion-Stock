@@ -22,7 +22,7 @@ Le démarrage attend les mouvements déjà engagés ; leur solde validé est inc
 
 Transitions autorisées : brouillon → en cours ou annulé ; en cours → à valider ou annulé ; à valider → clôturé ou annulé. Aucun retour en arrière ni réouverture d’une campagne terminée.
 
-INV-01 livre le cycle de vie, la référence et le gel. **La saisie des quantités et des écarts est disponible depuis INV-02 ; la validation avec ajustements atomiques et la clôture restent dans INV-03.** La soumission API vérifie déjà que toutes les lignes sont comptées ; elle maintient le gel. Aucune clôture artificielle ni ajustement n’est proposé par ce lot. Avant la livraison d’INV-03, l’annulation permet de libérer une campagne démarrée ou soumise.
+Les trois lots sont disponibles : INV-01 prépare la référence et le gel, INV-02 enregistre les comptages et écarts, INV-03 valide les écarts et clôture atomiquement. Après soumission complète, un administrateur ou gestionnaire autorisé vérifie les comptages, confirme puis valide la campagne. L’annulation reste possible avant clôture et ne crée aucun ajustement.
 
 ## API et exploitation
 
@@ -38,8 +38,22 @@ L’écart est `compté − théorique`. Le pourcentage est `écart / théorique
 
 L’auteur et l’heure du dernier comptage sont enregistrés. L’audit conserve aussi les quantités et versions avant/après chaque lot. Un formulaire obsolète est refusé pour ne pas écraser le travail d’une autre personne ; la valeur saisie reste affichée avec un lien pour recharger le dernier comptage. Les lignes ne sont modifiables qu’en cours, jamais en brouillon, à valider, annulé ou clôturé.
 
-L’avancement porte sur toute la campagne, au-delà de la page affichée. Lorsque toutes les lignes sont comptées, « Soumettre à validation » devient disponible. Le serveur revérifie la complétude et verrouille les comptages avec la soumission. Après soumission, la référence est en lecture seule et le magasin reste bloqué. La clôture et ses ajustements restent dans INV-03.
+L’avancement porte sur toute la campagne, au-delà de la page affichée. Lorsque toutes les lignes sont comptées, « Soumettre à validation » devient disponible. Le serveur revérifie la complétude et verrouille les comptages avec la soumission. Après soumission, la référence est en lecture seule et le magasin reste bloqué. La clôture et ses ajustements sont disponibles dans INV-03.
 
 API : `POST /api/v1/inventories/{id}/lines` accepte `{"lines":[{"article_id":"UUID","counted_qty":0,"expected_version":0}]}`. La version vient de la lecture de la ligne. Lots de 1 à 100 articles distincts de la référence ; un article omis reste inchangé. Un lot entier est refusé si une ligne est invalide ou obsolète. Les clés idempotentes sont partagées avec le cycle de vie ; un rejeu ne réécrit jamais une saisie plus récente. `InventoryLine` expose `version` et `delta_percent` (chaîne décimale ou null).
 
 La dixième migration `Version20261020230000` ajoute la version des lignes et son incrément automatique. Elle refuse le retour arrière si un comptage versionné existe. Exécuter explicitement les migrations avant la mise à jour de l’application. Aucune nouvelle campagne ni quantité de stock créée.
+
+## Validation et clôture — INV-03
+
+À l’état « À valider », le détail présente le nombre d’articles comptés et d’ajustements à enregistrer. Après vérification et confirmation, « Valider les écarts et clôturer » aligne les stocks du magasin sur les comptages. L’auteur de la campagne, les auteurs des comptages et le validateur restent conservés séparément, avec leurs dates.
+
+Une référence de 10 et un comptage de 8 génèrent un seul ajustement de sortie de 2 ; le stock devient 8. Une hausse génère une entrée d’ajustement. Une ligne sans écart ne produit aucun mouvement et ne change pas la version du solde. Les articles désactivés inclus dans la référence restent validables. Un article à zéro sans solde et sans écart ne crée pas de solde. Tous les articles de la campagne sont traités, au-delà de la page affichée.
+
+La validation exige une campagne soumise et complète, un magasin actif autorisé et des soldes encore identiques à la référence figée. Une dérive inexpliquée ou une limite de version refuse toute la clôture. La génération des mouvements liés, la mise à jour des soldes, les événements durables de stock, les audits, le validateur, la date de clôture et le résultat idempotent sont enregistrés dans une seule transaction. Une panne annule l’ensemble et le magasin reste bloqué.
+
+Après validation, le magasin est libéré et la campagne devient immuable. Le détail indique le validateur et fournit les liens vers les ajustements ; chaque mouvement permet de revenir à l’inventaire. Ces ajustements ne sont pas annulables ou modifiables par la correction ordinaire. Un nouvel inventaire reste possible.
+
+API : `POST /api/v1/inventories/{id}/validate`, sans corps ni paramètre de recherche, avec CSRF et `Idempotency-Key`. Réponse `InventoryValidationResource` : inventaire clôturé et tous ses `adjustment_ids`, sans limite artificielle liée à la pagination. Même clé et même acteur : restitution du résultat d’origine sans réécrire le stock, même après de nouveaux mouvements. Une nouvelle clé ou un autre acteur ne peut pas valider une campagne déjà clôturée. Les droits sont revérifiés avant tout rejeu.
+
+La onzième migration `Version20261021000000` protège l’unicité d’un ajustement par article/campagne, la cohérence des mouvements avec les écarts et la cohérence des soldes avant clôture. Son retour arrière est refusé si des clôtures ou ajustements d’inventaire existent. Elle ne crée aucune campagne et ne modifie aucune quantité.

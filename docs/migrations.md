@@ -75,3 +75,7 @@ STK-05 ajoute `Version20261018223000` (huitième migration) pour `movement_corre
 ## Versions des comptages
 
 `Version20261020230000` (dixième migration) ajoute `inventory_lines.version` et un incrément automatique à chaque mise à jour. Une saisie doit présenter la version lue ; le workflow sérialise le lot avec les transitions et refuse les versions obsolètes. Le retour arrière est refusé si une ligne a une version positive, afin de préserver cette protection. Aucune campagne ni quantité de stock créée par la migration.
+
+## Cohérence des clôtures d’inventaire
+
+`Version20261021000000` (onzième migration) ajoute l’unicité article/campagne des ajustements et deux contrôles : cohérence de chaque ajustement avec la référence comptée, puis cohérence des soldes et complétude avant clôture. Le retour arrière est refusé en présence de campagnes clôturées ou de mouvements liés. Aucune quantité ni campagne créée par la migration.

@@ -43,8 +43,19 @@ final class InventoryDirectory
     /** Decimal arithmetic stays in PostgreSQL: no floating point quantity conversion. */
     public function progress(StockUser $actor,string $id): array
     {
-        $this->get($actor,$id);$row=$this->db->fetchAssociative('SELECT count(*) total,count(counted_qty) counted FROM inventory_lines WHERE inventory_id=?',[$id]);
-        return ['total'=>(int)$row['total'],'counted'=>(int)$row['counted'],'remaining'=>(int)$row['total']-(int)$row['counted']];
+        $this->get($actor,$id);$row=$this->db->fetchAssociative('SELECT count(*) total,count(counted_qty) counted,count(*) FILTER (WHERE delta<>0) changed FROM inventory_lines WHERE inventory_id=?',[$id]);
+        return ['total'=>(int)$row['total'],'counted'=>(int)$row['counted'],'remaining'=>(int)$row['total']-(int)$row['counted'],'changed'=>(int)$row['changed']];
+    }
+    public function people(StockUser $actor,string $id): array
+    {
+        $inventory=$this->get($actor,$id)['data'];$result=[];
+        foreach(['created_by','validated_by'] as $field) {$person=$inventory[$field];$result[$field]=$person===null?null:$this->db->fetchOne("SELECT CASE WHEN anonymized_at IS NULL THEN name ELSE 'Compte anonymisé' END FROM users WHERE id=?",[$person]);}
+        return $result;
+    }
+    /** Only already scoped visible lines acquire links to their adjustment. */
+    public function adjustments(StockUser $actor,string $id,array $lines): array
+    {
+        $this->get($actor,$id);$result=[];foreach($lines as $line) {$movement=$this->db->fetchOne('SELECT id FROM stock_movements WHERE inventory_id=? AND article_id=?',[$id,$line['article_id']]);if($movement) {$result[$line['article_id']]=$movement;}}return $result;
     }
     public function labels(array $inventories,array $lines=[]): array
     {

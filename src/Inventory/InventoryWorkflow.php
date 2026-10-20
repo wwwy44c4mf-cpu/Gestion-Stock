@@ -30,7 +30,7 @@ final class InventoryWorkflow
     public function transition(StockUser $actor,string $id,string $action,string $key): array
     {
         $this->identity->requireRole($actor,Permission::INVENTORY_WRITE);
-        if(!in_array($action,['start','submit','cancel'],true)) {throw new ApiProblem(422,'invalid_transition','Transition d’inventaire invalide.');}
+        if(!in_array($action,['start','submit','cancel','validate'],true)) {throw new ApiProblem(422,'invalid_transition','Transition d’inventaire invalide.');}
         $this->policy->assert($actor,Permission::INVENTORY_WRITE,AccessTarget::inventory($id));
         return $this->execute($actor,$action,strtolower($id),new \stdClass(),$key);
     }
@@ -55,18 +55,21 @@ final class InventoryWorkflow
             else {$this->policy->assert($actor,Permission::INVENTORY_WRITE,AccessTarget::inventory($id));$store=$this->db->fetchOne('SELECT store_id FROM inventories WHERE id=?',[$id]);}
             $this->db->fetchOne('SELECT id FROM stores WHERE id=? FOR UPDATE',[$store]);
             $previous=$this->db->fetchAssociative('SELECT request_fingerprint,response FROM inventory_requests WHERE actor_id=? AND request_key=?',[$actor->id,$key]);
-            if($previous) {if(!hash_equals($previous['request_fingerprint'],$fingerprint)) {throw new ApiProblem(409,'idempotency_conflict','Cette clé a déjà servi pour une autre opération.');}return ['data'=>$this->directory->resource(json_decode($previous['response'],true,flags:JSON_THROW_ON_ERROR)['data'])];}
+            if($previous) {if(!hash_equals($previous['request_fingerprint'],$fingerprint)) {throw new ApiProblem(409,'idempotency_conflict','Cette clé a déjà servi pour une autre opération.');}return $this->replay(json_decode($previous['response'],true,flags:JSON_THROW_ON_ERROR),$action);}
             $context=[];
             if($action==='create') {
                 $row=$this->db->fetchAssociative('INSERT INTO inventories (store_id,created_by,created_at) VALUES (?,?,clock_timestamp()) RETURNING *',[$store,$actor->id]);
             } else {
                 $row=$this->db->fetchAssociative('SELECT * FROM inventories WHERE id=? FOR UPDATE',[$id]);
-                $allowed=match($action) {'start'=>['draft'],'submit'=>['in_progress'],'counts'=>['in_progress'],'cancel'=>['draft','in_progress','pending_validation']};
+                $allowed=match($action) {'start'=>['draft'],'submit'=>['in_progress'],'counts'=>['in_progress'],'validate'=>['pending_validation'],'cancel'=>['draft','in_progress','pending_validation']};
                 if(!in_array($row['status'],$allowed,true)) {throw new ApiProblem(409,'invalid_inventory_state','L’état de cet inventaire ne permet plus cette action.');}
                 if($action==='start') {
                     if($this->db->fetchOne("SELECT 1 FROM inventories WHERE store_id=? AND status IN ('in_progress','pending_validation')",[$store])) {throw new ApiProblem(409,'inventory_in_progress','Un inventaire bloque déjà ce magasin.');}
                     $row=$this->db->fetchAssociative("UPDATE inventories SET status='in_progress',snapshot_at=clock_timestamp() WHERE id=? RETURNING *",[$id]);
                     $this->snapshot($id,$store);
+                } elseif($action==='validate') {
+                    $context['adjustment_ids']=$this->close($actor,$row,$fingerprint);
+                    $row=$this->db->fetchAssociative("UPDATE inventories SET status='closed',validated_by=?,closed_at=clock_timestamp() WHERE id=? RETURNING *",[$actor->id,$id]);
                 } elseif($action==='counts') {
                     $context['lines']=$this->count($actor,$id,$body->lines);
                 } elseif($action==='submit') {
@@ -74,11 +77,39 @@ final class InventoryWorkflow
                     $row=$this->db->fetchAssociative("UPDATE inventories SET status='pending_validation' WHERE id=? RETURNING *",[$id]);
                 } else {$row=$this->db->fetchAssociative("UPDATE inventories SET status='cancelled',cancelled_at=clock_timestamp() WHERE id=? RETURNING *",[$id]);}
             }
-            $result=['data'=>$this->directory->resource($row)];
+            $result=$action==='validate'?['data'=>['inventory'=>$this->directory->resource($row),'adjustment_ids'=>$context['adjustment_ids']]]:['data'=>$this->directory->resource($row)];
             $this->db->executeStatement("INSERT INTO audit_logs (actor_id,store_id,action,target_type,target_id,context) VALUES (?,?,?,'inventory',?,?::jsonb)",[$actor->id,$store,'inventory.'.$action,$row['id'],json_encode(['status'=>$row['status'],...$context],JSON_THROW_ON_ERROR)]);
             $this->db->executeStatement('INSERT INTO inventory_requests (actor_id,request_key,request_fingerprint,inventory_id,response) VALUES (?,?,?,?,?::jsonb)',[$actor->id,$key,$fingerprint,$row['id'],json_encode($result,JSON_THROW_ON_ERROR)]);
             return $result;
         });
+    }
+    private function replay(array $response,string $action): array
+    {
+        if($action==='validate') {return ['data'=>['inventory'=>$this->directory->resource($response['data']['inventory']),'adjustment_ids'=>$response['data']['adjustment_ids']]];}
+        return ['data'=>$this->directory->resource($response['data'])];
+    }
+    private function close(StockUser $actor,array $inventory,string $fingerprint): array
+    {
+        if($this->db->fetchOne('SELECT 1 FROM stock_movements WHERE inventory_id=?',[$inventory['id']])) {throw new ApiProblem(409,'inventory_already_adjusted','Des ajustements existent déjà pour cette campagne. La clôture est refusée.');}
+        $lines=$this->db->fetchAllAssociative('SELECT article_id,theoretical_qty,counted_qty,delta FROM inventory_lines WHERE inventory_id=? ORDER BY article_id FOR UPDATE',[$inventory['id']]);
+        foreach($lines as $line) {if($line['counted_qty']===null) {throw new ApiProblem(409,'incomplete_inventory','Toutes les quantités doivent être comptées avant la validation.');}}
+        // Validate and lock every existing balance before recording any adjustment.
+        foreach($lines as $line) {
+            $balance=$this->db->fetchAssociative('SELECT quantity,version FROM stock_levels WHERE article_id=? AND store_id=? FOR UPDATE',[$line['article_id'],$inventory['store_id']]);
+            if((int)($balance['quantity']??0)!==(int)$line['theoretical_qty']) {throw new ApiProblem(409,'inventory_stock_drift','Un solde ne correspond plus à la référence figée. La clôture est refusée.');}
+            if((int)$line['delta']!==0 && (string)($balance['version']??0)===(string)PHP_INT_MAX) {throw new ApiProblem(409,'stock_limit_reached','La limite de version d’un solde est atteinte.');}
+        }
+        $ids=[];
+        foreach($lines as $line) {
+            $delta=(int)$line['delta'];if($delta===0) {continue;}
+            $this->db->executeStatement('INSERT INTO stock_levels (article_id,store_id) VALUES (?,?) ON CONFLICT DO NOTHING',[$line['article_id'],$inventory['store_id']]);
+            $this->db->executeStatement('UPDATE stock_levels SET quantity=?,version=version+1 WHERE article_id=? AND store_id=?',[(int)$line['counted_qty'],$line['article_id'],$inventory['store_id']]);
+            $movement=$this->db->fetchOne("INSERT INTO stock_movements (type,article_id,source_store_id,destination_store_id,quantity,author_id,inventory_id,reason,idempotency_key,request_fingerprint) VALUES ('adjustment',?,?,?,?,?,?,?, ?,?) RETURNING id",[$line['article_id'],$delta<0?$inventory['store_id']:null,$delta>0?$inventory['store_id']:null,abs($delta),$actor->id,$inventory['id'],'Écart constaté lors de la validation de l’inventaire',hash_hmac('sha256','inventory-adjustment:'.$inventory['id'].':'.$line['article_id'],$this->secret),$fingerprint]);
+            $this->db->executeStatement('INSERT INTO stock_change_events (movement_id,article_id,store_ids) VALUES (?,?,?::uuid[])',[$movement,$line['article_id'],'{'.$inventory['store_id'].'}']);
+            $this->db->executeStatement("INSERT INTO audit_logs (actor_id,store_id,action,target_type,target_id,context) VALUES (?,?,'stock.adjustment','stock_movement',?,?::jsonb)",[$actor->id,$inventory['store_id'],$movement,json_encode(['type'=>'adjustment','inventory_id'=>$inventory['id'],'delta'=>$delta],JSON_THROW_ON_ERROR)]);
+            $ids[]=$movement;
+        }
+        return $ids;
     }
     private function count(StockUser $actor,string $id,array $lines): array
     {
