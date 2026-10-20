@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -83,8 +83,8 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | STK-04 | 2 | Consommations et bénéficiaire tiers | STK-03; CON-01,02; CON-05 partiel | STK-02, STK-01 | Terminé | [#16](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16) |
 | STK-05 | 2 | Ajustements et corrections par contre-mouvement | STK-04,09 | STK-02 | Terminé | [#17](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17) |
 | STK-06 | 2 | Transferts atomiques entre magasins | STK-05 | STK-02 | Terminé | [#18](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/18) |
-| STK-07 | 2 | Retours liés à une consommation | Décision utilisateur; STAT-06 | STK-04 | En revue | [#19](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19) |
-| STK-08 | 4 | Historique des mouvements filtrable | STK-08,09,10 | STK-03, STK-04, STK-05, STK-06, STK-07 | À faire | [#20](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/20) |
+| STK-07 | 2 | Retours liés à une consommation | Décision utilisateur; STAT-06 | STK-04 | Intégré | [#19](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19) |
+| STK-08 | 4 | Historique des mouvements filtrable | STK-08,09,10 | STK-03, STK-04, STK-05, STK-06, STK-07 | En revue | [#20](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/20) |
 | INV-01 | 3 | Campagnes d’inventaire et gel des mouvements | INV-01,07 | STK-02 | À faire | [#21](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/21) |
 | INV-02 | 3 | Saisie des comptages et calcul des écarts | INV-02,03 | INV-01 | À faire | [#22](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/22) |
 | INV-03 | 3 | Validation atomique et clôture d’inventaire | INV-04,05,06 | INV-02, STK-05 | À faire | [#23](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23) |
@@ -372,7 +372,7 @@ Intégré à main le 19 octobre 2026 : [PR #67](https://github.com/wwwy44c4mf-cp
 
 ### STK-07 — Retours liés à une consommation
 
-Issue : [#19](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19) · En revue · Dépendances : [STK-04](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16).
+Issue : [#19](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19) · Intégré (PR #68) · Dépendances : [STK-04](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16).
 
 Sources : Décision utilisateur; STAT-06.
 
@@ -386,15 +386,17 @@ Livraison pour revue : [PR #68](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### STK-08 — Historique des mouvements filtrable
 
-Issue : [#20](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/20) · À faire · Dépendances : [STK-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/15), [STK-04](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16), [STK-05](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17), [STK-06](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/18), [STK-07](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19).
+Issue : [#20](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/20) · En revue · Dépendances : [STK-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/15), [STK-04](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16), [STK-05](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17), [STK-06](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/18), [STK-07](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19).
 
 Sources : STK-08,09,10.
 
-- [ ] Créer liste paginée avec filtres date, article, magasin, type et personne
-- [ ] Afficher heure locale à partir d’UTC, auteur, bénéficiaire, motif et liens d’opération
-- [ ] Afficher transferts, contre-mouvements et retours sans modification historique
+- [x] Créer liste paginée avec filtres date, article, magasin, type et personne
+- [x] Afficher heure locale à partir d’UTC, auteur, bénéficiaire, motif et liens d’opération
+- [x] Afficher transferts, contre-mouvements et retours sans modification historique
 
 Critères d’acceptation : Une recherche combine correctement les filtres et ne divulgue aucun magasin interdit.
+
+Livraison : branche `codex/stk-08-movement-history`. Journal général, détail, filtres combinés et pagination stable ; heures locales, comptes anonymisés, relations de retour et correction, magasins archivés selon droits. Décision utilisateur du 20 octobre : une ligne limitée au magasin accessible pour les transferts partiellement autorisés, avec masquage des personnes, textes et liens extérieurs avant filtrage. [Guide](docs/historique-mouvements.md) · [Validation](docs/validation-stk08.md). Recette : 223 tests PHP / 3 251 assertions et quatre validations OpenAPI réussis ; 9 tests ciblés / 102 assertions. Aucune migration.
 
 ### INV-01 — Campagnes d’inventaire et gel des mouvements
 
@@ -817,3 +819,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 19 octobre 2026 : STK-05 intégré (PR #66, fusion du 18 octobre). STK-06 livré pour revue : transferts atomiques, confirmation commune sous double périmètre, 199 tests / 2 909 assertions et quatre validations OpenAPI réussis. Aucun mouvement local de démonstration.
 - 19 octobre 2026 : STK-06 intégré (PR #67). STK-07 livré pour revue : retours liés et bornés, propriété personnelle sans affectation, verrou partagé avec corrections, 214 tests / 3 149 assertions et quatre validations OpenAPI réussis. Aucun mouvement local de démonstration.
 - 20 octobre 2026 : publication de STK-07 pour revue dans la PR #68 ; recette complète du 19 octobre (214 tests / 3 149 assertions).
+
+- 20 octobre 2026 : STK-07 intégré (PR #68). STK-08 livré pour revue : historique filtrable, détail immuable et transferts partiellement visibles avec masquage avant filtrage.

@@ -152,3 +152,7 @@ Depuis **Stocks → Transférer du stock**, administrateurs et gestionnaires aut
 ## Retours d’articles (STK-07)
 
 Depuis **Consommations → Rendre des articles**, enregistrer un retour partiel ou total dans le magasin d’origine. Les utilisateurs rendent leurs propres articles, même sans affectation restante ; administrateurs et gestionnaires agissent dans leur périmètre. Le cumul effectif ne dépasse jamais la consommation, y compris face aux retours et corrections simultanés. [Guide](docs/retours-stock.md) · [Recette](docs/validation-stk07.md).
+
+## Historique des mouvements (STK-08)
+
+Le menu **Mouvements** propose un journal paginé filtrable par période, article, magasin, type, opérateur et bénéficiaire. Les heures suivent le fuseau du compte. Les transferts hors périmètre sont affichés avec leurs informations extérieures masquées. [Guide](docs/historique-mouvements.md).

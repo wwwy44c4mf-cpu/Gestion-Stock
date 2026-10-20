@@ -34,6 +34,7 @@ final class UiController extends AbstractController
             if ($id === null && $actor->role !== 'ADMIN') { throw $this->createAccessDeniedException(); }
             if ($id !== null) { $policy->assert($actor, $permission, \App\Security\AccessTarget::store($id)); }
         }
+        if ($section === 'mouvements') { return $this->redirectToRoute('movements_list'); }
         return $this->render('section.html.twig', ['section' => $section, 'title' => Navigation::SECTIONS[$section]]);
     }
 }
