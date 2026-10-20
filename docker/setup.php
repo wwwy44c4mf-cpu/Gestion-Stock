@@ -20,6 +20,14 @@ foreach (['app_secret', 'db_password', 'db_admin_password'] as $name) {
     }
 }
 
+// Delivery stays disabled until an operator configures the existing SMTP service.
+$mailHandle = @fopen($directory.'/mailer_dsn', 'x');
+if ($mailHandle !== false) {
+    fwrite($mailHandle, "smtp://"."smtp.invalid:587?require_tls=true\n");
+    fclose($mailHandle);
+    chmod($directory.'/mailer_dsn', 0644);
+}
+
 if (!is_file('/workspace/.env')) {
     copy('/workspace/.env.example', '/workspace/.env');
 }

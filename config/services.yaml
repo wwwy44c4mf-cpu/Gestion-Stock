@@ -13,3 +13,5 @@ services:
       - '../src/Security/AccessTarget.php'
       - '../src/Security/SqlScope.php'
       - '../src/Security/Permission.php'
+
+  App\Notification\MailDelivery: '@App\Notification\SmtpDelivery'
