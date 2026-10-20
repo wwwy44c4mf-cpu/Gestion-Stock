@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+{% block title %}Rendre des articles · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">RETOURS AU MAGASIN</p><h1>Rendre des articles</h1><p class="subtitle">Choisissez la consommation concernée. Les articles reviennent dans leur magasin d’origine.</p></div><a href="{{ path('consumptions_new') }}">Enregistrer une consommation</a></div>
+<section class="card"><h2>Consommations avec des unités à rendre</h2><p>{{ result.meta.total }} consommation{{ result.meta.total > 1 ? 's' : '' }}</p>
+<div class="table-scroll"><table><caption>Consommations autorisées avec un reste à rendre</caption><thead><tr><th>Date</th><th>Article</th><th>Magasin</th><th>Bénéficiaire</th><th>Unités à rendre</th><th>Retour</th></tr></thead><tbody>
+{% for item in result.data %}<tr><td>{{ item.created_at|date('d/m/Y H:i',app.user.timezone) }}</td><td>{{ item.sku }} · {{ item.article_name }}{% if item.reference is not null and item.reference != '' %}<br>{{ item.reference }}{% endif %}</td><td>{{ item.store_code }} · {{ item.store_name }}</td><td>{{ item.consumer_name }}</td><td>{{ item.remaining }}</td><td><a href="{{ path('consumptions_return_new',{id:item.id}) }}">Rendre des articles</a></td></tr>{% else %}<tr><td colspan="6">Aucune consommation autorisée ne contient d’unités à rendre.</td></tr>{% endfor %}
+</tbody></table></div>
+{% include 'components/pagination.html.twig' with {page:result.meta.page,pages:result.meta.total_pages,route:'consumptions_return_list'} only %}
+</section>
+{% endblock %}

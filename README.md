@@ -148,3 +148,7 @@ Depuis une fiche stock, **Corriger** permet de saisir directement la bonne quant
 ## Transferts de stock (STK-06)
 
 Depuis **Stocks → Transférer du stock**, administrateurs et gestionnaires autorisés déplacent une quantité entre deux magasins actifs. Débit/crédit atomiques, identifiant commun, confirmation et doubles envois protégés. Les droits sur les deux magasins sont obligatoires ; un inventaire sur l’un bloque le transfert. [Guide](docs/transferts-stock.md) · [Recette](docs/validation-stk06.md).
+
+## Retours d’articles (STK-07)
+
+Depuis **Consommations → Rendre des articles**, enregistrer un retour partiel ou total dans le magasin d’origine. Les utilisateurs rendent leurs propres articles, même sans affectation restante ; administrateurs et gestionnaires agissent dans leur périmètre. Le cumul effectif ne dépasse jamais la consommation, y compris face aux retours et corrections simultanés. [Guide](docs/retours-stock.md) · [Recette](docs/validation-stk07.md).

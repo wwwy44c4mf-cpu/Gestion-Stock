@@ -9,6 +9,8 @@
 <p><strong>Date :</strong> {{ consumption.created_at|date('d/m/Y H:i',app.user.timezone) }}</p>
 <p><strong>Référence d’intervention, chantier ou client :</strong> {{ consumption.reference is null or consumption.reference == '' ? 'Non renseignée' : consumption.reference }}</p>
 <p><strong>Commentaire :</strong> {{ consumption.comment is null or consumption.comment == '' ? 'Aucun' : consumption.comment }}</p>
+<p><strong>Unités rendues :</strong> {{ consumption.returned_quantity }} · <strong>Encore à rendre :</strong> {{ consumption.returnable_quantity }}</p>
+{% if consumption.returnable_quantity > 0 and is_granted('APP_RETURN_CREATE',consumption_target) %}<p><a class="button" href="{{ path('consumptions_return_new',{id:consumption.id}) }}">Rendre des articles</a></p>{% endif %}
 {% if is_granted('APP_STOCK_READ',stock_target) %}<p><a class="button" href="{{ path('stocks_detail',{storeId:consumption.store_id,articleId:consumption.article_id}) }}">Consulter le stock actualisé</a></p>{% endif %}
 </section>
 {% endblock %}

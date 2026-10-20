@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+{% block title %}Enregistrer un retour · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">RETOUR D’ARTICLES</p><h1>{{ origin.article_name }}</h1><p class="subtitle">{{ origin.sku }} · {{ origin.store_name }}</p></div><a href="{{ path('consumptions_return_list') }}">Choisir une autre consommation</a></div>
+<section class="card"><h2>Consommation d’origine</h2><p>{{ origin.quantity }} unités retirées le {{ origin.created_at|date('d/m/Y H:i',app.user.timezone) }} pour {{ origin.consumer_name }}.</p><p><strong>Magasin de retour :</strong> {{ origin.store_code }} · {{ origin.store_name }}</p><p><strong>Déjà rendues :</strong> {{ origin.returned_quantity }} unités. <strong>Encore à rendre :</strong> {{ origin.returnable_quantity }} unités.</p><p><a href="{{ path('consumptions_receipt',{id:origin.id}) }}">Consulter la consommation d’origine</a></p></section>
+<section class="card account-form">
+{% if error %}{% include 'components/notice.html.twig' with {kind:'error',message:error} only %}{% endif %}
+{% if origin.reversed_by %}<p class="notice">Cette consommation a été annulée ou corrigée. Aucun nouveau retour n’est possible sur ce mouvement.</p>{% if origin.replacement_id %}<p><a href="{{ path('consumptions_return_new',{id:origin.replacement_id}) }}">Ouvrir la consommation corrigée</a></p>{% endif %}{% elseif origin.returnable_quantity == 0 %}<p class="notice">Tous les articles de cette consommation ont déjà été rendus.</p>{% endif %}
+<form method="post" action="{{ path('consumptions_return_new',{id:origin.id}) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token('stock_return_'~origin.id) }}"><input type="hidden" name="_movement_key" value="{{ movement_key }}">
+<div class="field"><label for="return-quantity">Quantité rendue (obligatoire)</label><input id="return-quantity" name="quantity" type="text" inputmode="numeric" pattern="[1-9][0-9]*" maxlength="16" value="{{ item.quantity }}" aria-describedby="return-help" required><p class="muted" id="return-help">Entier positif, au plus {{ origin.returnable_quantity }} unités. Le magasin et l’article sont fixés par la consommation.</p></div>
+<div class="field"><label for="return-comment">Commentaire (facultatif)</label><textarea id="return-comment" name="comment" rows="3" maxlength="2000">{{ item.comment }}</textarea></div>
+<button class="button" type="submit" {% if origin.returnable_quantity == 0 %}disabled{% endif %}>Enregistrer le retour</button></form></section>
+{% endblock %}

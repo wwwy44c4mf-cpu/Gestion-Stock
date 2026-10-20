@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+{% block title %}Retour enregistré · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">RETOUR EN STOCK</p><h1>{{ return.article_name }}</h1><p class="subtitle">{{ return.sku }}</p></div><a href="{{ path('consumptions_return_list') }}">Rendre d’autres articles</a></div>
+{% if return.reversed_by %}<p class="notice">{{ return.replacement_id ? 'Ce retour a été corrigé. Les informations ci-dessous correspondent au mouvement d’origine.' : 'Ce retour a été annulé. Il est conservé pour la traçabilité.' }}{% if return.replacement_id %} <a href="{{ path('consumptions_return_receipt',{id:return.replacement_id}) }}">Consulter le retour corrigé</a>{% endif %}</p>{% endif %}
+<section class="card"><h2>{{ return.quantity }} unité{{ return.quantity > 1 ? 's' : '' }} rendue{{ return.quantity > 1 ? 's' : '' }}</h2><p><strong>Magasin d’origine :</strong> {{ return.store_code }} · {{ return.store_name }}</p><p><strong>Bénéficiaire de la consommation :</strong> {{ return.consumer_name }}</p><p><strong>Retour enregistré par :</strong> {{ return.author_name }}</p><p><strong>Date :</strong> {{ return.created_at|date('d/m/Y H:i',app.user.timezone) }}</p><p><strong>Commentaire :</strong> {{ return.comment is null or return.comment == '' ? 'Aucun' : return.comment }}</p>
+<p><a href="{{ path('consumptions_receipt',{id:return.consumption_id}) }}">Consulter la consommation et le reste à rendre</a></p><p><a href="{{ path('consumptions_return_new',{id:return.consumption_id}) }}">Enregistrer un autre retour pour cette consommation</a></p>
+{% if is_granted('APP_STOCK_READ',stock_target) %}<p><a href="{{ path('stocks_detail',{storeId:return.store_id,articleId:return.article_id}) }}">Consulter le stock actualisé</a></p>{% endif %}
+{% if can_correct and not return.reversed_by %}<p><a href="{{ path('stocks_correct',{id:return.id}) }}">Corriger la quantité rendue</a></p>{% endif %}
+</section>
+{% endblock %}
