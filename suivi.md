@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -84,8 +84,8 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | STK-05 | 2 | Ajustements et corrections par contre-mouvement | STK-04,09 | STK-02 | Terminé | [#17](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17) |
 | STK-06 | 2 | Transferts atomiques entre magasins | STK-05 | STK-02 | Terminé | [#18](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/18) |
 | STK-07 | 2 | Retours liés à une consommation | Décision utilisateur; STAT-06 | STK-04 | Intégré | [#19](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19) |
-| STK-08 | 4 | Historique des mouvements filtrable | STK-08,09,10 | STK-03, STK-04, STK-05, STK-06, STK-07 | En revue | [#20](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/20) |
-| INV-01 | 3 | Campagnes d’inventaire et gel des mouvements | INV-01,07 | STK-02 | À faire | [#21](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/21) |
+| STK-08 | 4 | Historique des mouvements filtrable | STK-08,09,10 | STK-03, STK-04, STK-05, STK-06, STK-07 | Intégré | [#20](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/20) |
+| INV-01 | 3 | Campagnes d’inventaire et gel des mouvements | INV-01,07 | STK-02 | En revue | [#21](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/21) |
 | INV-02 | 3 | Saisie des comptages et calcul des écarts | INV-02,03 | INV-01 | À faire | [#22](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/22) |
 | INV-03 | 3 | Validation atomique et clôture d’inventaire | INV-04,05,06 | INV-02, STK-05 | À faire | [#23](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23) |
 | ALT-01 | 3 | Seuils personnalisés par article et magasin | ART-05; ALT-01 | ART-01, AUTH-03 | À faire | [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24) |
@@ -386,7 +386,7 @@ Livraison pour revue : [PR #68](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### STK-08 — Historique des mouvements filtrable
 
-Issue : [#20](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/20) · En revue · Dépendances : [STK-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/15), [STK-04](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16), [STK-05](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17), [STK-06](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/18), [STK-07](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19).
+Issue : [#20](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/20) · Intégré (PR #69) · Dépendances : [STK-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/15), [STK-04](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16), [STK-05](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17), [STK-06](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/18), [STK-07](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19).
 
 Sources : STK-08,09,10.
 
@@ -400,15 +400,17 @@ Livraison pour revue : [PR #69](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### INV-01 — Campagnes d’inventaire et gel des mouvements
 
-Issue : [#21](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/21) · À faire · Dépendances : [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14).
+Issue : [#21](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/21) · En revue · Dépendances : [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14).
 
 Sources : INV-01,07.
 
-- [ ] Créer états brouillon, en cours, à valider, clôturée, annulée et transitions autorisées
-- [ ] Figer référence et bloquer tous mouvements du magasin pendant comptage/validation, y compris transferts et retours
-- [ ] Assurer verrouillage transactionnel entre démarrage de campagne et mouvements ; annulation tracée libère le gel
+- [x] Créer états brouillon, en cours, à valider, clôturée, annulée et transitions autorisées
+- [x] Figer référence et bloquer tous mouvements du magasin pendant comptage/validation, y compris transferts et retours
+- [x] Assurer verrouillage transactionnel entre démarrage de campagne et mouvements ; annulation tracée libère le gel
 
 Critères d’acceptation : Aucun mouvement ne passe durant le gel ; un inventaire actif par magasin ; fin ou annulation libère le magasin.
+
+Périmètre confirmé par l’utilisateur le 20 octobre 2026 : tous les articles actifs et les articles désactivés dont le stock du magasin est positif. Référence figée au démarrage, sans création de solde à zéro. Brouillons, démarrage, soumission complète et annulation idempotents, audit atomique et protection des campagnes terminées. Saisie dans INV-02 ; clôture avec ajustements dans INV-03. Recette : 232 tests PHP / 3 394 assertions, quatre validations OpenAPI réussis et concurrence réelle. Migration 9 appliquée localement. Branche `codex/inv-01-inventory-campaigns`. [Guide](docs/inventaires.md) · [Validation](docs/validation-inv01.md).
 
 ### INV-02 — Saisie des comptages et calcul des écarts
 
@@ -821,3 +823,7 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 20 octobre 2026 : publication de STK-07 pour revue dans la PR #68 ; recette complète du 19 octobre (214 tests / 3 149 assertions).
 
 - 20 octobre 2026 : STK-07 intégré (PR #68). STK-08 livré pour revue : historique filtrable, détail immuable et transferts partiellement visibles avec masquage avant filtrage.
+
+- 20 octobre 2026 : STK-08 intégré (PR #69). INV-01 démarré localement : brouillons, cycle de vie, annulation tracée, protections de référence et écrans. Arbitrage confirmé : inclure tous les articles actifs et les articles désactivés ayant un stock positif dans le magasin.
+
+- 20 octobre 2026 : INV-01 livré pour revue. Référence conforme à l’arbitrage, gel transactionnel, annulation tracée ; 232 tests / 3 394 assertions et quatre validations OpenAPI réussis. Saisie et clôture dans INV-02/03.

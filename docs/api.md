@@ -48,7 +48,11 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 | `POST /api/v1/movements/{id}/correct` | Bonne quantité, contre-mouvement et remplacement atomiques liés |
 | `POST /api/v1/movements/{id}/reverse` | Annulation exacte unique et justifiée |
 
-Ces quarante opérations portent `x-implementation: available`. Les 20 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
+| `GET/POST /api/v1/inventories` et `GET /api/v1/inventories/{id}` | Campagnes autorisées, création de brouillon idempotente et détail |
+| `GET /api/v1/inventories/{id}/lines` | Référence figée paginée, tri et filtre article |
+| `POST /api/v1/inventories/{id}/start`, `/submit`, `/cancel` | Démarrage atomique, soumission complète et annulation tracée ; gel pendant comptage/validation |
+
+Ces quarante-sept opérations portent `x-implementation: available`. Les 13 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
 
 Les routes `/health/live` et `/health/ready` de SOC-01 restent disponibles pour Docker ; la nouvelle sonde API ne remplace pas le contrôle PostgreSQL de readiness.
 
@@ -151,3 +155,5 @@ Les lectures `/stocks`, `/stores/{storeId}/stocks` et `/articles/{id}/stocks` ap
 Le formulaire et `POST /api/v1/movements/entries` utilisent le moteur transactionnel de STK-02. Motif obligatoire, référence facultative, auteur et date serveur ; événement durable de recalcul en attente des futurs traitements d’alertes. [Guide](entrees-stock.md) · [Recette](validation-stk03.md).
 
 STK-05 : [corrections et ajustements](corrections-stock.md). Les réponses d’écriture de ces trois nouvelles opérations n’annoncent pas de Location vers un détail API ; sa lecture est disponible depuis STK-08.
+
+INV-01 : [campagnes et gel des mouvements](inventaires.md). La saisie des comptages et la validation avec ajustements restent dans INV-02 et INV-03.
