@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 en revue (PR #73). MAIL-01 implémenté et vérifié, en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 et MAIL-01 intégrés à main (PR #73/#74). ALT-02 en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -88,10 +88,10 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | INV-01 | 3 | Campagnes d’inventaire et gel des mouvements | INV-01,07 | STK-02 | Intégré | [#21](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/21) |
 | INV-02 | 3 | Saisie des comptages et calcul des écarts | INV-02,03 | INV-01 | Intégré | [#22](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/22) |
 | INV-03 | 3 | Validation atomique et clôture d’inventaire | INV-04,05,06 | INV-02, STK-05 | Intégré | [#23](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23) |
-| ALT-01 | 3 | Seuils personnalisés par article et magasin | ART-05; ALT-01 | ART-01, AUTH-03 | En revue | [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24) |
-| ALT-02 | 3 | Cycle de vie des alertes et franchissements | ALT-01,03,04 | ALT-01, STK-02, MAIL-01 | À faire | [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25) |
+| ALT-01 | 3 | Seuils personnalisés par article et magasin | ART-05; ALT-01 | ART-01, AUTH-03 | Intégré | [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24) |
+| ALT-02 | 3 | Cycle de vie des alertes et franchissements | ALT-01,03,04 | ALT-01, STK-02, MAIL-01 | En revue | [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25) |
 | ALT-03 | 3 | Écran des alertes et destinataires | ALT-02,05 | ALT-02 | À faire | [#26](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26) |
-| MAIL-01 | 1 | SMTP, file durable et modèles de courriels | MAIL-01,02,04,05,06,08 | SOC-02 | En revue | [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27) |
+| MAIL-01 | 1 | SMTP, file durable et modèles de courriels | MAIL-01,02,04,05,06,08 | SOC-02 | Intégré | [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27) |
 | MAIL-02 | 3 | Messages d’information ciblés | MAIL-03 | MAIL-01, AUTH-03 | À faire | [#28](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/28) |
 | MAIL-03 | 3 | Récapitulatif quotidien des alertes à 08 h | ALT-06 partiel; MAIL-07 partiel; décision utilisateur | ALT-03, MAIL-01 | À faire | [#29](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29) |
 | CON-01 | 4 | Historique personnel et suivi des consommations | CON-03,04; décision utilisateur | STK-04, STK-07, AUTH-03 | À faire | [#30](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30) |
@@ -442,7 +442,7 @@ Livraison pour revue : [PR #72](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### ALT-01 — Seuils personnalisés par article et magasin
 
-Issue : [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24) · En revue · Dépendances : [ART-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
+Issue : [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24) · Intégré · Dépendances : [ART-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
 
 Sources : ART-05; ALT-01.
 
@@ -456,15 +456,17 @@ Livraison pour revue : [PR #73](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### ALT-02 — Cycle de vie des alertes et franchissements
 
-Issue : [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25) · À faire · Dépendances : [ALT-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24), [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
+Issue : [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25) · En revue · Dépendances : [ALT-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24), [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
 
 Sources : ALT-01,03,04.
 
-- [ ] Calculer normal/bas/critique après chaque mouvement et changement de seuil
-- [ ] Prioriser critique, ouvrir/résoudre et historiser les alertes
-- [ ] Émettre événement durable au changement de niveau sans doublon sur consultation
+- [x] Calculer normal/bas/critique après chaque mouvement et changement de seuil
+- [x] Prioriser critique, ouvrir/résoudre et historiser les alertes
+- [x] Émettre événement durable au changement de niveau sans doublon sur consultation
 
 Critères d’acceptation : Franchissement produit un événement ; réapprovisionnement résout ; REC-08,09.
+
+Livraison pour revue : recalcul atomique après changements de quantité et de seuil, priorité critique, ouverture/résolution et transitions immuables. Notifications persistantes par destinataire autorisé, sans émission sur consultation ou rejeu. Corrections sur solde net et validation d’inventaire couvertes. Recette : 283 tests PHP / 3 981 assertions et quatre validations OpenAPI ; 13 nouveaux tests et concurrence PostgreSQL. Migration 13 appliquée localement ; données métier conservées. [Guide](docs/cycle-alertes.md) · [Validation](docs/validation-alt02.md).
 
 ### ALT-03 — Écran des alertes et destinataires
 
@@ -480,7 +482,7 @@ Critères d’acceptation : Gestionnaire ne voit que ses magasins ; administrate
 
 ### MAIL-01 — SMTP, file durable et modèles de courriels
 
-Issue : [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27) · En revue · Dépendances : [SOC-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2).
+Issue : [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27) · Intégré · Dépendances : [SOC-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2).
 
 Sources : MAIL-01,02,04,05,06,08.
 
@@ -841,3 +843,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 20 octobre 2026 : INV-02 intégré (PR #71). INV-03 livré pour revue : clôture atomique et ajustements traçables, REC-10, 249 tests / 3 660 assertions et quatre validations OpenAPI réussis. Aucun inventaire de démonstration créé.
 
 - 20 octobre 2026 : MAIL-01 livré pour revue. SMTP et modèles prêts pour les prochains producteurs métier ; aucune notification réelle émise. 270 tests PHP / 3 870 assertions et quatre validations OpenAPI.
+
+- 21 octobre 2026 : ALT-01 et MAIL-01 intégrés (PR #73/#74). ALT-02 livré pour revue : cycle atomique des alertes et notifications persistantes, 283 tests PHP / 3 981 assertions et quatre validations OpenAPI. Aucun ajout de démonstration aux données réelles.
