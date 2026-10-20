@@ -480,7 +480,7 @@ Sources : ALT-02,05.
 
 Critères d’acceptation : Gestionnaire ne voit que ses magasins ; administrateur voit tous ; aucune fuite entre destinataires.
 
-Choix confirmé le 21 octobre 2026 : liste personnalisable parmi les administrateurs et gestionnaires autorisés, par magasin et type. Valeurs par défaut dynamiques, sélection explicite y compris vide, restauration, contrôles de droits à la lecture et à la livraison, audit atomique et protection des formulaires périmés. Recette : 297 tests PHP / 4 099 assertions et quatre validations OpenAPI ; 14 nouveaux tests et concurrence PostgreSQL. Migration 14 appliquée localement ; interface ordinateur/mobile vérifiée et données réelles conservées. [Guide](docs/alertes-et-destinataires.md) · [Validation](docs/validation-alt03.md).
+Livraison pour revue : [PR #76](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/76), branche `codex/alt-03-alert-interface`. Choix confirmé le 21 octobre 2026 : liste personnalisable parmi les administrateurs et gestionnaires autorisés, par magasin et type. Valeurs par défaut dynamiques, sélection explicite y compris vide, restauration, contrôles de droits à la lecture et à la livraison, audit atomique et protection des formulaires périmés. Recette : 297 tests PHP / 4 099 assertions et quatre validations OpenAPI ; 14 nouveaux tests et concurrence PostgreSQL. Migration 14 appliquée localement ; interface ordinateur/mobile vérifiée et données réelles conservées. [Guide](docs/alertes-et-destinataires.md) · [Validation](docs/validation-alt03.md).
 
 ### MAIL-01 — SMTP, file durable et modèles de courriels
 

@@ -18,3 +18,5 @@ Contrôle visuel en lecture seule sur ordinateur et à 390 pixels : liste, filtr
 Choix utilisateur du 21 octobre : possibilité de retirer des administrateurs ou gestionnaires de la liste par défaut, pour chaque magasin et type. Le rappel quotidien est configurable mais son envoi appartient à MAIL-03.
 
 [Guide](alertes-et-destinataires.md).
+
+Livraison : [PR #76](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/76), issue [#26](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26).
