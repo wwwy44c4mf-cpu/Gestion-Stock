@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 et MAIL-01 intégrés à main (PR #73/#74). ALT-02 en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 et MAIL-01 intégrés à main (PR #73/#74). ALT-02 intégré à main (PR #75). ALT-03 en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -25,7 +25,7 @@ Les décisions ci-dessous précisent ou remplacent les options correspondantes d
 | Dates | Date et heure serveur à la saisie, sans rétroactivité ; stockage UTC, affichage local, Europe/Paris par défaut. |
 | Retours | Dès le MVP, retours liés à la consommation initiale, dans le magasin d’origine ; administrateurs/gestionnaires selon périmètre, utilisateurs pour leurs propres consommations. Cumul limité à la quantité sortie. L’utilisateur conserve le droit de retour personnel après retrait d’affectation si le magasin d’origine est actif. |
 | Seuils | Personnalisables par article et magasin. La dernière précision remplace l’idée initiale de valeurs par défaut : aucune valeur globale chiffrée n’a été validée. |
-| Alertes immédiates | Courriels à toute heure lors des franchissements de seuil ; destinataires par défaut : gestionnaires du magasin et administrateurs. |
+| Alertes immédiates | Courriels à toute heure lors des franchissements de seuil ; destinataires par défaut : gestionnaires du magasin et administrateurs. Liste personnalisable parmi ces personnes, par magasin et type (confirmation du 21 octobre 2026). |
 | Rappels | Dès le MVP, récapitulatif quotidien par destinataire à 08 h Europe/Paris tant que des alertes persistent. |
 | Hébergement | Un serveur unique sous Docker Compose ; SMTP existant disponible ; reverse proxy encore inconnu. |
 | Dimensionnement initial | 2 magasins, 5 utilisateurs simultanés, 20 références et environ 10 mouvements par jour. |
@@ -89,8 +89,8 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | INV-02 | 3 | Saisie des comptages et calcul des écarts | INV-02,03 | INV-01 | Intégré | [#22](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/22) |
 | INV-03 | 3 | Validation atomique et clôture d’inventaire | INV-04,05,06 | INV-02, STK-05 | Intégré | [#23](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23) |
 | ALT-01 | 3 | Seuils personnalisés par article et magasin | ART-05; ALT-01 | ART-01, AUTH-03 | Intégré | [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24) |
-| ALT-02 | 3 | Cycle de vie des alertes et franchissements | ALT-01,03,04 | ALT-01, STK-02, MAIL-01 | En revue | [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25) |
-| ALT-03 | 3 | Écran des alertes et destinataires | ALT-02,05 | ALT-02 | À faire | [#26](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26) |
+| ALT-02 | 3 | Cycle de vie des alertes et franchissements | ALT-01,03,04 | ALT-01, STK-02, MAIL-01 | Intégré | [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25) |
+| ALT-03 | 3 | Écran des alertes et destinataires | ALT-02,05 | ALT-02 | En revue | [#26](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26) |
 | MAIL-01 | 1 | SMTP, file durable et modèles de courriels | MAIL-01,02,04,05,06,08 | SOC-02 | Intégré | [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27) |
 | MAIL-02 | 3 | Messages d’information ciblés | MAIL-03 | MAIL-01, AUTH-03 | À faire | [#28](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/28) |
 | MAIL-03 | 3 | Récapitulatif quotidien des alertes à 08 h | ALT-06 partiel; MAIL-07 partiel; décision utilisateur | ALT-03, MAIL-01 | À faire | [#29](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29) |
@@ -456,7 +456,7 @@ Livraison pour revue : [PR #73](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### ALT-02 — Cycle de vie des alertes et franchissements
 
-Issue : [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25) · En revue · Dépendances : [ALT-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24), [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
+Issue : [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25) · Intégré · Dépendances : [ALT-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24), [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
 
 Sources : ALT-01,03,04.
 
@@ -470,15 +470,17 @@ Livraison pour revue : [PR #75](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### ALT-03 — Écran des alertes et destinataires
 
-Issue : [#26](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26) · À faire · Dépendances : [ALT-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25).
+Issue : [#26](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26) · En revue · Dépendances : [ALT-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25).
 
 Sources : ALT-02,05.
 
-- [ ] Lister alertes actives et historiques par magasin et gravité
-- [ ] Déterminer par défaut les gestionnaires du magasin et administrateurs actifs ; dédupliquer les adresses
-- [ ] Prévoir configuration autorisée des destinataires selon le CDC, avec contrôles serveur
+- [x] Lister alertes actives et historiques par magasin et gravité
+- [x] Déterminer par défaut les gestionnaires du magasin et administrateurs actifs ; dédupliquer les adresses
+- [x] Prévoir configuration autorisée des destinataires selon le CDC, avec contrôles serveur
 
 Critères d’acceptation : Gestionnaire ne voit que ses magasins ; administrateur voit tous ; aucune fuite entre destinataires.
+
+Choix confirmé le 21 octobre 2026 : liste personnalisable parmi les administrateurs et gestionnaires autorisés, par magasin et type. Valeurs par défaut dynamiques, sélection explicite y compris vide, restauration, contrôles de droits à la lecture et à la livraison, audit atomique et protection des formulaires périmés. Recette : 297 tests PHP / 4 099 assertions et quatre validations OpenAPI ; 14 nouveaux tests et concurrence PostgreSQL. Migration 14 appliquée localement ; interface ordinateur/mobile vérifiée et données réelles conservées. [Guide](docs/alertes-et-destinataires.md) · [Validation](docs/validation-alt03.md).
 
 ### MAIL-01 — SMTP, file durable et modèles de courriels
 
@@ -845,3 +847,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 20 octobre 2026 : MAIL-01 livré pour revue. SMTP et modèles prêts pour les prochains producteurs métier ; aucune notification réelle émise. 270 tests PHP / 3 870 assertions et quatre validations OpenAPI.
 
 - 21 octobre 2026 : ALT-01 et MAIL-01 intégrés (PR #73/#74). ALT-02 livré pour revue : cycle atomique des alertes et notifications persistantes, 283 tests PHP / 3 981 assertions et quatre validations OpenAPI. Aucun ajout de démonstration aux données réelles.
+
+- 21 octobre 2026 : ALT-02 intégré (PR #75). ALT-03 livré pour revue : écran et préférences des destinataires, choix utilisateur personnalisable, 297 tests PHP / 4 099 assertions et quatre validations OpenAPI. Aucun ajout de démonstration aux données réelles.

@@ -48,7 +48,7 @@ erDiagram
 | `inventories` | Cinq états ; photographie exigée pendant comptage/validation/clôture ; validateur et date exigés pour clôture ; une seule campagne active par magasin. |
 | `inventory_lines` | Couple inventaire/article unique ; théorique, compté nullable, auteur et date du comptage ; zéro est une saisie valide ; écart calculé en base. |
 | `stock_alerts` | Historique bas/critique, une seule alerte active par article/magasin, seuil observé et dates d’ouverture/résolution. |
-| `alert_recipients` | Configuration par magasin, personne et type. Les destinataires par défaut seront calculés à partir des administrateurs et gestionnaires dans ALT-03. |
+| `alert_recipients` | Configuration par magasin, personne et type. Les listes effectives combinent le mode par défaut ou personnalisé avec les rôles et affectations actuels (ALT-03). |
 | `notification_events` | Outbox durable : clé d’événement unique par envoi, destinataire, payload minimal, état, reprises et disponibilité ; les envois SMTP restent hors transaction métier. |
 | `daily_notification_runs` | Un récapitulatif par destinataire et date locale Europe/Paris ; événement rattaché au même destinataire. |
 | `password_reset_tokens` | Empreinte de jeton unique, expiration et date d’utilisation ; aucun jeton en clair. |
@@ -89,3 +89,5 @@ La table `user_creation_requests` relie un administrateur et sa clé d’idempot
 ### STK-05 — Liens des corrections
 
 La migration `Version20261018223000` ajoute `movement_corrections` : `original_id` unique, `reversal_id` unique et `replacement_id` unique, tous référencés au journal. Le remplacement conserve type, article, magasins et bénéficiaire ; le contre-mouvement compense exactement l’origine. Les liens sont immuables ; le retour arrière refuse leur destruction s’ils sont présents. Aucun ancien mouvement n’est réécrit.
+
+ALT-03 / migration 14 : `alert_recipient_configurations` conserve le mode default/custom et une version par magasin ; `effective_alert_recipients` applique la sélection, les rôles, l’activité et les affectations. Les lectures ne créent pas de configuration.
