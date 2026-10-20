@@ -21,3 +21,5 @@ Les tests d’écriture utilisent des schémas isolés supprimés ou annulés ap
 Limite SMTP documentée : une acceptation distante suivie d’une panne avant confirmation locale peut entraîner une répétition ; aucune garantie d’envoi exactement une fois n’est annoncée. Les producteurs d’alertes et les audiences ne sont pas encore raccordés (ALT-02/ALT-03/MAIL-02/MAIL-03).
 
 [Guide de configuration et exploitation](courriels.md).
+
+Livraison : [PR #74](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/74), issue [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27). Base temporaire : PR #73 ; intégrer cette dernière avant MAIL-01.

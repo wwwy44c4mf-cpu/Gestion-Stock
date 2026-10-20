@@ -490,7 +490,7 @@ Sources : MAIL-01,02,04,05,06,08.
 
 Critères d’acceptation : SMTP inaccessible : mouvement validé, message durable en attente ; REC-08,13 ; aucun secret journalisé.
 
-Livraison pour revue : SMTP via secret Docker, modèles HTML/texte, événements transactionnels et répartition vers Messenger atomique. Quatre essais bornés, file d’échecs, reprise opérateur auditée et Message-ID stable. Recette : 270 tests PHP / 3 870 assertions et quatre validations OpenAPI ; 12 nouveaux tests, worker réel, dialogue SMTP local et concurrence PostgreSQL. Migration 12 appliquée localement ; données métier conservées et envoi réel désactivé. [Guide](docs/courriels.md) · [Validation](docs/validation-mail01.md).
+Livraison pour revue : [PR #74](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/74), branche `codex/mail-01-durable-notifications`, empilée sur la PR #73. SMTP via secret Docker, modèles HTML/texte, événements transactionnels et répartition vers Messenger atomique. Quatre essais bornés, file d’échecs, reprise opérateur auditée et Message-ID stable. Recette : 270 tests PHP / 3 870 assertions et quatre validations OpenAPI ; 12 nouveaux tests, worker réel, dialogue SMTP local et concurrence PostgreSQL. Migration 12 appliquée localement ; données métier conservées et envoi réel désactivé. [Guide](docs/courriels.md) · [Validation](docs/validation-mail01.md).
 
 ### MAIL-02 — Messages d’information ciblés
 
