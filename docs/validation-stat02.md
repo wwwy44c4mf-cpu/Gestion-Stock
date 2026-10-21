@@ -23,3 +23,5 @@ Aucune migration ajoutée. Avant/après : 16 migrations, cinq mouvements, somme 
 Contrat : **61 opérations / 97 schémas**, dont **58 disponibles / 3 prévues**. Aucun contrat d’écriture de stock n’est modifié.
 
 [Guide](tableau-de-bord.md) · [Issue #32](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32).
+
+Livraison : [PR #81](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/81), basée sur la branche STAT-01 (PR #80 encore ouverte lors de la publication). L’issue reste ouverte jusqu’à fusion.

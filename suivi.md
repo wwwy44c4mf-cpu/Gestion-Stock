@@ -874,3 +874,4 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - Livraison STAT-01 : [PR #80](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/80), basée sur main après intégration de CON-01. Issue #31 ouverte jusqu’à fusion.
 
 - 21 octobre 2026 : STAT-02 livré pour revue : tableau de bord réel, indicateurs de stock et d’activité, alertes par gravité, vue personnelle et liens filtrés. Ruptures et sous-seuils comptés par article et magasin par défaut. Recette complète : 359 tests PHP / 4 669 assertions et quatre validations OpenAPI ; contrôles ordinateur et téléphone réussis. [Guide](docs/tableau-de-bord.md), [validation](docs/validation-stat02.md).
+- Livraison STAT-02 : [PR #81](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/81), dépendante de la PR #80. Issue #32 ouverte jusqu’à fusion.
