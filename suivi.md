@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 et MAIL-01 intégrés à main (PR #73/#74). ALT-02 intégré à main (PR #75). CON-01 intégré à main (PR #79). ALT-03, MAIL-02, MAIL-03, STAT-01, STAT-02, ADM-01 et OPS-01 en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 et MAIL-01 intégrés à main (PR #73/#74). ALT-02 intégré à main (PR #75). CON-01 intégré à main (PR #79). ALT-03, MAIL-02, MAIL-03, STAT-01, STAT-02, ADM-01, OPS-01 et OPS-02 en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -28,7 +28,7 @@ Les décisions ci-dessous précisent ou remplacent les options correspondantes d
 | Seuils | Personnalisables par article et magasin. La dernière précision remplace l’idée initiale de valeurs par défaut : aucune valeur globale chiffrée n’a été validée. |
 | Alertes immédiates | Courriels à toute heure lors des franchissements de seuil ; destinataires par défaut : gestionnaires du magasin et administrateurs. Liste personnalisable parmi ces personnes, par magasin et type (confirmation du 21 octobre 2026). |
 | Rappels | Dès le MVP, récapitulatif quotidien par destinataire à 08 h Europe/Paris tant que des alertes persistent. |
-| Hébergement | Un serveur unique sous Docker Compose ; SMTP existant disponible ; reverse proxy encore inconnu. |
+| Hébergement | Un serveur unique sous Docker Compose ; SMTP existant disponible ; proxy HTTPS Caddy intégré retenu le 21 octobre 2026. Domaine et serveur à préciser. |
 | Dimensionnement initial | 2 magasins, 5 utilisateurs simultanés, 20 références et environ 10 mouvements par jour. |
 | Données nominatives | Conservation pendant un an puis anonymisation ; modalités précises à formaliser avant production. |
 | Sauvegardes | Quotidiennes, conservation 90 jours ; environ 24 h de données à risque depuis la dernière réussite. Destination hors serveur non choisie. |
@@ -38,7 +38,7 @@ Les décisions ci-dessous précisent ou remplacent les options correspondantes d
 
 Ces sujets ne constituent pas des choix déjà validés. Ils seront précisés une question à la fois au moment nécessaire.
 
-- Avant déploiement : nom de domaine, reverse proxy existant ou à déployer, ressources du serveur, configuration SMTP sans partage de secrets dans Git, objectif de disponibilité.
+- Avant déploiement : nom de domaine, paramètres du proxy Caddy intégré, ressources du serveur, configuration SMTP sans partage de secrets dans Git, objectif de disponibilité.
 - Avant production : choisir la destination de sauvegarde hors serveur, y protéger séparément la clé et tester la copie/restauration. Fréquence quotidienne et rétention 90 jours validées ; surveiller leur réussite pour tenir le risque accepté.
 - Avant production : responsable de maintenance, supervision et restauration ; responsable de traitement des données.
 - Avant anonymisation en production : date de référence du délai d’un an, données de comptes actifs et statistiques personnelles, méthode empêchant la réidentification et traitement des sauvegardes restaurées. Préserver le journal quantitatif.
@@ -101,7 +101,7 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | STAT-02 | 4 | Tableau de bord et indicateurs | STAT-05; §6 | STAT-01, ALT-03, STK-01 | En revue | [#32](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32) |
 | ADM-01 | 4 | Journal d’audit métier | §2,10.1,10.4 | AUTH-03, STK-02 | En revue | [#33](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33) |
 | OPS-01 | 5 | Sauvegardes, restauration et reprise | DOCK-10,11; §10.3 | SOC-01, SOC-02 | En revue | [#34](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34) |
-| OPS-02 | 5 | Déploiement HTTPS, sécurité et mises à jour | DOCK-03,04,05,07,08,09,10; §10.1 | SOC-01, AUTH-03 | À faire | [#35](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35) |
+| OPS-02 | 5 | Déploiement HTTPS, sécurité et mises à jour | DOCK-03,04,05,07,08,09,10; §10.1 | SOC-01, AUTH-03 | En revue | [#35](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35) |
 | OPS-03 | 5 | Supervision et diagnostic | §10.4; DOCK-10 | SOC-01, MAIL-01 | À faire | [#36](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/36) |
 | RGPD-01 | 5 | Anonymisation des données nominatives après un an | §10.1; décision utilisateur | ADM-01, SOC-02 | À faire | [#37](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37) |
 | QA-01 | 5 | Recette automatisée, concurrence et performances | REC-01 à REC-18; DOCK-12; §10.2,11 | INV-03, MAIL-03, STAT-02, OPS-01, OPS-02, RGPD-01 | À faire | [#38](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38) |
@@ -610,15 +610,19 @@ Critères d’acceptation : Restauration et recréation des conteneurs validées
 
 ### OPS-02 — Déploiement HTTPS, sécurité et mises à jour
 
-Issue : [#35](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35) · À faire · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
+Issue : [#35](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35) · En revue · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
 
 Sources : DOCK-03,04,05,07,08,09,10; §10.1.
 
-- [ ] Préparer déploiement mono-serveur Compose, HTTPS et compatibilité avec proxy existant ou proxy conteneurisé
-- [ ] Durcir cookies, CSRF, XSS, injections, comptes et conteneurs ; analyser images et dépendances
-- [ ] Documenter migrations, mises à jour et retour arrière sans perte silencieuse
+- [x] Préparer déploiement mono-serveur Compose, HTTPS et compatibilité avec proxy existant ou proxy conteneurisé
+- [x] Durcir cookies, CSRF, XSS, injections, comptes et conteneurs ; analyser images et dépendances
+- [x] Documenter migrations, mises à jour et retour arrière sans perte silencieuse
 
-Critères d’acceptation : Contrôles de sécurité et procédure de rollback exécutables. Avant production : domaine, proxy, ressources et versions à confirmer.
+Critères d’acceptation : Contrôles de sécurité et procédure de rollback exécutables. Avant production : domaine, DNS/ACME et ressources réelles à confirmer ; Caddy intégré retenu, images épinglées et testées.
+
+[PR #84](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/84), basée sur OPS-01 (#83). Issue ouverte jusqu’à fusion.
+
+[Guide](docs/deploiement-production.md) · [Validation](docs/validation-ops02.md).
 
 ### OPS-03 — Supervision et diagnostic
 

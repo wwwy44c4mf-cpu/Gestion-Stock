@@ -1,0 +1,45 @@
+# Commun aux deux modes de terminaison HTTPS. Compose >= 2.24.4.
+x-production-env: &production-env
+  APP_ENV: prod
+  APP_DEBUG: 0
+  APP_REQUIRE_HTTPS: 1
+  APP_TRUSTED_HOST_PATTERN: '${APP_TRUSTED_HOST_PATTERN:?Définir APP_TRUSTED_HOST_PATTERN comme motif exact ancré}'
+  APP_PUBLIC_URL: https://${APP_DOMAIN:?Définir APP_DOMAIN}
+  APP_TRUSTED_PROXIES: ${APP_TRUSTED_PROXIES:?Définir les adresses exactes des proxys autorisés}
+services:
+  app:
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-app:${RELEASE_ID:?Définir RELEASE_ID immuable}
+    environment: *production-env
+  init:
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-app:${RELEASE_ID:?Définir RELEASE_ID immuable}
+    environment: *production-env
+  worker:
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-app:${RELEASE_ID:?Définir RELEASE_ID immuable}
+    environment: *production-env
+  scheduler:
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-app:${RELEASE_ID:?Définir RELEASE_ID immuable}
+    environment: *production-env
+  web:
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?Définir APP_DOMAIN}
+    healthcheck:
+      test: [CMD-SHELL, 'wget -q --spider --header="Host: $${APP_DOMAIN}" http://127.0.0.1:8080/health/live']
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-web:${RELEASE_ID:?Définir RELEASE_ID immuable}
+    ports: !override ["127.0.0.1:${HTTP_PORT:-8080}:8080"]
+  db:
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-db:${DATABASE_RELEASE_ID:?Version testée PostgreSQL 18 obligatoire}
+  backup:
+    environment:
+      BACKUP_ENV_FILE: /run/backup-production.env
+    volumes:
+      - type: bind
+        source: ${PRODUCTION_ENV_FILE:-.env.production}
+        target: /run/backup-production.env
+        read_only: true
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-backup:${RELEASE_ID:?Définir RELEASE_ID immuable}
+  backup-keygen:
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-backup:${RELEASE_ID:?Définir RELEASE_ID immuable}
+  backup-files:
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-backup:${RELEASE_ID:?Définir RELEASE_ID immuable}
+  backup-restore:
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-backup:${RELEASE_ID:?Définir RELEASE_ID immuable}

@@ -38,7 +38,9 @@ USER app
 CMD ["vendor/bin/phpunit"]
 
 FROM nginx:stable-alpine@sha256:970364228b1e4f932abc22d321932816782cca8a20b85a77552a7cfe9acfb3b5 AS web
-RUN apk upgrade --no-cache
+# Aucun module dynamique n’est chargé par la configuration fournie.
+RUN apk del nginx-module-acme nginx-module-geoip nginx-module-image-filter nginx-module-njs nginx-module-xslt \
+    && apk upgrade --no-cache
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY public/ /app/public/
 USER nginx
@@ -67,6 +69,7 @@ CMD ["python", "tests/contract_test.py"]
 FROM postgres:18-alpine@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873 AS backup
 RUN apk upgrade --no-cache \
     && apk add --no-cache python3 py3-psycopg2 age \
+    && rm /usr/local/bin/gosu \
     && addgroup -g 10001 backup && adduser -D -u 10001 -G backup backup \
     && mkdir -p /backups /work && chown backup:backup /backups /work
 COPY docker/backup/backup.py /opt/backup.py
@@ -78,3 +81,19 @@ CMD ["schedule"]
 FROM backup AS backup-test
 COPY tests/backup_test.py /tests/backup_test.py
 ENTRYPOINT ["python3", "/tests/backup_test.py"]
+
+# Rebuild Caddy with patched Go and x/net; dependency graph is locked in the repo.
+FROM golang:1.27.3-alpine@sha256:f2c872bcee949b7be9c490efd02b48a8a2fbf947cdf533f1c58525ec9d8170fd AS proxy-build
+WORKDIR /build
+COPY docker/production/proxy/go.mod docker/production/proxy/go.sum ./
+RUN go mod download
+COPY docker/production/proxy/main.go ./
+RUN go list -mod=readonly -deps . > /dependencies.txt \
+    && ! grep -q '^golang.org/x/crypto/openpgp' /dependencies.txt
+RUN CGO_ENABLED=0 go build -mod=readonly -trimpath -ldflags='-s -w -X github.com/caddyserver/caddy/v2.CustomVersion=v2.11.7-gestion-stock-ops02' -o /caddy .
+
+FROM caddy:2.11.7-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f AS proxy
+RUN apk upgrade --no-cache && chown -R 10001:10001 /data /config
+COPY --from=proxy-build /caddy /usr/bin/caddy
+COPY --from=proxy-build /dependencies.txt /usr/share/gestion-stock/proxy-dependencies.txt
+USER 10001:10001

@@ -1,0 +1,27 @@
+{
+    admin off
+    email {$ACME_EMAIL}
+    http_port 8080
+    https_port 8443
+    auto_https disable_redirects
+}
+http://{$APP_DOMAIN}:8080 {
+    redir https://{$APP_DOMAIN}{uri} 308
+}
+https://{$APP_DOMAIN}:8443 {
+    tls internal
+    header Strict-Transport-Security "max-age=31536000"
+    header -Server
+    reverse_proxy web:8080 {
+        header_up Host {$APP_DOMAIN}
+        header_up X-Forwarded-Proto https
+        header_up X-Forwarded-For {remote_host}
+        header_up -Forwarded
+        header_up -X-Forwarded-Host
+        header_up -X-Forwarded-Port
+        header_up -X-Forwarded-Prefix
+    }
+}
+http://127.0.0.1:2020 {
+    respond /health "ok" 200
+}
