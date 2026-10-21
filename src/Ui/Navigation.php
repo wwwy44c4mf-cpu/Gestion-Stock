@@ -30,7 +30,7 @@ final class Navigation
             if (!$admin && !$manager && !$user) {
                 continue;
             }
-            $items[] = ['label' => $label, 'route' => match ($section) { 'administration' => 'admin_users', 'magasins' => 'stores_list', 'articles' => 'catalog_list', 'stocks' => 'stocks_list', 'mouvements' => 'movements_list', 'inventaires' => 'inventories_list', 'alertes' => 'alerts_list', 'consommations' => 'consumptions_list', default => 'ui_section' }, 'parameters' => in_array($section, ['administration','magasins','articles','stocks','consommations','mouvements','inventaires','alertes'], true) ? [] : ['section' => $section], 'active' => $section];
+            $items[] = ['label' => $label, 'route' => match ($section) { 'administration' => 'admin_users', 'magasins' => 'stores_list', 'articles' => 'catalog_list', 'stocks' => 'stocks_list', 'mouvements' => 'movements_list', 'inventaires' => 'inventories_list', 'alertes' => 'alerts_list', 'consommations' => 'consumptions_list', 'statistiques' => 'statistics_consumptions', default => 'ui_section' }, 'parameters' => in_array($section, ['administration','magasins','articles','stocks','consommations','mouvements','inventaires','alertes','statistiques'], true) ? [] : ['section' => $section], 'active' => $section];
         }
 
         return $items;

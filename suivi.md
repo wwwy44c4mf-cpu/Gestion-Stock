@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 et MAIL-01 intégrés à main (PR #73/#74). ALT-02 intégré à main (PR #75). ALT-03, MAIL-02, MAIL-03 et CON-01 en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 et MAIL-01 intégrés à main (PR #73/#74). ALT-02 intégré à main (PR #75). ALT-03, MAIL-02, MAIL-03, CON-01 et STAT-01 en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -95,7 +95,7 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | MAIL-02 | 3 | Messages d’information ciblés | MAIL-03 | MAIL-01, AUTH-03 | En revue | [#28](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/28) |
 | MAIL-03 | 3 | Récapitulatif quotidien des alertes à 08 h | ALT-06 partiel; MAIL-07 partiel; décision utilisateur | ALT-03, MAIL-01 | En revue | [#29](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29) |
 | CON-01 | 4 | Historique personnel et suivi des consommations | CON-03,04; décision utilisateur | STK-04, STK-07, AUTH-03 | En revue | [#30](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30) |
-| STAT-01 | 4 | Statistiques de consommation et filtres | STAT-01,02,03,04,06 | CON-01 | À faire | [#31](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31) |
+| STAT-01 | 4 | Statistiques de consommation et filtres | STAT-01,02,03,04,06 | CON-01 | En revue | [#31](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31) |
 | STAT-02 | 4 | Tableau de bord et indicateurs | STAT-05; §6 | STAT-01, ALT-03, STK-01 | À faire | [#32](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32) |
 | ADM-01 | 4 | Journal d’audit métier | §2,10.1,10.4 | AUTH-03, STK-02 | À faire | [#33](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33) |
 | OPS-01 | 5 | Sauvegardes, restauration et reprise | DOCK-10,11; §10.3 | SOC-01, SOC-02 | À faire | [#34](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34) |
@@ -550,15 +550,17 @@ Livraison pour revue : [PR #79](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### STAT-01 — Statistiques de consommation et filtres
 
-Issue : [#31](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31) · À faire · Dépendances : [CON-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30).
+Issue : [#31](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31) · En revue · Dépendances : [CON-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30).
 
 Sources : STAT-01,02,03,04,06.
 
-- [ ] Créer top articles par quantité et nombre de sorties, évolutions jour/semaine/mois et répartitions
-- [ ] Filtrer période inclusive, magasin et catégorie selon droits ; statistiques personnelles accessibles aux utilisateurs
-- [ ] Exclure entrées/transferts/ajustements ; exposer retours séparément sans réécrire les sorties
+- [x] Créer top articles par quantité et nombre de sorties, évolutions jour/semaine/mois et répartitions
+- [x] Filtrer période inclusive, magasin et catégorie selon droits ; statistiques personnelles accessibles aux utilisateurs
+- [x] Exclure entrées/transferts/ajustements ; exposer retours séparément sans réécrire les sorties
 
 Critères d’acceptation : Jeu connu produit les agrégats attendus ; aucun mélange retours/consommations ; REC-11,12.
+
+Choix confirmé : compter les retours à leur date réelle dans les statistiques, même lorsque la consommation d’origine précède la période. Deux classements distincts, périodes sans activité à zéro et répartitions après application des droits. Quantités exactes conservées sous forme de chaînes ; les retours restent séparés des sorties. [Guide](docs/statistiques-consommation.md) · [Validation](docs/validation-stat01.md).
 
 ### STAT-02 — Tableau de bord et indicateurs
 
@@ -865,3 +867,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 21 octobre 2026 : ALT-01 et MAIL-01 intégrés (PR #73/#74). ALT-02 livré pour revue : cycle atomique des alertes et notifications persistantes, 283 tests PHP / 3 981 assertions et quatre validations OpenAPI. Aucun ajout de démonstration aux données réelles.
 
 - 21 octobre 2026 : ALT-02 intégré (PR #75). ALT-03 livré pour revue : écran et préférences des destinataires, choix utilisateur personnalisable, 297 tests PHP / 4 099 assertions et quatre validations OpenAPI. Aucun ajout de démonstration aux données réelles.
+
+- 21 octobre 2026 : CON-01 intégré (PR #79). STAT-01 livré pour revue : classements distincts, évolutions et répartitions filtrées selon les droits. Retours à leur date réelle confirmé par l’utilisateur. Recette complète : 350 tests PHP / 4 548 assertions et quatre validations OpenAPI ; contrôles visuels ordinateur et téléphone réussis. [Validation](docs/validation-stat01.md).
