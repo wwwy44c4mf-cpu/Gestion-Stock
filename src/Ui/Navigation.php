@@ -8,7 +8,7 @@ final class Navigation
     public const SECTIONS = [
         'articles' => 'Articles', 'stocks' => 'Stocks', 'magasins' => 'Magasins', 'mouvements' => 'Mouvements',
         'consommations' => 'Consommations', 'inventaires' => 'Inventaires',
-        'statistiques' => 'Statistiques', 'alertes' => 'Alertes', 'administration' => 'Administration',
+        'audit' => 'Journal d’audit', 'statistiques' => 'Statistiques', 'alertes' => 'Alertes', 'administration' => 'Administration',
     ];
 
     public function items(array $roles = [], ?string $storeId = null): array
@@ -24,13 +24,13 @@ final class Navigation
             if ($section === 'administration' && !$admin) {
                 continue;
             }
-            if (in_array($section, ['mouvements', 'inventaires', 'alertes'], true) && !$admin && !($manager && $storeId !== null)) {
+            if (in_array($section, ['mouvements', 'inventaires', 'alertes', 'audit'], true) && !$admin && !($manager && $storeId !== null)) {
                 continue;
             }
             if (!$admin && !$manager && !$user) {
                 continue;
             }
-            $items[] = ['label' => $label, 'route' => match ($section) { 'administration' => 'admin_users', 'magasins' => 'stores_list', 'articles' => 'catalog_list', 'stocks' => 'stocks_list', 'mouvements' => 'movements_list', 'inventaires' => 'inventories_list', 'alertes' => 'alerts_list', 'consommations' => 'consumptions_list', 'statistiques' => 'statistics_consumptions', default => 'ui_section' }, 'parameters' => in_array($section, ['administration','magasins','articles','stocks','consommations','mouvements','inventaires','alertes','statistiques'], true) ? [] : ['section' => $section], 'active' => $section];
+            $items[] = ['label' => $label, 'route' => match ($section) { 'audit' => 'audit_list', 'administration' => 'admin_users', 'magasins' => 'stores_list', 'articles' => 'catalog_list', 'stocks' => 'stocks_list', 'mouvements' => 'movements_list', 'inventaires' => 'inventories_list', 'alertes' => 'alerts_list', 'consommations' => 'consumptions_list', 'statistiques' => 'statistics_consumptions', default => 'ui_section' }, 'parameters' => in_array($section, ['audit','administration','magasins','articles','stocks','consommations','mouvements','inventaires','alertes','statistiques'], true) ? [] : ['section' => $section], 'active' => $section];
         }
 
         return $items;

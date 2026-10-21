@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 et MAIL-01 intégrés à main (PR #73/#74). ALT-02 intégré à main (PR #75). CON-01 intégré à main (PR #79). ALT-03, MAIL-02, MAIL-03, STAT-01 et STAT-02 en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 et MAIL-01 intégrés à main (PR #73/#74). ALT-02 intégré à main (PR #75). CON-01 intégré à main (PR #79). ALT-03, MAIL-02, MAIL-03, STAT-01, STAT-02 et ADM-01 en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -98,7 +98,7 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | CON-01 | 4 | Historique personnel et suivi des consommations | CON-03,04; décision utilisateur | STK-04, STK-07, AUTH-03 | En revue | [#30](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30) |
 | STAT-01 | 4 | Statistiques de consommation et filtres | STAT-01,02,03,04,06 | CON-01 | En revue | [#31](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31) |
 | STAT-02 | 4 | Tableau de bord et indicateurs | STAT-05; §6 | STAT-01, ALT-03, STK-01 | En revue | [#32](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32) |
-| ADM-01 | 4 | Journal d’audit métier | §2,10.1,10.4 | AUTH-03, STK-02 | À faire | [#33](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33) |
+| ADM-01 | 4 | Journal d’audit métier | §2,10.1,10.4 | AUTH-03, STK-02 | En revue | [#33](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33) |
 | OPS-01 | 5 | Sauvegardes, restauration et reprise | DOCK-10,11; §10.3 | SOC-01, SOC-02 | À faire | [#34](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34) |
 | OPS-02 | 5 | Déploiement HTTPS, sécurité et mises à jour | DOCK-03,04,05,07,08,09,10; §10.1 | SOC-01, AUTH-03 | À faire | [#35](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35) |
 | OPS-03 | 5 | Supervision et diagnostic | §10.4; DOCK-10 | SOC-01, MAIL-01 | À faire | [#36](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/36) |
@@ -579,15 +579,17 @@ Critères d’acceptation : Les totaux concordent avec les listes et ne révèle
 
 ### ADM-01 — Journal d’audit métier
 
-Issue : [#33](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33) · À faire · Dépendances : [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7), [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14).
+Issue : [#33](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33) · En revue · Dépendances : [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7), [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14).
 
 Sources : §2,10.1,10.4.
 
-- [ ] Tracer changements sensibles comptes/droits/catalogue/inventaires/seuils et corrections
-- [ ] Créer consultation paginée admin globale, gestionnaire limitée aux magasins, utilisateur refusée
-- [ ] Conserver journal non modifiable via interface standard et masquer les secrets
+- [x] Tracer changements sensibles comptes/droits/catalogue/inventaires/seuils et corrections
+- [x] Créer consultation paginée admin globale, gestionnaire limitée aux magasins, utilisateur refusée
+- [x] Conserver journal non modifiable via interface standard et masquer les secrets
 
 Critères d’acceptation : Une action sensible est attribuable et horodatée ; aucune édition du journal par un utilisateur ordinaire.
+
+[Guide](docs/journal-audit.md) · [Validation](docs/validation-adm01.md).
 
 ### OPS-01 — Sauvegardes, restauration et reprise
 
@@ -876,3 +878,6 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 
 - 21 octobre 2026 : STAT-02 livré pour revue : tableau de bord réel, indicateurs de stock et d’activité, alertes par gravité, vue personnelle et liens filtrés. Ruptures et sous-seuils comptés par article et magasin, conformément au choix confirmé par l’utilisateur. Recette complète : 359 tests PHP / 4 669 assertions et quatre validations OpenAPI ; contrôles ordinateur et téléphone réussis. [Guide](docs/tableau-de-bord.md), [validation](docs/validation-stat02.md).
 - Livraison STAT-02 : [PR #81](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/81), dépendante de la PR #80. Issue #32 ouverte jusqu’à fusion.
+
+- 21 octobre 2026 : ADM-01 livré pour revue : journal paginé et filtrable, périmètres admin/gestionnaire, utilisateur refusé, contexte public typé et masquage des acteurs/cibles de mouvements partiellement visibles. Recette complète : 368 tests PHP / 4 797 assertions et quatre validations OpenAPI ; contrôles ordinateur et téléphone réussis. Aucun audit métier de démonstration ajouté. [Guide](docs/journal-audit.md), [validation](docs/validation-adm01.md).
+- Livraison ADM-01 : [PR #82](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/82), dépendante de la PR #81. Issue #33 ouverte jusqu’à fusion.

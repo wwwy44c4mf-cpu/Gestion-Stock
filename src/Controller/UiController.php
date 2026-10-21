@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class UiController extends AbstractController
 {
-    #[Route('/espace/{section}', name: 'ui_section', requirements: ['section' => 'articles|stocks|magasins|mouvements|consommations|inventaires|statistiques|alertes|administration'], methods: ['GET'])]
+    #[Route('/espace/{section}', name: 'ui_section', requirements: ['section' => 'articles|stocks|magasins|mouvements|consommations|inventaires|statistiques|alertes|audit|administration'], methods: ['GET'])]
     public function section(string $section, \Symfony\Component\HttpFoundation\Request $request, \App\Ui\StoreContext $storeContext, \App\Security\AccessPolicy $policy): Response
     {
         if ($section === 'administration') {
@@ -25,6 +25,7 @@ final class UiController extends AbstractController
             'mouvements' => \App\Security\Permission::MOVEMENT_READ,
             'inventaires' => \App\Security\Permission::INVENTORY_READ,
             'alertes' => \App\Security\Permission::ALERT_READ,
+            'audit' => \App\Security\Permission::AUDIT_READ,
             default => null,
         };
         if ($permission !== null) {
@@ -35,6 +36,7 @@ final class UiController extends AbstractController
             if ($id === null && $actor->role !== 'ADMIN') { throw $this->createAccessDeniedException(); }
             if ($id !== null) { $policy->assert($actor, $permission, \App\Security\AccessTarget::store($id)); }
         }
+        if ($section === 'audit') { return $this->redirectToRoute('audit_list'); }
         if ($section === 'inventaires') { return $this->redirectToRoute('inventories_list'); }
         if ($section === 'mouvements') { return $this->redirectToRoute('movements_list'); }
         if ($section === 'alertes') { return $this->redirectToRoute('alerts_list'); }
