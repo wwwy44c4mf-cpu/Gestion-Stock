@@ -1,4 +1,6 @@
 parameters:
+  env(APP_LOG_LEVEL): 'info'
+  env(OPS_QUEUE_MAX_AGE_SECONDS): '300'
   env(APP_REQUIRE_HTTPS): '0'
   env(APP_TRUSTED_PROXIES): ''
   env(APP_TRUSTED_HOST_PATTERN): '.+'

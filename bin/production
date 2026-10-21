@@ -36,5 +36,16 @@ case "${1:-}" in
     echo 'Mise à jour terminée ; effectuer la recette HTTPS avant ouverture.'
     ;;
   status) dc ps ;;
-  *) echo 'Usage : sh bin/production {config|build|check|update|status}' >&2; exit 2 ;;
+  diagnostic)
+    ops_result=0
+    ops_require_proxy=0
+    if [ "$proxy_mode" = integrated ]; then ops_require_proxy=1; fi
+    ops_containers=$(dc ps --all --format '{{.Service}}|{{.State}}|{{.Health}}')
+    printf '%s\n' "$ops_containers"
+    printf '%s\n' "$ops_containers" | awk -F '|' -v require_backup=1 -v require_proxy="$ops_require_proxy" -f docker/operations/check-containers.awk || ops_result=1
+    dc exec -T app php bin/console app:ops:status --no-interaction || ops_result=1
+    exit "$ops_result"
+    ;;
+  logs) dc logs --no-color --since 1h --tail=200 app worker scheduler ;;
+  *) echo 'Usage : sh bin/production {config|build|check|update|status|diagnostic|logs}' >&2; exit 2 ;;
 esac

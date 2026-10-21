@@ -45,7 +45,7 @@ final class ApiSubscriber implements EventSubscriberInterface
 
     public function identify(RequestEvent $event): void
     {
-        if ($event->isMainRequest() && $this->isApi($event->getRequest())) {
+        if ($event->isMainRequest() && $this->isApi($event->getRequest()) && !$event->getRequest()->attributes->has('_request_id')) {
             $event->getRequest()->attributes->set('_request_id', bin2hex(random_bytes(16)));
         }
     }

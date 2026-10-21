@@ -5,6 +5,8 @@ x-app: &app
   environment: &app-env
     APP_ENV: ${APP_ENV:-prod}
     APP_DEBUG: ${APP_DEBUG:-0}
+    APP_LOG_LEVEL: ${APP_LOG_LEVEL:-info}
+    OPS_QUEUE_MAX_AGE_SECONDS: ${OPS_QUEUE_MAX_AGE_SECONDS:-300}
     APP_REQUIRE_HTTPS: ${APP_REQUIRE_HTTPS:-0}
     APP_TRUSTED_PROXIES: ${APP_TRUSTED_PROXIES:-}
     APP_TRUSTED_HOST_PATTERN: ${APP_TRUSTED_HOST_PATTERN:-.+}
@@ -36,8 +38,15 @@ x-app: &app
   restart: unless-stopped
   stop_grace_period: 30s
 
+x-logging: &logging
+  driver: local
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   web:
+    logging: *logging
     image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-web:soc-01
     build:
       context: .
@@ -62,6 +71,7 @@ services:
       start_period: 30s
 
   app:
+    logging: *logging
     <<: *app
     build:
       context: .
@@ -78,6 +88,8 @@ services:
       start_period: 30s
 
   db:
+    logging: *logging
+    command: [postgres, -c, log_error_verbosity=terse, -c, log_min_error_statement=panic, -c, log_parameter_max_length=0, -c, log_parameter_max_length_on_error=0]
     image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-db:soc-01
     build:
       context: .
@@ -105,6 +117,7 @@ services:
       retries: 10
 
   init:
+    logging: *logging
     <<: *app
     command: [php, bin/console, messenger:setup-transports, --no-interaction]
     restart: "no"
@@ -113,6 +126,7 @@ services:
         condition: service_healthy
 
   worker:
+    logging: *logging
     <<: *app
     command: [php, bin/console, messenger:consume, notifications, async, --time-limit=3600, --memory-limit=128M, --no-interaction]
     depends_on:
@@ -126,6 +140,7 @@ services:
       start_period: 30s
 
   scheduler:
+    logging: *logging
     <<: *app
     command: [php, bin/console, messenger:consume, scheduler_default, --time-limit=3600, --memory-limit=128M, --no-interaction]
     depends_on:
@@ -134,6 +149,7 @@ services:
     healthcheck: *worker-health
 
   test:
+    logging: *logging
     <<: *app
     image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-test:soc-01
     build:
@@ -151,6 +167,7 @@ services:
         condition: service_completed_successfully
 
   contract-test:
+    logging: *logging
     image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-contract-test:soc-03
     build:
       context: .
@@ -164,6 +181,7 @@ services:
     restart: "no"
 
   backup:
+    logging: *logging
     image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-backup:ops-01
     build:
       context: .
@@ -206,6 +224,7 @@ services:
       start_period: 120s
 
   backup-keygen:
+    logging: *logging
     image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-backup:ops-01
     build:
       context: .
@@ -227,6 +246,7 @@ services:
     restart: "no"
 
   backup-files:
+    logging: *logging
     image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-backup:ops-01
     profiles: [backup-tools]
     user: "0:0"
@@ -247,6 +267,7 @@ services:
     restart: "no"
 
   backup-restore:
+    logging: *logging
     image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-backup:ops-01
     profiles: [backup-tools]
     user: "0:0"

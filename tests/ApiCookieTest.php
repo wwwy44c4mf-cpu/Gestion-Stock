@@ -16,6 +16,10 @@ final class ApiCookieTest extends TestCase
     #[PreserveGlobalState(false)]
     public function testNativeProductionCookieIsSecureOnHttpsHttpOnlyAndSameSite(): void
     {
+        // PHPUnit's isolated-process protocol treats stderr as a test error.
+        // HTTP logging is covered separately; keep native cookie/session assertions intact.
+        putenv('APP_LOG_LEVEL=emergency');
+        $_ENV['APP_LOG_LEVEL'] = $_SERVER['APP_LOG_LEVEL'] = 'emergency';
         // Processus séparé : session PHP native, aucun stockage simulé, aucun
         // en-tête déjà envoyé par l’affichage du processus PHPUnit principal.
         $kernel = new Kernel('prod', false);

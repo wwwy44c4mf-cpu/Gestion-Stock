@@ -1,0 +1,15 @@
+#!/bin/sh
+set -eu
+cd "$(dirname "$0")/.."
+case "${1:-local}" in
+  production) exec sh bin/production diagnostic ;;
+  local)
+    ops_result=0
+    ops_containers=$(docker compose ps --all --format '{{.Service}}|{{.State}}|{{.Health}}')
+    printf '%s\n' "$ops_containers"
+    printf '%s\n' "$ops_containers" | awk -F '|' -v require_backup=0 -f docker/operations/check-containers.awk || ops_result=1
+    docker compose exec -T app php bin/console app:ops:status --no-interaction || ops_result=1
+    exit "$ops_result"
+    ;;
+  *) echo 'Usage : sh bin/diagnostic {local|production}' >&2;exit 2 ;;
+esac

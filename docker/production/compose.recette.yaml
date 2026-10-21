@@ -49,6 +49,31 @@ services:
   backup-files:
     volumes:
       - ${OPS_TEST_ROOT:?}/recovery:/recovery
+  ops-http:
+    image: ${COMPOSE_PROJECT_NAME:?}-contract-test:soc-03
+    entrypoint: [python, /tests/operations_http_probe.py]
+    volumes:
+      - ./tests/operations_http_probe.py:/tests/operations_http_probe.py:ro
+      - tls_data:/tls:ro
+    networks: [tls_backend]
+    user: "0:0"
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [DAC_READ_SEARCH]
+    security_opt: [no-new-privileges:true]
+  ops-test:
+    image: ${COMPOSE_PROJECT_NAME:?}-contract-test:soc-03
+    build: {context: ., target: contract-test}
+    entrypoint: [python, /tests/operations_recette.py]
+    volumes:
+      - ./tests/operations_recette.py:/tests/operations_recette.py:ro
+      - ${OPS_TEST_ROOT:?}:/fixture:ro
+    user: "0:0"
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [DAC_READ_SEARCH]
+    security_opt: [no-new-privileges:true]
   https-test:
     build: {context: ., target: contract-test}
     image: gestion-stock-ops02-https-test
