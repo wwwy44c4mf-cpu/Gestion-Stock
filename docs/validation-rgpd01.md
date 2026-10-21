@@ -24,3 +24,5 @@ La première exécution de la suite complète dans la base indépendante a rév�
 Aucun traitement exécuté sur les données de développement existantes. Les secrets utilisés par la recette de conservation sont générés dans un répertoire temporaire indépendant ; la base, le réseau et ces secrets sont supprimés en fin de recette. Aucun secret administrateur existant n’est monté dans le conteneur de test.
 
 Le timer de production et ses chemins doivent être installés sur le serveur ; il n’est pas activé sur le poste de développement. La suppression des liens ne garantit pas à elle seule l’absence de rapprochement externe avec les dates, articles et magasins conservés. Voir le [guide d’exploitation et ses limites](conservation-donnees.md) et la [cartographie](cartographie-donnees-personnelles.md).
+
+Livraison : [PR #86](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/86), issue [#37](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37).

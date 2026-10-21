@@ -672,6 +672,8 @@ Migration `Version20261022000000` (17). [Simulation](docs/simulation-conservatio
 
 Décision confirmée : Lorsqu’une consommation ancienne est anonymisée, supprimer aussi le bénéficiaire de toutes les corrections liées, même récentes. Ces corrections quittent donc les vues personnelles ; les agrégats globaux restent conservés. Effacer également les copies de références et commentaires provenant de la consommation ancienne.
 
+Livraison pour revue : [PR #86](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/86), branche `codex/rgpd-01-retention`, basée sur main après intégration de OPS-03. Issue ouverte jusqu’à fusion.
+
 ### QA-01 — Recette automatisée, concurrence et performances
 
 Issue : [#38](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38) · À faire · Dépendances : [INV-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23), [MAIL-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29), [STAT-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32), [OPS-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34), [OPS-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35), [RGPD-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37).
