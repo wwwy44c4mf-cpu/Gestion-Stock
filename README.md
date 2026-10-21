@@ -196,3 +196,7 @@ Un courriel par destinataire à 08 h Europe/Paris regroupe les alertes persistan
 ## Historique des consommations (CON-01)
 
 L’entrée Consommations affiche l’historique personnel ou des magasins autorisés. Filtres combinables, sorties et retours séparés, totaux exacts et lignes annulées/corrigées conservées. [Guide](docs/historique-consommations.md).
+
+## Statistiques de consommation (STAT-01)
+
+Deux classements d’articles, évolution par jour/semaine/mois et répartitions par bénéficiaire, magasin et catégorie. Filtres et périmètres de lecture respectés ; retours comptés à leur date réelle, séparément des sorties. [Guide](docs/statistiques-consommation.md).

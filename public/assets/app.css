@@ -26,3 +26,16 @@
 .field textarea { width:100%; min-height:90px; padding:10px; border:1px solid #788d81; border-radius:6px; font:inherit; resize:vertical; }
 .store-description { max-width:24rem; overflow-wrap:anywhere; }
 .catalog-description { white-space:pre-wrap; overflow-wrap:anywhere; }
+
+.statistics-section { margin:1.25rem 0; }
+.statistics-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr)); gap:1.25rem; align-items:start; }
+.statistics-grid .statistics-section { margin:0; min-width:0; }
+.statistics-total { font-size:2rem; font-weight:750; overflow-wrap:anywhere; margin-bottom:.25rem; }
+.statistics-chart { width:100%; height:auto; display:block; }
+.statistics-legend { display:flex; gap:1.5rem; flex-wrap:wrap; }
+.statistics-legend span:first-child { color:#17664e; font-weight:700; }
+.statistics-legend span:last-child { color:#914713; font-weight:700; }
+.statistics-bar { height:7px; background:#eef4ef; min-width:80px; margin-top:6px; }
+.statistics-bar span { display:block; height:100%; background:#17664e; }
+.statistics-bar-return span { background:#b05f2b; }
+.statistics-section summary { cursor:pointer; padding:12px 0; font-weight:650; }

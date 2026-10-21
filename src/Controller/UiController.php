@@ -16,6 +16,7 @@ final class UiController extends AbstractController
             $this->denyAccessUnlessGranted('APP_ACCOUNTS_ADMIN');
             return $this->redirectToRoute('admin_users');
         }
+        if ($section === 'statistiques') { return $this->redirectToRoute('statistics_consumptions'); }
         if ($section === 'consommations') { return $this->redirectToRoute('consumptions_list'); }
         if ($section === 'stocks') { return $this->redirectToRoute('stocks_list'); }
         if ($section === 'articles') { return $this->redirectToRoute('catalog_list'); }

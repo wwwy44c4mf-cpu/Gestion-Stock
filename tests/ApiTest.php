@@ -68,7 +68,7 @@ final class ApiTest extends WebTestCase
     {
         self::bootKernel();
         $contract = static::getContainer()->get(OpenApiContract::class);
-        $value = json_decode('{"consumed_quantity":"18014398509481982","returned_quantity":"0","unit_code":"unit"}');
+        $value = json_decode('{"consumed_quantity":"18014398509481982","returned_quantity":"0","unit_code":"unit","movement_count":2,"return_count":0}');
         self::assertTrue($contract->valid($value, ['$ref' => '#/components/schemas/ConsumptionTotals']));
         $value->consumed_quantity = 18014398509481982;
         self::assertFalse($contract->valid($value, ['$ref' => '#/components/schemas/ConsumptionTotals']));
