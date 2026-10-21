@@ -3749,6 +3749,15 @@
               ]
             },
             "description": "type"
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Catégorie actuelle exacte de l’article."
           }
         ],
         "responses": {
@@ -5221,6 +5230,15 @@
               ]
             },
             "description": "status"
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Catégorie actuelle exacte de l’article."
           }
         ],
         "responses": {
@@ -5731,7 +5749,7 @@
       "get": {
         "operationId": "dashboard",
         "summary": "Indicateurs du périmètre autorisé",
-        "description": "Articles actifs, références en rupture/sous seuil, mouvements de période, volume consommé et retours séparés. Utilisateur : utiliser /statistics/consumptions pour ses indicateurs personnels.",
+        "description": "Situation actuelle : articles actifs du catalogue commun (catégorie exacte, indépendamment du magasin), références en rupture et sous seuil selon le périmètre magasin. Articles désactivés et articles sans mouvement inclus dans les stocks comme dans /stocks ; seuil atteint lorsque quantité <= seuil bas configuré, ruptures incluses. Alertes actives par gravité, indépendantes des dates. Activité : événements visibles du journal, chaque transfert compté une fois, annulations et corrections incluses dans le nombre de mouvements. Consommations et retours valides séparés à leur date réelle, identiques aux statistiques ; sommes exactes en chaînes. Dates inclusives dans le fuseau du compte ; bornes absentes ouvertes. Administrateur : tous les magasins ; gestionnaire : magasins actifs affectés. Utilisateur : tableau personnel HTML à la racine et API /statistics/consumptions, sans indicateurs de gestion. Ruptures et sous-seuils comptés par paire article/magasin : une référence dans deux magasins compte deux fois.",
         "tags": [
           "dashboard"
         ],
@@ -5745,7 +5763,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/DateFrom"
@@ -8525,6 +8543,16 @@
           },
           "consumption": {
             "$ref": "#/components/schemas/ConsumptionTotals"
+          },
+          "low_alerts": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "critical_alerts": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
           }
         },
         "additionalProperties": false,
@@ -8533,7 +8561,9 @@
           "out_of_stock_references",
           "below_threshold_references",
           "movements_on_period",
-          "consumption"
+          "consumption",
+          "low_alerts",
+          "critical_alerts"
         ]
       },
       "Beneficiary": {

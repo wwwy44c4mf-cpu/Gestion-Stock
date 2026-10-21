@@ -200,3 +200,7 @@ L’entrée Consommations affiche l’historique personnel ou des magasins autor
 ## Statistiques de consommation (STAT-01)
 
 Deux classements d’articles, évolution par jour/semaine/mois et répartitions par bénéficiaire, magasin et catégorie. Filtres et périmètres de lecture respectés ; retours comptés à leur date réelle, séparément des sorties. [Guide](docs/statistiques-consommation.md).
+
+## STAT-02 — Tableau de bord
+
+La page d’accueil présente les stocks actuels, l’activité filtrée et les alertes en cours pour les gestionnaires et administrateurs, ainsi qu’une vue de consommation personnelle pour les utilisateurs. Chaque indicateur renvoie aux listes correspondantes. API de gestion : `GET /api/v1/dashboard`. Voir [le guide](docs/tableau-de-bord.md) et [la validation](docs/validation-stat02.md). Aucune migration ajoutée.

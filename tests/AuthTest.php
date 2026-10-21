@@ -242,6 +242,8 @@ final class AuthTest extends WebTestCase
             self::assertSame($role, $body->data->role);
             self::assertTrue(static::getContainer()->get(\App\Api\OpenApiContract::class)->valid($body, ['$ref' => '#/components/schemas/UserResource']));
             $this->client->request('GET', '/?role=ADMIN&store_id=untrusted');
+            self::assertResponseStatusCodeSame(422);
+            $this->client->request('GET', '/');
             self::assertResponseIsSuccessful();
             if ($role === 'ADMIN') { self::assertSelectorExists('nav a[href="/administration/comptes"]'); }
             else { self::assertSelectorNotExists('nav a[href="/administration/comptes"]'); }

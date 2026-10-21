@@ -10,12 +10,6 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class InfrastructureController extends AbstractController
 {
-    #[Route('/', name: 'home', methods: ['GET'])]
-    public function home(): Response
-    {
-        return $this->render('home.html.twig');
-    }
-
     #[Route('/health/live', name: 'health_live', methods: ['GET'])]
     public function live(): JsonResponse
     {
