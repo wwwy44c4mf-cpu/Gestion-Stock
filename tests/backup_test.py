@@ -55,13 +55,14 @@ class RecoveryTest(unittest.TestCase):
         self.assertEqual(0o700,ARCHIVES.stat().st_mode&0o777);self.assertEqual(0o600,self.archive.stat().st_mode&0o777)
         self.assertTrue(self.archive.read_bytes().startswith(b'age-encryption.org/v1'))
         with backup.unpack(self.archive,IDENTITY) as (stage,manifest):
-            self.assertEqual(16,manifest['tables']['public.doctrine_migration_versions']['rows'])
+            self.assertEqual(17,manifest['tables']['public.doctrine_migration_versions']['rows'])
             self.assertEqual(3,manifest['tables']['public.stock_movements']['rows'])
             self.assertNotIn('source/.secrets/backup_identity',manifest['files']);self.assertNotIn('source/.git/HEAD',manifest['files'])
             self.assertEqual((FIX/'secrets/app_secret').read_bytes(),(stage/'source/.secrets/app_secret').read_bytes())
             with contextlib.closing(backup.connection()) as db: self.assertEqual(manifest['tables'],backup.fingerprints(db))
         with restored_env():
             backup.restore_db(self.archive,IDENTITY)
+            self.assertTrue(query('SELECT privacy_required FROM runtime_restore_gate')[0][0])
             self.assertEqual(8,query('SELECT sum(quantity) FROM stock_levels')[0][0]);self.assertEqual(3,query('SELECT count(*) FROM stock_movements')[0][0])
             self.assertEqual(1,query('SELECT count(*) FROM inventories')[0][0])
     def test_02_recover_files_modes_and_existing_directory_refusal(self):
@@ -182,6 +183,13 @@ if __name__=='__main__':
     command=sys.argv[1] if len(sys.argv)>1 else 'test'
     if command=='setup':setup()
     elif command=='clean':clean()
+    elif command=='gate':
+        try:
+            urllib.request.urlopen('http://web:8080/health/ready')
+            raise AssertionError('Restored application must remain closed')
+        except urllib.error.HTTPError as error:
+            assert error.code==503
+            print('Restored application blocked until retention succeeds')
     elif command=='web':web_check()
     elif command=='recreated':recreate_check()
     else:unittest.main(argv=[sys.argv[0]],verbosity=2)

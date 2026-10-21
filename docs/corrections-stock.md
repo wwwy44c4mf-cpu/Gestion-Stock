@@ -50,3 +50,7 @@ docker compose up -d app web worker scheduler
 La migration ajoute `movement_corrections` et ses contraintes : liens UUID, paire cohérente, unicité par origine et immutabilité. Les anciennes écritures restent intactes. Le retour arrière refuse de supprimer des corrections existantes ; restaurer une sauvegarde selon la procédure d’exploitation si nécessaire.
 
 Les futures statistiques devront exclure les consommations annulées et remplacées pour compter les consommations effectives ; le solde se réconcilie avec tous les mouvements, contre-mouvements compris. [Moteur](moteur-stock.md) · [Recette](validation-stk05.md).
+
+## Conservation des données — RGPD-01
+
+La correction d’une consommation déjà anonymisée conserve le bénéficiaire commun anonyme ; elle ne permet pas de réattribuer cette consommation à une personne. Le contrôle du magasin et les protections quantitatives restent actifs. Voir la [conservation des données](conservation-donnees.md).

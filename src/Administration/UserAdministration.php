@@ -35,7 +35,7 @@ final class UserAdministration
     public function listing(StockUser $actor, array $filters): array
     {
         $this->authorize($actor);
-        $where = ['(NOT u.development_only OR ? = \'dev\')'];
+        $where = ["u.id <> '".\App\Privacy\AnonymousIdentity::ID."'", '(NOT u.development_only OR ? = \'dev\')'];
         $parameters = [$this->environment];
         if (isset($filters['role'])) { $where[] = 'r.code = ?'; $parameters[] = $filters['role']; }
         if (isset($filters['status'])) { $where[] = $filters['status'] === 'active' ? 'u.active' : 'NOT u.active'; }

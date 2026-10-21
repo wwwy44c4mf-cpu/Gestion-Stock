@@ -220,3 +220,5 @@ Caddy intégré à Docker Compose est retenu pour le serveur unique. Overlays de
 ## Supervision et diagnostic
 
 `sh bin/diagnostic` contrôle en lecture seule services, base, files et échecs de courriel ; variante productive : `sh bin/diagnostic production`. Journaux JSON expurgés, identifiants de requête et rotation locale. [Guide OPS-03](docs/supervision-diagnostic.md) · [Validation](docs/validation-ops03.md). La supervision extérieure et son responsable restent à définir avant production.
+
+Conservation des données : [règles, simulation, effacement contrôlé et restauration](docs/conservation-donnees.md).

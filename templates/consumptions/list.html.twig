@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 {% block title %}Historique des consommations · Gestion de stock{% endblock %}
 {% block content %}
+<p class="muted">Les consommations anonymisées après un an ne figurent plus dans les vues personnelles. Une correction liée peut également en sortir avant un an. Les quantités restent dans les statistiques globales autorisées ; pour un retour ancien, contactez un gestionnaire du magasin d’origine.</p>
 <div class="page-heading"><div><p class="eyebrow">CONSOMMATIONS</p><h1>{{ app.user.role == 'USER' ? 'Mes consommations' : 'Historique des consommations' }}</h1><p class="subtitle">{{ app.user.role == 'USER' ? 'Vos consommations, y compris celles enregistrées pour vous par un gestionnaire.' : 'Les consommations des magasins que vous pouvez consulter.' }}</p></div><a class="button" href="{{ path('consumptions_new') }}">Nouvelle consommation</a></div>
 <p><a href="{{ path('consumptions_return_list') }}">Rendre des articles</a></p>
 <section class="card"><form method="get" class="account-filters" aria-label="Filtrer les consommations">

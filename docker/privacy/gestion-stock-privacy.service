@@ -1,0 +1,11 @@
+[Unit]
+Description=Gestion Stock — traitement de conservation
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/gestion-stock
+EnvironmentFile=/etc/gestion-stock-privacy.env
+ExecStart=/bin/sh bin/production privacy
+TimeoutStartSec=300

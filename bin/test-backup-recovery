@@ -25,6 +25,10 @@ compose run --rm migrate
 compose run --rm migrate php bin/console messenger:setup-transports --no-interaction
 compose run --rm seed
 compose run --rm backup-test
+compose up -d --wait app
+compose up -d web
+compose run --rm backup-test gate
+compose exec -T restore-db sh -c 'exec psql -X -q --username postgres --dbname "$POSTGRES_DB" --set ON_ERROR_STOP=1' < docker/privacy/retention.sql
 compose up -d --wait app web
 compose run --rm backup-test web
 # REC-15: remove containers and recreate them, preserving these test volumes.

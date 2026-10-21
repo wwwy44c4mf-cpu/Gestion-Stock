@@ -79,3 +79,7 @@ STK-05 ajoute `Version20261018223000` (huitième migration) pour `movement_corre
 ## Cohérence des clôtures d’inventaire
 
 `Version20261021000000` (onzième migration) ajoute l’unicité article/campagne des ajustements et deux contrôles : cohérence de chaque ajustement avec la référence comptée, puis cohérence des soldes et complétude avant clôture. Le retour arrière est refusé en présence de campagnes clôturées ou de mouvements liés. Aucune quantité ni campagne créée par la migration.
+
+## Conservation des données — RGPD-01
+
+`Version20261022000000` ajoute l’horloge de désactivation, le verrou de restauration, le journal agrégé de conservation et les finalisations contrôlées des dossiers anciens. Le retour arrière est refusé après un traitement journalisé ; aucune donnée effacée ne peut être reconstruite par une migration descendante. Voir la [conservation des données](conservation-donnees.md).

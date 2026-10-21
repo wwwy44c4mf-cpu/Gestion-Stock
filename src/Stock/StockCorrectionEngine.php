@@ -62,7 +62,9 @@ final class StockCorrectionEngine
             }
             if (!$cancel && $original['type'] === 'consumption') {
                 if (!$this->db->fetchOne('SELECT active FROM articles WHERE id = ?',[$original['article_id']])) { throw new ApiProblem(409,'inactive_article','Réactivez l’article avant de corriger la consommation, ou annulez-la.'); }
-                $this->policy->assertConsumption($actor,$original['source_store_id'],$original['consumer_id']);
+                if ($original['consumer_id'] !== \App\Privacy\AnonymousIdentity::ID) {
+                    $this->policy->assertConsumption($actor,$original['source_store_id'],$original['consumer_id']);
+                }
             }
             $stores = array_values(array_filter([$original['source_store_id'],$original['destination_store_id']])); sort($stores,SORT_STRING);
             $delta = $target - (int)$original['quantity'];
