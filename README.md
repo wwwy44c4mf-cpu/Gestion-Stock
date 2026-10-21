@@ -47,7 +47,7 @@ Les réseaux `frontend` et `backend` sont internes. Le serveur web rejoint aussi
 
 Les workers reçoivent les signaux via un processus init, terminent leur travail avant arrêt et sont relancés automatiquement. Ils se recyclent après une heure. Leur sonde mesure la boucle de travail, pas la livraison d’un courriel. Les sondes HTTP exposent uniquement un statut : `/health/live` contrôle la vie de Symfony ; `/health/ready` retourne 503 si PostgreSQL ne répond pas. Aucun secret ni détail d’exception n’est renvoyé.
 
-La sonde planifiée est purement technique ; le récapitulatif quotidien à 08 h sera implémenté dans MAIL-03. L’envoi SMTP et les modèles métier appartiennent à MAIL-01.
+La sonde planifiée surveille le fonctionnement du worker. Le récapitulatif quotidien à 08 h Europe/Paris et son rattrapage du jour sont actifs (MAIL-03), avec envoi asynchrone via MAIL-01.
 
 ## Tests et vérifications
 
@@ -188,3 +188,7 @@ Le menu Alertes présente les états en cours et résolus, par magasin et gravit
 ## Messages d’information ciblés (MAIL-02)
 
 Les administrateurs composent un message, choisissent magasins et rôles, vérifient les destinataires puis confirment la mise en file. Historique et état des envois dans Administration. [Guide](docs/messages-information.md).
+
+## Récapitulatif quotidien (MAIL-03)
+
+Un courriel par destinataire à 08 h Europe/Paris regroupe les alertes persistantes autorisées. Rattrapage du jour après un arrêt, sans doublon et sans rappel des journées précédentes. [Règles et exploitation](docs/recapitulatif-quotidien.md).

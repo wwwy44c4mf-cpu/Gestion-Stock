@@ -41,3 +41,5 @@ Les versions HTML et texte couvrent stock bas, stock critique, information, réi
 `NotificationOutbox::enqueue()` exige une transaction active sur la connexion métier. Le producteur doit y insérer l’événement, avec une clé stable propre au destinataire, avant le commit. Les modèles de réinitialisation ne rendent pas à eux seuls une procédure de réinitialisation disponible.
 
 Sources techniques : [Symfony Mailer](https://symfony.com/doc/current/mailer.html) et [Symfony Messenger](https://symfony.com/doc/current/messenger.html).
+
+Le producteur de [récapitulatif quotidien MAIL-03](recapitulatif-quotidien.md) est actif à 08 h Europe/Paris avec rattrapage du jour. Le worker retire les alertes résolues ou devenues inaccessibles avant la livraison ; les lots des jours précédents ne sont pas envoyés.

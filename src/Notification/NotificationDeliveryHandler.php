@@ -30,6 +30,10 @@ final class NotificationDeliveryHandler
                 $allowed=(bool)$this->db->fetchOne('SELECT 1 FROM effective_alert_recipients(?,?) WHERE user_id=?',[$event['store_id'],$type,$event['recipient_id']]);
             }
             if($allowed&&$event['type']==='information'&&($event['information_id']??null)!==null) {$allowed=(bool)$this->db->fetchOne('SELECT information_recipient_eligible(?)',[$event['id']]);}
+            if($allowed&&$event['type']==='daily_summary'&&str_starts_with($event['event_key'],'daily-summary:')) {
+                $payload=(new DailySummaryAudience($this->db))->payload($event);
+                $allowed=$payload!==null;if($allowed) {$event['payload']=json_encode($payload,JSON_THROW_ON_ERROR);}
+            }
             $attempt=(int)$event['attempts']+1;$code=null;
             if(!$allowed) {$code='recipient_unavailable';}
             else {try {$email=$this->renderer->render($event,$recipient['email']);}catch(\Throwable) {$code='notification_render_failed';}
