@@ -56,7 +56,7 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 | `GET/PUT /api/v1/stores/{id}/alert-recipients` | Liste effective et préférences atomiques, audit et contrôle de concurrence |
 | `GET /api/v1/stores/{id}/alert-recipient-options` | Personnes éligibles, projection sans adresses ni affectations extérieures |
 
-Ces cinquante-sept opérations portent `x-implementation: available`. Les 4 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
+Ces cinquante-huit opérations portent `x-implementation: available`. Les 3 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
 
 Les routes `/health/live` et `/health/ready` de SOC-01 restent disponibles pour Docker ; la nouvelle sonde API ne remplace pas le contrôle PostgreSQL de readiness.
 
@@ -175,3 +175,7 @@ MAIL-02 : `POST /notifications/information` met en file un message administrateu
 CON-01 : `GET /consumptions` est disponible. Historique personnel ou par magasins autorisés, dates inclusives dans le fuseau du compte et filtres combinables. Les totaux sur tous les résultats filtrés sont des chaînes décimales exactes, sorties et retours liés séparés ; les retours sont comptés toutes dates de retour confondues. Les lignes annulées/corrigées sont conservées avec statut, hors totaux valides.
 
 STAT-01 : `GET /statistics/consumptions` est disponible. Quantités exactes sous forme de chaînes, compteurs de sorties et retours, classements indépendants, évolution avec périodes à zéro et répartitions nommées après application des droits et filtres. Les retours sont comptés à leur date réelle. Limites dépassées : erreur 422 explicite, sans troncature.
+
+## Tableau de bord (STAT-02)
+
+`GET /api/v1/dashboard` est disponible pour les administrateurs et gestionnaires avec les filtres date, magasin et catégorie exacte. Les quantités consommées et rendues restent séparées à leur date réelle. Les stocks et alertes sont actuels, indépendamment des dates. Les utilisateurs disposent du tableau personnel HTML et de `/statistics/consumptions`. Les listes `/movements` et `/alerts` acceptent aussi `category_id` pour conserver les filtres des indicateurs. Voir [le guide](tableau-de-bord.md).

@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 et MAIL-01 intégrés à main (PR #73/#74). ALT-02 intégré à main (PR #75). ALT-03, MAIL-02, MAIL-03, CON-01 et STAT-01 en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 et MAIL-01 intégrés à main (PR #73/#74). ALT-02 intégré à main (PR #75). CON-01 intégré à main (PR #79). ALT-03, MAIL-02, MAIL-03, STAT-01 et STAT-02 en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -96,7 +96,7 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | MAIL-03 | 3 | Récapitulatif quotidien des alertes à 08 h | ALT-06 partiel; MAIL-07 partiel; décision utilisateur | ALT-03, MAIL-01 | En revue | [#29](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29) |
 | CON-01 | 4 | Historique personnel et suivi des consommations | CON-03,04; décision utilisateur | STK-04, STK-07, AUTH-03 | En revue | [#30](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30) |
 | STAT-01 | 4 | Statistiques de consommation et filtres | STAT-01,02,03,04,06 | CON-01 | En revue | [#31](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31) |
-| STAT-02 | 4 | Tableau de bord et indicateurs | STAT-05; §6 | STAT-01, ALT-03, STK-01 | À faire | [#32](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32) |
+| STAT-02 | 4 | Tableau de bord et indicateurs | STAT-05; §6 | STAT-01, ALT-03, STK-01 | En revue | [#32](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32) |
 | ADM-01 | 4 | Journal d’audit métier | §2,10.1,10.4 | AUTH-03, STK-02 | À faire | [#33](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33) |
 | OPS-01 | 5 | Sauvegardes, restauration et reprise | DOCK-10,11; §10.3 | SOC-01, SOC-02 | À faire | [#34](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34) |
 | OPS-02 | 5 | Déploiement HTTPS, sécurité et mises à jour | DOCK-03,04,05,07,08,09,10; §10.1 | SOC-01, AUTH-03 | À faire | [#35](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35) |
@@ -564,15 +564,17 @@ Choix confirmé : compter les retours à leur date réelle dans les statistiques
 
 ### STAT-02 — Tableau de bord et indicateurs
 
-Issue : [#32](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32) · À faire · Dépendances : [STAT-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31), [ALT-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26), [STK-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13).
+Issue : [#32](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32) · En revue · Dépendances : [STAT-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31), [ALT-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26), [STK-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13).
 
 Sources : STAT-05; §6.
 
-- [ ] Afficher articles actifs, ruptures, sous-seuils, mouvements sur période et volume en unité
-- [ ] Adapter indicateurs au rôle et à son périmètre ; vue utilisateur centrée sur ses consommations
-- [ ] Relier indicateurs aux listes filtrées
+- [x] Afficher articles actifs, ruptures, sous-seuils, mouvements sur période et volume en unité
+- [x] Adapter indicateurs au rôle et à son périmètre ; vue utilisateur centrée sur ses consommations
+- [x] Relier indicateurs aux listes filtrées
 
 Critères d’acceptation : Les totaux concordent avec les listes et ne révèlent pas de données interdites.
+
+[Guide](docs/tableau-de-bord.md) · [Validation](docs/validation-stat02.md).
 
 ### ADM-01 — Journal d’audit métier
 
@@ -870,3 +872,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 
 - 21 octobre 2026 : CON-01 intégré (PR #79). STAT-01 livré pour revue : classements distincts, évolutions et répartitions filtrées selon les droits. Retours à leur date réelle confirmé par l’utilisateur. Recette complète : 350 tests PHP / 4 548 assertions et quatre validations OpenAPI ; contrôles visuels ordinateur et téléphone réussis. [Validation](docs/validation-stat01.md).
 - Livraison STAT-01 : [PR #80](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/80), basée sur main après intégration de CON-01. Issue #31 ouverte jusqu’à fusion.
+
+- 21 octobre 2026 : STAT-02 livré pour revue : tableau de bord réel, indicateurs de stock et d’activité, alertes par gravité, vue personnelle et liens filtrés. Ruptures et sous-seuils comptés par article et magasin par défaut. Recette complète : 359 tests PHP / 4 669 assertions et quatre validations OpenAPI ; contrôles ordinateur et téléphone réussis. [Guide](docs/tableau-de-bord.md), [validation](docs/validation-stat02.md).

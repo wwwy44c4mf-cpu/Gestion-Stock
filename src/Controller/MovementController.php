@@ -40,13 +40,13 @@ final class MovementController extends AbstractController
     public function index(Request $request, QueryParameters $query, StoreContext $context): Response
     {
         $filtered = $request->duplicate();
-        foreach (['date_from','date_to','article_id','store_id','type','author_id','consumer_id'] as $key) { if ($filtered->query->get($key) === '') { $filtered->query->remove($key); } }
+        foreach (['date_from','date_to','article_id','category_id','store_id','type','author_id','consumer_id'] as $key) { if ($filtered->query->get($key) === '') { $filtered->query->remove($key); } }
         if (!$filtered->query->has('order')) { $filtered->query->set('order', 'desc'); }
         $filters = $query->read($filtered, 'listMovements'); $actor = $this->actor();
         if (!$request->query->has('store_id') && ($selected = $context->read($request, $actor)['selected']) !== null) { $filters['store_id'] = $selected; }
         $result = $this->movements->listing($actor, $filters);
         return $this->render('movements/list.html.twig', ['result' => $result, 'filters' => $filters,
-            'stores' => $this->directory->storeOptions($actor, Permission::MOVEMENT_READ), 'articles' => $this->catalog->articleOptions($actor), 'people' => $this->movements->people($actor)]);
+            'categories' => $this->catalog->categoryOptions($actor), 'stores' => $this->directory->storeOptions($actor, Permission::MOVEMENT_READ), 'articles' => $this->catalog->articleOptions($actor), 'people' => $this->movements->people($actor)]);
     }
 
     #[Route('/mouvements/{id}', name: 'movements_detail', methods: ['GET'])]

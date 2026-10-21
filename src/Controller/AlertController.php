@@ -41,7 +41,7 @@ final class AlertController extends AbstractController
     #[Route('/alertes',name:'alerts_list',methods:['GET'])]
     public function index(Request $request,QueryParameters $query,StoreContext $context): Response
     {
-        $actor=$this->actor();$copy=$request->duplicate();foreach(['store_id','article_id','level','status'] as $key) {if(($copy->query->all()[$key]??null)==='') {$copy->query->remove($key);}}
+        $actor=$this->actor();$copy=$request->duplicate();foreach(['store_id','article_id','category_id','level','status'] as $key) {if(($copy->query->all()[$key]??null)==='') {$copy->query->remove($key);}}
         if(!$request->query->has('status')) {$copy->query->set('status','active');}if(!$copy->query->has('order')) {$copy->query->set('order','desc');}$filters=$query->read($copy,'listAlerts');
         if(!$request->query->has('store_id')&&($store=$context->read($request,$actor)['selected'])!==null) {$filters['store_id']=$store;}
         $result=$this->alerts->listing($actor,$filters);return $this->render('alerts/list.html.twig',['result'=>$result,'filters'=>$filters,'labels'=>$this->stocks->labels($result['data']),'stores'=>$this->directory->storeOptions($actor,Permission::ALERT_READ),'editable_stores'=>$this->directory->storeOptions($actor,Permission::ALERT_RECIPIENTS)]);

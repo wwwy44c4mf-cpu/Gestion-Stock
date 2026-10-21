@@ -42,7 +42,7 @@ final class MovementDirectory
         $stores = $this->policy->storeScope($actor, Permission::MOVEMENT_READ, 's');
         // Fully visible IDs are also used to protect operation links from exposing another perimeter.
         $sql = 'WITH allowed_stores AS (SELECT s.id FROM stores s WHERE '.$stores->condition.'), scoped AS (
-            SELECT m.*,a.sku article_sku,a.name article_name,ss.name source_store_name,ds.name destination_store_name,
+            SELECT m.*,a.category_id,a.sku article_sku,a.name article_name,ss.name source_store_name,ds.name destination_store_name,
                 CASE WHEN au.anonymized_at IS NULL THEN au.name ELSE \'Compte anonymisé\' END author_name,
                 coalesce(m.consumer_id,o.consumer_id,p.consumer_id) beneficiary_id,
                 CASE WHEN cu.anonymized_at IS NULL THEN cu.name ELSE \'Compte anonymisé\' END consumer_name,
@@ -53,7 +53,7 @@ final class MovementDirectory
             LEFT JOIN stock_movements o ON o.id=m.related_movement_id LEFT JOIN stock_movements p ON p.id=o.related_movement_id
             JOIN users au ON au.id=m.author_id LEFT JOIN users cu ON cu.id=coalesce(m.consumer_id,o.consumer_id,p.consumer_id)
             WHERE '.$scope->condition.'), visible AS (
-            SELECT id,type,article_id,article_sku,article_name,quantity,created_at,NOT complete restricted,
+            SELECT id,type,article_id,category_id,article_sku,article_name,quantity,created_at,NOT complete restricted,
                 CASE WHEN source_store_id IN (SELECT id FROM allowed_stores) THEN source_store_id END source_store_id,
                 CASE WHEN source_store_id IN (SELECT id FROM allowed_stores) THEN source_store_name END source_store_name,
                 CASE WHEN destination_store_id IN (SELECT id FROM allowed_stores) THEN destination_store_id END destination_store_id,
@@ -75,7 +75,7 @@ final class MovementDirectory
         [$sql, $parameters] = $this->projection($actor);
         if (isset($filters['store_id'])) { $this->policy->assert($actor, Permission::MOVEMENT_READ, AccessTarget::store($filters['store_id'])); }
         $where = ['TRUE'];
-        foreach (['id','article_id','type','author_id','consumer_id'] as $key) {
+        foreach (['id','article_id','category_id','type','author_id','consumer_id'] as $key) {
             if (isset($filters[$key])) { $where[] = $key.' = ?'; $parameters[] = $filters[$key]; }
         }
         if (isset($filters['store_id'])) { $where[] = '(source_store_id = ? OR destination_store_id = ?)'; array_push($parameters, $filters['store_id'], $filters['store_id']); }
@@ -88,7 +88,7 @@ final class MovementDirectory
         $ordering = $sort.' '.strtoupper($order).',id '.strtoupper($order);
         $result = $this->db->fetchAssociative($sql.', filtered AS (SELECT * FROM visible WHERE '.implode(' AND ', $where).'), page AS (SELECT * FROM filtered ORDER BY '.$ordering.' LIMIT '.$pagination->limit.' OFFSET '.$pagination->offset().') SELECT (SELECT count(*) FROM filtered) total,coalesce((SELECT json_agg(page ORDER BY '.$ordering.') FROM page),\'[]\'::json) rows', $parameters);
         $rows = json_decode($result['rows'], true, flags: JSON_THROW_ON_ERROR);
-        foreach ($rows as &$row) { $row['quantity'] = (int) $row['quantity']; $row['created_at'] = (new \DateTimeImmutable($row['created_at']))->format(DATE_RFC3339); } unset($row);
+        foreach ($rows as &$row) { unset($row['category_id']); $row['quantity'] = (int) $row['quantity']; $row['created_at'] = (new \DateTimeImmutable($row['created_at']))->format(DATE_RFC3339); } unset($row);
         return $pagination->response($rows, (int) $result['total']);
     }
 }
