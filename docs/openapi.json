@@ -5508,7 +5508,7 @@
       "post": {
         "operationId": "sendInformation",
         "summary": "Mettre en file un message ciblé",
-        "description": "Au moins une cible magasin ou rôle requise ; audience dédupliquée, confirmation côté interface avant envoi. SMTP asynchrone ; aucun blocage des stocks.",
+        "description": "Administrateurs uniquement. Prévisualisation et confirmation dans l’interface. Critères magasins et rôles cumulés (intersection), plusieurs valeurs au sein d’un critère réunies. Comptes actifs hors démonstration, audience dédoublonnée ; envoi asynchrone avec nouvelle vérification des critères et de l’adresse. Clé idempotente liée au contenu et à la cible.",
         "tags": [
           "notifications"
         ],
@@ -5522,7 +5522,7 @@
           "ADMIN"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"

@@ -1,0 +1,8 @@
+{% extends 'base.html.twig' %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">ADMINISTRATION</p><h1>{{ campaign.subject }}</h1><p>Confirmé le {{ campaign.created_at|date('d/m/Y H:i','Europe/Paris') }} pour {{ campaign.recipient_count }} destinataire(s).</p></div><a href="{{ path('information_list') }}">Historique des messages</a></div>
+<section class="card"><p style="white-space:pre-wrap;overflow-wrap:anywhere">{{ campaign.message }}</p>
+<p>Magasins : {% for store in campaign.stores %}{{ store.name }}{{ not loop.last ? ', ' : '' }}{% else %}Tous{% endfor %}. Rôles : {% for role in campaign.role_list %}{{ {'ADMIN':'Administrateurs','MANAGER':'Gestionnaires','USER':'Utilisateurs'}[role] }}{{ not loop.last ? ', ' : '' }}{% else %}Tous{% endfor %}.</p>
+<p>La mise en file ne confirme pas la réception du courriel. Les droits et l’adresse sont vérifiés à nouveau avant l’envoi.</p>
+<div class="table-scroll"><table><caption>État des envois</caption><thead><tr><th>Destinataire</th><th>État</th></tr></thead><tbody>{% for person in campaign.recipients %}<tr><td>{{ person.name }}</td><td>{{ {'pending':'En attente','queued':'En attente','processing':'En cours','sent':'Envoyé','failed':'Échec','cancelled':'Annulé','skipped':'Non envoyé'}[person.status]|default(person.status) }}</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

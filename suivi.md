@@ -498,15 +498,19 @@ Livraison pour revue : [PR #74](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### MAIL-02 — Messages d’information ciblés
 
-Issue : [#28](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/28) · À faire · Dépendances : [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
+Issue : [#28](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/28) · En revue · Dépendances : [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
 
 Sources : MAIL-03.
 
-- [ ] Créer composition et sélection par magasin ou rôle pour administrateur uniquement
-- [ ] Prévisualiser audience et message, confirmer puis mettre en file
-- [ ] Dédupliquer destinataires et tracer l’envoi
+- [x] Créer composition et sélection par magasin ou rôle pour administrateur uniquement
+- [x] Prévisualiser audience et message, confirmer puis mettre en file
+- [x] Dédupliquer destinataires et tracer l’envoi
 
 Critères d’acceptation : Seul un administrateur déclenche l’envoi ; destinataires conformes à la cible.
+
+Recette : 311 tests PHP / 4 212 assertions et quatre validations OpenAPI. Migration 15 appliquée localement, données métier conservées, envoi SMTP réel désactivé. Choix confirmé : magasin et rôle se cumulent ; uniquement les gestionnaires affectés au magasin sélectionné. Prévisualisation signée, confirmation explicite, audience dédoublonnée et nouvelle vérification avant livraison. [Guide](docs/messages-information.md) · [Validation](docs/validation-mail02.md).
+
+Livraison pour revue : [PR #77](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/77), branche `codex/mail-02-targeted-information`, empilée sur la PR #76.
 
 ### MAIL-03 — Récapitulatif quotidien des alertes à 08 h
 

@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+{% block title %}Message d’information · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">ADMINISTRATION</p><h1>{{ preview ? 'Vérifier le message' : 'Nouveau message d’information' }}</h1><p class="subtitle">Choisissez des magasins ou des rôles. Avec les deux critères, seules les personnes répondant aux deux seront retenues.</p></div><a href="{{ path('information_list') }}">Historique des messages</a></div>
+{% if error %}<div role="alert" class="card">{{ error }}</div>{% endif %}
+<section class="card"><form method="post" action="{{ path('information_new') }}">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token('information_compose') }}"><input type="hidden" name="_request_key" value="{{ request_key }}">
+{% if preview %}
+{% set role_labels = {'ADMIN':'Administrateurs','MANAGER':'Gestionnaires','USER':'Utilisateurs'} %}
+<p>Magasins : {{ stores|filter(store => store.id in data.store_ids)|map(store => store.name)|join(', ') ?: 'Tous' }}. Rôles : {{ data.roles|map(role => role_labels[role])|join(', ') ?: 'Tous' }}.</p>
+<h2>{{ data.subject }}</h2><p style="white-space:pre-wrap;overflow-wrap:anywhere">{{ data.message }}</p>
+<p>{{ preview.recipients|length }} destinataire(s). Les comptes de démonstration sont exclus.</p>
+<ul>{% for person in preview.recipients %}<li>{{ person.name }} — {{ person.email }} ({{ {'ADMIN':'Administrateur','MANAGER':'Gestionnaire','USER':'Utilisateur'}[person.role] }})</li>{% else %}<li>Aucun compte actif ne correspond à cette cible.</li>{% endfor %}</ul>
+<p>Vérification valable jusqu’à {{ preview.expires|date('H:i','Europe/Paris') }}. Si les destinataires changent, une nouvelle vérification sera nécessaire.</p>
+<input type="hidden" name="subject" value="{{ data.subject }}"><input type="hidden" name="message" value="{{ data.message }}">
+{% for id in data.store_ids %}<input type="hidden" name="store_ids[]" value="{{ id }}">{% endfor %}{% for role in data.roles %}<input type="hidden" name="roles[]" value="{{ role }}">{% endfor %}
+<input type="hidden" name="_preview_token" value="{{ preview.token }}"><input type="hidden" name="_preview_expires" value="{{ preview.expires }}">
+{% if preview.recipients %}<p><label><input type="checkbox" name="confirm" value="1"> Je confirme le message et ses destinataires.</label></p><button class="button" name="action" value="confirm">Confirmer la mise en file</button>{% endif %}
+<button class="button" name="action" value="edit">Modifier</button>
+{% else %}
+<div class="field"><label for="subject">Objet</label><input id="subject" name="subject" maxlength="200" required value="{{ data.subject }}"></div>
+<div class="field"><label for="message">Message</label><textarea id="message" name="message" maxlength="10000" rows="10" required>{{ data.message }}</textarea></div>
+<fieldset><legend>Magasins</legend>{% for store in stores %}<p><label><input type="checkbox" name="store_ids[]" value="{{ store.id }}" {{ store.id in data.store_ids ? 'checked' : '' }}> {{ store.name }}</label></p>{% else %}<p>Aucun magasin actif.</p>{% endfor %}</fieldset>
+<fieldset><legend>Rôles</legend>{% for code,label in {'ADMIN':'Administrateurs','MANAGER':'Gestionnaires','USER':'Utilisateurs'} %}<p><label><input type="checkbox" name="roles[]" value="{{ code }}" {{ code in data.roles ? 'checked' : '' }}> {{ label }}</label></p>{% endfor %}</fieldset>
+<p>Choisissez au moins un magasin ou un rôle. Le message sera envoyé en texte simple.</p><button class="button" name="action" value="preview">Prévisualiser et vérifier les destinataires</button>
+{% endif %}<input type="hidden" name="_complete" value="1"></form></section>
+{% endblock %}

@@ -184,3 +184,7 @@ Les changements de quantité et de seuil recalculent les niveaux normal, bas et 
 ## Écran des alertes et destinataires (ALT-03)
 
 Le menu Alertes présente les états en cours et résolus, par magasin et gravité. Les administrateurs et gestionnaires autorisés personnalisent les destinataires par type, puis peuvent rétablir la liste dynamique par défaut. [Guide](docs/alertes-et-destinataires.md).
+
+## Messages d’information ciblés (MAIL-02)
+
+Les administrateurs composent un message, choisissent magasins et rôles, vérifient les destinataires puis confirment la mise en file. Historique et état des envois dans Administration. [Guide](docs/messages-information.md).

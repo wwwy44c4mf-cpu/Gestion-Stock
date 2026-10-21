@@ -1,0 +1,6 @@
+{% extends 'base.html.twig' %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">ADMINISTRATION</p><h1>Messages d’information</h1><p>Consultez les messages confirmés et leur état d’envoi.</p></div><a class="button" href="{{ path('information_new') }}">Nouveau message</a></div>
+<section class="card"><div class="table-scroll"><table><caption>Historique des messages</caption><thead><tr><th>Objet</th><th>Destinataires</th><th>Date de confirmation</th></tr></thead><tbody>{% for item in result.data %}<tr><td><a href="{{ path('information_receipt',{id:item.id}) }}">{{ item.subject }}</a></td><td>{{ item.recipient_count }}</td><td>{{ item.created_at|date('d/m/Y H:i','Europe/Paris') }}</td></tr>{% else %}<tr><td colspan="3">Aucun message confirmé.</td></tr>{% endfor %}</tbody></table></div>
+{% include 'components/pagination.html.twig' with {page:result.meta.page,pages:result.meta.total_pages,route:'information_list',parameters:{limit:result.meta.limit}} only %}</section>
+{% endblock %}
