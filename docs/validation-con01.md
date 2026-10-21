@@ -23,3 +23,5 @@ Contrat : **61 opérations / 97 schémas**, dont **56 disponibles / 5 prévues**
 Décision utilisateur : conserver les lignes annulées ou remplacées avec leur statut explicite. Les graphiques et statistiques appartiennent à STAT-01.
 
 [Guide](historique-consommations.md) · [Issue #30](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30).
+
+Livraison : [PR #79](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/79), empilée sur la PR #78.

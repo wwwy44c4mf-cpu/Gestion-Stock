@@ -546,6 +546,8 @@ Choix confirmé : conserver les lignes annulées ou remplacées, avec leur statu
 
 Recette : 338 tests PHP / 4 428 assertions et quatre validations OpenAPI. Douze nouveaux tests / 109 assertions. Contrôle ordinateur/mobile ; aucune migration, aucun changement des stocks réels.
 
+Livraison pour revue : [PR #79](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/79), branche `codex/con-01-consumption-history`, empilée sur la PR #78.
+
 ### STAT-01 — Statistiques de consommation et filtres
 
 Issue : [#31](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31) · À faire · Dépendances : [CON-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30).
