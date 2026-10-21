@@ -192,3 +192,7 @@ Les administrateurs composent un message, choisissent magasins et rôles, vérif
 ## Récapitulatif quotidien (MAIL-03)
 
 Un courriel par destinataire à 08 h Europe/Paris regroupe les alertes persistantes autorisées. Rattrapage du jour après un arrêt, sans doublon et sans rappel des journées précédentes. [Règles et exploitation](docs/recapitulatif-quotidien.md).
+
+## Historique des consommations (CON-01)
+
+L’entrée Consommations affiche l’historique personnel ou des magasins autorisés. Filtres combinables, sorties et retours séparés, totaux exacts et lignes annulées/corrigées conservées. [Guide](docs/historique-consommations.md).

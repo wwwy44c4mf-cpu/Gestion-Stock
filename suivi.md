@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 et MAIL-01 intégrés à main (PR #73/#74). ALT-02 intégré à main (PR #75). ALT-03, MAIL-02 et MAIL-03 en revue ; autres fonctionnalités à développer.
+État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 et MAIL-01 intégrés à main (PR #73/#74). ALT-02 intégré à main (PR #75). ALT-03, MAIL-02, MAIL-03 et CON-01 en revue ; autres fonctionnalités à développer.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -94,7 +94,7 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | MAIL-01 | 1 | SMTP, file durable et modèles de courriels | MAIL-01,02,04,05,06,08 | SOC-02 | Intégré | [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27) |
 | MAIL-02 | 3 | Messages d’information ciblés | MAIL-03 | MAIL-01, AUTH-03 | En revue | [#28](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/28) |
 | MAIL-03 | 3 | Récapitulatif quotidien des alertes à 08 h | ALT-06 partiel; MAIL-07 partiel; décision utilisateur | ALT-03, MAIL-01 | En revue | [#29](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29) |
-| CON-01 | 4 | Historique personnel et suivi des consommations | CON-03,04; décision utilisateur | STK-04, STK-07, AUTH-03 | À faire | [#30](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30) |
+| CON-01 | 4 | Historique personnel et suivi des consommations | CON-03,04; décision utilisateur | STK-04, STK-07, AUTH-03 | En revue | [#30](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30) |
 | STAT-01 | 4 | Statistiques de consommation et filtres | STAT-01,02,03,04,06 | CON-01 | À faire | [#31](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31) |
 | STAT-02 | 4 | Tableau de bord et indicateurs | STAT-05; §6 | STAT-01, ALT-03, STK-01 | À faire | [#32](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32) |
 | ADM-01 | 4 | Journal d’audit métier | §2,10.1,10.4 | AUTH-03, STK-02 | À faire | [#33](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33) |
@@ -532,15 +532,19 @@ Livraison pour revue : [PR #78](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### CON-01 — Historique personnel et suivi des consommations
 
-Issue : [#30](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30) · À faire · Dépendances : [STK-04](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16), [STK-07](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
+Issue : [#30](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30) · En revue · Dépendances : [STK-04](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16), [STK-07](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
 
 Sources : CON-03,04; décision utilisateur.
 
-- [ ] Lister consommations filtrées par dates inclusives, article, catégorie, magasin et consommateur
-- [ ] Utilisateur : ses consommations, y compris celles saisies pour lui ; gestionnaire : ses magasins ; admin : global
-- [ ] Afficher quantités sorties et retours séparément, référence facultative et deux identités
+- [x] Lister consommations filtrées par dates inclusives, article, catégorie, magasin et consommateur
+- [x] Utilisateur : ses consommations, y compris celles saisies pour lui ; gestionnaire : ses magasins ; admin : global
+- [x] Afficher quantités sorties et retours séparément, référence facultative et deux identités
 
 Critères d’acceptation : Un utilisateur ne voit pas les consommations d’autrui ; ses données personnelles n’ouvrent pas le stock des magasins non affectés.
+
+Choix confirmé : conserver les lignes annulées ou remplacées, avec leur statut. Historique personnel indépendant de l’accès aux stocks, filtres combinables, totaux exacts avant pagination et retours liés séparés. Les retours sont rattachés aux consommations filtrées, toutes dates de retour confondues ; les lignes et retours annulés ne contribuent pas aux totaux valides. [Guide](docs/historique-consommations.md) · [Validation](docs/validation-con01.md).
+
+Recette : 338 tests PHP / 4 428 assertions et quatre validations OpenAPI. Douze nouveaux tests / 109 assertions. Contrôle ordinateur/mobile ; aucune migration, aucun changement des stocks réels.
 
 ### STAT-01 — Statistiques de consommation et filtres
 

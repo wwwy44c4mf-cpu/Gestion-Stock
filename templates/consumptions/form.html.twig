@@ -2,6 +2,7 @@
 {% block title %}Enregistrer une consommation · Gestion de stock{% endblock %}
 {% block content %}
 <div class="page-heading"><div><p class="eyebrow">SORTIE DE STOCK</p><h1>Enregistrer une consommation</h1><p class="subtitle">Indiquez les articles retirés et la personne qui les utilise.</p></div><a href="{{ path('stocks_list') }}">Consulter les stocks</a></div>
+<p><a href="{{ path('consumptions_list') }}">Historique des consommations</a></p>
 <p><a class="button" href="{{ path('consumptions_return_list') }}">Rendre des articles</a></p>
 <section class="card account-form">
 {% if error %}{% include 'components/notice.html.twig' with {kind:'error',message:error} only %}<p><a href="{{ path('consumptions_new') }}">Ouvrir un nouveau formulaire</a></p>{% endif %}
