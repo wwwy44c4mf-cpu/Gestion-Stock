@@ -26,7 +26,8 @@ final class NotificationDeliveryHandler
             $allowed=$recipient&&$recipient['active']&&$recipient['email']!==null&&($this->environment!=='prod'||!$recipient['development_only']);
             if($allowed&&$event['store_id']!==null) {$allowed=(bool)$this->db->fetchOne('SELECT active FROM stores WHERE id=?',[$event['store_id']]);}
             if($allowed&&in_array($event['type'],['stock_low','stock_critical','daily_summary'],true)&&$event['store_id']!==null) {
-                $allowed=(bool)$this->db->fetchOne('SELECT 1 FROM users u JOIN roles r ON r.id=u.role_id WHERE u.id=? AND (r.code=\'ADMIN\' OR (r.code=\'MANAGER\' AND EXISTS (SELECT 1 FROM user_stores us WHERE us.user_id=u.id AND us.store_id=?)))',[$event['recipient_id'],$event['store_id']]);
+                $type=match($event['type']) {'stock_low'=>'low','stock_critical'=>'critical',default=>'daily_summary'};
+                $allowed=(bool)$this->db->fetchOne('SELECT 1 FROM effective_alert_recipients(?,?) WHERE user_id=?',[$event['store_id'],$type,$event['recipient_id']]);
             }
             $attempt=(int)$event['attempts']+1;$code=null;
             if(!$allowed) {$code='recipient_unavailable';}

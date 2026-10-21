@@ -180,3 +180,7 @@ SMTP, modèles HTML/texte et file PostgreSQL sont prêts pour les prochains prod
 ## Cycle des alertes (ALT-02)
 
 Les changements de quantité et de seuil recalculent les niveaux normal, bas et critique. Franchissements et résolutions sont historisés ; les alertes basses et critiques préparent un courriel aux administrateurs et gestionnaires autorisés, sans bloquer les mouvements lors d’une panne SMTP. [Règles et installation](docs/cycle-alertes.md). L’écran dédié sera livré dans ALT-03.
+
+## Écran des alertes et destinataires (ALT-03)
+
+Le menu Alertes présente les états en cours et résolus, par magasin et gravité. Les administrateurs et gestionnaires autorisés personnalisent les destinataires par type, puis peuvent rétablir la liste dynamique par défaut. [Guide](docs/alertes-et-destinataires.md).

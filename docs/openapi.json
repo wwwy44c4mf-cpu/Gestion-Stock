@@ -5153,7 +5153,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/Page"
@@ -5282,7 +5282,7 @@
       "get": {
         "operationId": "listAlertRecipients",
         "summary": "Consulter les destinataires autorisés",
-        "description": "Par défaut : gestionnaires du magasin et administrateurs actifs. Gestionnaire limité aux configurations autorisées de ses magasins.",
+        "description": "Par défaut : gestionnaires du magasin et administrateurs actifs. Gestionnaire limité aux configurations autorisées de ses magasins. Retourne la liste effective, recalculée selon les droits actuels. X-Recipients-Mode indique default ou custom.",
         "tags": [
           "stores"
         ],
@@ -5296,7 +5296,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -5346,6 +5346,20 @@
                   "type": "string",
                   "maxLength": 32
                 }
+              },
+              "X-Recipients-Mode": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "custom"
+                  ]
+                }
+              },
+              "ETag": {
+                "schema": {
+                  "type": "string"
+                }
               }
             }
           },
@@ -5387,7 +5401,7 @@
       "put": {
         "operationId": "replaceAlertRecipients",
         "summary": "Configurer les destinataires",
-        "description": "Réserver aux personnes autorisées et comptes actifs ; ne pas donner accès aux données d’autres magasins.",
+        "description": "Réserver aux personnes autorisées et comptes actifs ; ne pas donner accès aux données d’autres magasins. Remplacement explicite des trois types (bas, critique, rappel). Une liste vide désactive les notifications ; use_defaults=true avec liste vide restaure les valeurs par défaut. Mise à jour atomique, auditée et sans renvoi des anciens événements.",
         "tags": [
           "stores"
         ],
@@ -5402,7 +5416,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "name": "id",
@@ -5412,6 +5426,15 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ETag de la lecture précédente ; rejet 409 si la liste ou les droits ont changé."
           }
         ],
         "responses": {
@@ -6134,6 +6157,113 @@
         },
         "x-max-body-bytes": 65536,
         "x-integer-encoding": "Nombres JSON en base 10 sans décimale ni exposant."
+      }
+    },
+    "/stores/{id}/alert-recipient-options": {
+      "get": {
+        "operationId": "listAlertRecipientOptions",
+        "summary": "Lister les personnes autorisées pour les alertes",
+        "description": "Comptes actifs : administrateurs et gestionnaires affectés au magasin actif. Identifiant, nom et rôle uniquement, sans adresse ni affectations extérieures.",
+        "tags": [
+          "stores"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "x-roles": [
+          "ADMIN",
+          "MANAGER"
+        ],
+        "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
+        "x-implementation": "available",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Order"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 80,
+              "enum": [
+                "user_id"
+              ],
+              "default": "user_id"
+            },
+            "description": "Clé autorisée ; tri stable complété par id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertRecipientOptionPage"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string",
+                  "maxLength": 32
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        }
       }
     }
   },
@@ -8016,6 +8146,11 @@
             },
             "maxItems": 1000,
             "uniqueItems": true
+          },
+          "use_defaults": {
+            "type": "boolean",
+            "default": false,
+            "description": "true restaure la liste dynamique par défaut ; recipients doit alors être vide."
           }
         },
         "additionalProperties": false,
@@ -9287,6 +9422,52 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/HistoryMovement"
+            },
+            "maxItems": 100
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PageMeta"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "AlertRecipientOption": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "MANAGER"
+            ]
+          }
+        },
+        "required": [
+          "user_id",
+          "name",
+          "role"
+        ],
+        "additionalProperties": false
+      },
+      "AlertRecipientOptionPage": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AlertRecipientOption"
             },
             "maxItems": 100
           },

@@ -36,6 +36,7 @@ final class UiController extends AbstractController
         }
         if ($section === 'inventaires') { return $this->redirectToRoute('inventories_list'); }
         if ($section === 'mouvements') { return $this->redirectToRoute('movements_list'); }
+        if ($section === 'alertes') { return $this->redirectToRoute('alerts_list'); }
         return $this->render('section.html.twig', ['section' => $section, 'title' => Navigation::SECTIONS[$section]]);
     }
 }

@@ -1,6 +1,6 @@
 # Courriels persistants — MAIL-01
 
-Le socle utilise Symfony Mailer pour SMTP et Messenger avec PostgreSQL. Les notifications métier sont enregistrées dans `notification_events` au sein de la transaction métier. Une opération qui échoue ne conserve pas de notification ; une panne SMTP n’annule pas un mouvement validé. Les producteurs d’alertes, les messages administratifs et le récapitulatif seront raccordés dans ALT-02, MAIL-02 et MAIL-03.
+Le socle utilise Symfony Mailer pour SMTP et Messenger avec PostgreSQL. Les notifications métier sont enregistrées dans `notification_events` au sein de la transaction métier. Une opération qui échoue ne conserve pas de notification ; une panne SMTP n’annule pas un mouvement validé. Le cycle des alertes est raccordé dans ALT-02 et ses préférences dans ALT-03. Les messages administratifs et le récapitulatif restent dans MAIL-02 et MAIL-03.
 
 ## Configuration
 

@@ -18,7 +18,7 @@ Le recalcul se fait au niveau de la ligne de solde PostgreSQL, déjà verrouill�
 
 ## Courriels immédiats
 
-L’entrée dans un niveau bas ou critique enregistre une notification pour chaque administrateur actif et gestionnaire actif affecté au magasin actif. Les comptes réservés au développement sont exclus. Les comptes et courriels uniques empêchent les doublons de destinataire ; une clé propre à la transition et au destinataire protège l’événement. Aucun message de rétablissement n’est envoyé : la résolution reste dans l’historique.
+Par défaut, l’entrée dans un niveau bas ou critique enregistre une notification pour chaque administrateur actif et gestionnaire actif affecté au magasin actif. La liste peut être personnalisée par magasin et type dans ALT-03. Les comptes réservés au développement sont exclus. Les comptes et courriels uniques empêchent les doublons de destinataire ; une clé propre à la transition et au destinataire protège l’événement. Aucun message de rétablissement n’est envoyé : la résolution reste dans l’historique.
 
 Les événements et notifications sont enregistrés avec la modification métier, sans contacter SMTP. Une erreur d’insertion annule ensemble solde, mouvement, alerte et événement. Une indisponibilité SMTP après validation laisse le mouvement validé et déclenche les reprises bornées de MAIL-01. Les droits du destinataire sont revérifiés à la livraison.
 
@@ -30,4 +30,4 @@ Les modèles acceptent les noms accentués à leur longueur autorisée. Les cara
 
 La migration 13 installe le journal et le recalcul automatique. Elle initialise les alertes des soldes déjà présents sans modifier quantités, versions, seuils ou mouvements. Un solde configuré déjà bas ou critique produit son événement initial et ses notifications ; les stocks normaux n’en produisent aucun. Le retour arrière est refusé si des transitions existent, afin de préserver l’historique.
 
-L’écran des alertes et la configuration des destinataires seront livrés dans ALT-03. Le récapitulatif quotidien de 08 h sera raccordé dans MAIL-03. Aucune nouvelle route API n’est exposée dans ALT-02.
+L’écran des alertes et la configuration des destinataires sont disponibles dans ALT-03 : [guide](alertes-et-destinataires.md). Le récapitulatif quotidien de 08 h sera raccordé dans MAIL-03. Aucune nouvelle route API n’est exposée dans ALT-02.

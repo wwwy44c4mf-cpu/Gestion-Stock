@@ -1,6 +1,6 @@
 # Contrats et socle API — SOC-03
 
-Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décrit 60 opérations et 94 schémas de données pour le MVP. Aucun appel à un service externe n’est nécessaire pour le lire ou pour le valider.
+Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décrit 61 opérations et 96 schémas de données pour le MVP. Aucun appel à un service externe n’est nécessaire pour le lire ou pour le valider.
 
 ## Ce qui fonctionne déjà
 
@@ -52,7 +52,11 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 | `GET /api/v1/inventories/{id}/lines` | Référence figée paginée, tri et filtre article |
 | `POST /api/v1/inventories/{id}/start`, `/submit`, `/cancel` | Démarrage atomique, soumission complète et annulation tracée ; gel pendant comptage/validation |
 
-Ces cinquante opérations portent `x-implementation: available`. Les 10 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
+| `GET /api/v1/alerts` | Alertes autorisées, états, gravités et pagination |
+| `GET/PUT /api/v1/stores/{id}/alert-recipients` | Liste effective et préférences atomiques, audit et contrôle de concurrence |
+| `GET /api/v1/stores/{id}/alert-recipient-options` | Personnes éligibles, projection sans adresses ni affectations extérieures |
+
+Ces cinquante-quatre opérations portent `x-implementation: available`. Les 7 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
 
 Les routes `/health/live` et `/health/ready` de SOC-01 restent disponibles pour Docker ; la nouvelle sonde API ne remplace pas le contrôle PostgreSQL de readiness.
 
@@ -163,3 +167,5 @@ INV-02 : `POST /api/v1/inventories/{id}/lines` enregistre un lot atomique et ide
 INV-03 : `POST /api/v1/inventories/{id}/validate` clôture une campagne complète et soumise. Réponse : inventaire et identifiants de tous les ajustements. Sans corps ni recherche ; CSRF, clé idempotente et droits requis. Clôture, soldes, journal, événements et audits atomiques. Les écarts nuls ne produisent aucun mouvement.
 
 ALT-01 : `PATCH /api/v1/stores/{storeId}/stocks/{articleId}/thresholds` configure les seuils du couple article/magasin sans mouvement. [Guide](seuils-stock.md).
+
+ALT-03 : `GET /api/v1/alerts` liste les alertes autorisées. `GET/PUT /api/v1/stores/{id}/alert-recipients` lit/remplace les préférences ; `GET /api/v1/stores/{id}/alert-recipient-options` liste les personnes sélectionnables sans adresses ni affectations extérieures. `X-Recipients-Mode` distingue default/custom ; ETag et If-Match permettent d’éviter un écrasement concurrent. `use_defaults=true` avec liste vide rétablit les valeurs par défaut. [Guide](alertes-et-destinataires.md).
