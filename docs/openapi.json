@@ -4121,7 +4121,7 @@
       "get": {
         "operationId": "listConsumptions",
         "summary": "Suivre les consommations personnelles ou autorisées",
-        "description": "Utilisateur : ses consommations, y compris saisies par un gestionnaire pour lui ; tout autre consumer_id est refusé. Gestionnaire : magasins affectés ; administrateur : global. Cette vue n’ouvre aucun stock de magasin non affecté. Retours affichés séparément.",
+        "description": "Utilisateur : ses consommations, y compris saisies par un gestionnaire pour lui ; tout autre consumer_id est refusé. Gestionnaire : magasins affectés ; administrateur : global. Cette vue n’ouvre aucun stock de magasin non affecté. Retours affichés séparément. Magasins désactivés réservés aux administrateurs. Lignes annulées/corrigées conservées avec leur statut ; liens de remplacement limités aux consommations autorisées. Totaux exacts sur tous les résultats filtrés, hors sorties/retours annulés. returned_quantity et total des retours : retours valides liés aux consommations filtrées, toutes dates de retour confondues. Dates inclusives dans le fuseau du compte ; catégorie actuelle exacte, sans sous-catégories implicites.",
         "tags": [
           "consumptions"
         ],
@@ -4136,7 +4136,7 @@
           "USER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/Page"
@@ -8678,6 +8678,58 @@
           },
           "returned_quantity": {
             "$ref": "#/components/schemas/NonNegativeQuantity"
+          },
+          "article_sku": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "article_name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "category_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "category_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 160
+          },
+          "store_code": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "store_name": {
+            "type": "string",
+            "maxLength": 160
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "valid",
+              "cancelled",
+              "corrected"
+            ]
+          },
+          "reversed_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "replacement_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
           }
         },
         "additionalProperties": false,
@@ -8698,7 +8750,16 @@
           "created_at",
           "author_name",
           "consumer_name",
-          "returned_quantity"
+          "returned_quantity",
+          "article_sku",
+          "article_name",
+          "category_id",
+          "category_name",
+          "store_code",
+          "store_name",
+          "status",
+          "reversed_by",
+          "replacement_id"
         ]
       },
       "UserPage": {
@@ -8953,12 +9014,16 @@
           },
           "meta": {
             "$ref": "#/components/schemas/PageMeta"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/ConsumptionHistoryTotals"
           }
         },
         "additionalProperties": false,
         "required": [
           "data",
-          "meta"
+          "meta",
+          "totals"
         ]
       },
       "UserResource": {
@@ -9479,6 +9544,29 @@
         "required": [
           "data",
           "meta"
+        ]
+      },
+      "ConsumptionHistoryTotals": {
+        "type": "object",
+        "properties": {
+          "unit": {
+            "type": "string",
+            "enum": [
+              "unit"
+            ]
+          },
+          "consumed_quantity": {
+            "$ref": "#/components/schemas/AggregateQuantity"
+          },
+          "returned_quantity": {
+            "$ref": "#/components/schemas/AggregateQuantity"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "unit",
+          "consumed_quantity",
+          "returned_quantity"
         ]
       }
     }

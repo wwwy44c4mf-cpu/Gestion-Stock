@@ -31,8 +31,8 @@ final class AdministrationUiSubscriber implements EventSubscriberInterface
         $information = str_starts_with($route, 'information_');
         $accounts = str_starts_with($route, 'admin_users') || $information;
         if (!$event->isMainRequest() || (!$accounts && !$stores && !$catalog && !$stocks && !$consumptions && !$movements && !$inventories && !$alerts && !$adminAlias)) { return; }
-        $returnRoute = $consumptions ? (str_starts_with($route,'consumptions_return_') ? 'consumptions_return_list' : 'consumptions_new') : ($stocks ? 'stocks_list' : ($proposals ? 'proposals_list' : ($catalog ? (str_contains($route, 'categor') ? 'catalog_categories' : 'catalog_list') : ($stores ? 'stores_list' : 'admin_users'))));
-        $returnLabel = $consumptions ? (str_starts_with($route,'consumptions_return_') ? 'Retour aux consommations à rendre' : 'Nouvelle consommation') : ($stocks ? 'Retour aux stocks' : ($proposals ? 'Retour aux propositions' : ($catalog ? (str_contains($route, 'categor') ? 'Retour aux catégories' : 'Retour aux articles') : ($stores ? 'Retour aux magasins' : 'Retour aux comptes'))));
+        $returnRoute = $consumptions ? (str_starts_with($route,'consumptions_return_') ? 'consumptions_return_list' : 'consumptions_list') : ($stocks ? 'stocks_list' : ($proposals ? 'proposals_list' : ($catalog ? (str_contains($route, 'categor') ? 'catalog_categories' : 'catalog_list') : ($stores ? 'stores_list' : 'admin_users'))));
+        $returnLabel = $consumptions ? (str_starts_with($route,'consumptions_return_') ? 'Retour aux consommations à rendre' : 'Historique des consommations') : ($stocks ? 'Retour aux stocks' : ($proposals ? 'Retour aux propositions' : ($catalog ? (str_contains($route, 'categor') ? 'Retour aux catégories' : 'Retour aux articles') : ($stores ? 'Retour aux magasins' : 'Retour aux comptes'))));
         if ($alerts) { $returnRoute = 'alerts_list'; $returnLabel = 'Retour aux alertes'; }
         if ($inventories) { $returnRoute = 'inventories_list'; $returnLabel = 'Retour aux inventaires'; }
         if ($movements) { $returnRoute = 'movements_list'; $returnLabel = 'Retour aux mouvements'; }

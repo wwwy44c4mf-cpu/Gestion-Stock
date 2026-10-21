@@ -56,7 +56,7 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 | `GET/PUT /api/v1/stores/{id}/alert-recipients` | Liste effective et préférences atomiques, audit et contrôle de concurrence |
 | `GET /api/v1/stores/{id}/alert-recipient-options` | Personnes éligibles, projection sans adresses ni affectations extérieures |
 
-Ces cinquante-cinq opérations portent `x-implementation: available`. Les 6 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
+Ces cinquante-six opérations portent `x-implementation: available`. Les 5 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
 
 Les routes `/health/live` et `/health/ready` de SOC-01 restent disponibles pour Docker ; la nouvelle sonde API ne remplace pas le contrôle PostgreSQL de readiness.
 
@@ -171,3 +171,5 @@ ALT-01 : `PATCH /api/v1/stores/{storeId}/stocks/{articleId}/thresholds` configur
 ALT-03 : `GET /api/v1/alerts` liste les alertes autorisées. `GET/PUT /api/v1/stores/{id}/alert-recipients` lit/remplace les préférences ; `GET /api/v1/stores/{id}/alert-recipient-options` liste les personnes sélectionnables sans adresses ni affectations extérieures. `X-Recipients-Mode` distingue default/custom ; ETag et If-Match permettent d’éviter un écrasement concurrent. `use_defaults=true` avec liste vide rétablit les valeurs par défaut. [Guide](alertes-et-destinataires.md).
 
 MAIL-02 : `POST /notifications/information` met en file un message administrateur. Les critères magasin et rôle se cumulent ; plusieurs valeurs dans un critère sont réunies. La réponse 202 contient les événements dédoublonnés et le nombre de destinataires. `Location` ouvre le reçu dans l’interface. Prévisualisation et confirmation explicite avant mise en file dans l’interface.
+
+CON-01 : `GET /consumptions` est disponible. Historique personnel ou par magasins autorisés, dates inclusives dans le fuseau du compte et filtres combinables. Les totaux sur tous les résultats filtrés sont des chaînes décimales exactes, sorties et retours liés séparés ; les retours sont comptés toutes dates de retour confondues. Les lignes annulées/corrigées sont conservées avec statut, hors totaux valides.

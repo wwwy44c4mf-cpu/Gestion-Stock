@@ -2,7 +2,8 @@
 {% block title %}Consommation enregistrée · Gestion de stock{% endblock %}
 {% block content %}
 <div class="page-heading"><div><p class="eyebrow">CONSOMMATION</p><h1>{{ consumption.article_name }}</h1><p class="subtitle">Référence : {{ consumption.sku }}</p></div><a href="{{ path('consumptions_new') }}">Enregistrer une autre consommation</a></div>
-{% if consumption.reversed_by %}<p class="notice">{{ consumption.replacement_id ? 'Cette consommation a été corrigée. Les informations ci-dessous correspondent au mouvement d’origine.' : 'Cette consommation a été annulée. Elle est conservée pour la traçabilité.' }}{% if consumption.replacement_id %} <a href="{{ path('consumptions_receipt',{id:consumption.replacement_id}) }}">Consulter la consommation corrigée</a>{% endif %}</p>{% endif %}
+{% if consumption.reversed_by %}<p class="notice">{{ consumption.corrected ? 'Cette consommation a été corrigée. Les informations ci-dessous correspondent au mouvement d’origine.' : 'Cette consommation a été annulée. Elle est conservée pour la traçabilité.' }}{% if consumption.replacement_id %} <a href="{{ path('consumptions_receipt',{id:consumption.replacement_id}) }}">Consulter la consommation corrigée</a>{% endif %}</p>{% endif %}
+<p><a href="{{ path('consumptions_list') }}">Historique des consommations</a></p>
 <section class="card"><h2>{{ consumption.quantity }} unité{{ consumption.quantity > 1 ? 's' : '' }} retirée{{ consumption.quantity > 1 ? 's' : '' }}</h2>
 <p><strong>Magasin :</strong> {{ consumption.store_code }} · {{ consumption.store_name }}</p>
 <p><strong>Technicien bénéficiaire :</strong> {{ consumption.consumer_name }}</p><p><strong>Opérateur :</strong> {{ consumption.author_name }}</p>
@@ -12,5 +13,6 @@
 <p><strong>Unités rendues :</strong> {{ consumption.returned_quantity }} · <strong>Encore à rendre :</strong> {{ consumption.returnable_quantity }}</p>
 {% if consumption.returnable_quantity > 0 and is_granted('APP_RETURN_CREATE',consumption_target) %}<p><a class="button" href="{{ path('consumptions_return_new',{id:consumption.id}) }}">Rendre des articles</a></p>{% endif %}
 {% if is_granted('APP_STOCK_READ',stock_target) %}<p><a class="button" href="{{ path('stocks_detail',{storeId:consumption.store_id,articleId:consumption.article_id}) }}">Consulter le stock actualisé</a></p>{% endif %}
+{% if consumption.returns %}<h2>Retours liés</h2><p>Les retours annulés restent visibles et ne sont pas comptés dans les unités rendues.</p><div class="table-scroll"><table><thead><tr><th>Date</th><th>Quantité</th><th>Opérateur</th><th>État</th><th>Détail</th></tr></thead><tbody>{% for item in consumption.returns %}<tr><td>{{ item.created_at|date('d/m/Y H:i:s',app.user.timezone) }}</td><td>{{ item.quantity }} unité(s)</td><td>{{ item.author_name }}</td><td>{{ item.reversed ? 'Annulé' : 'Valide' }}</td><td><a href="{{ path('consumptions_return_receipt',{id:item.id}) }}">Consulter le retour</a></td></tr>{% endfor %}</tbody></table></div>{% endif %}
 </section>
 {% endblock %}
