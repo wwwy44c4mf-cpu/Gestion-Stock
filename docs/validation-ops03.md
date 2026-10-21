@@ -41,3 +41,5 @@ Avant/après : **16 migrations, cinq mouvements, somme des stocks 12, un inventa
 La supervision extérieure et sa notification ne sont pas configurées : responsable, disponibilité cible, fréquence de contrôle et canal restent à choisir avant production. Les commandes et leurs codes de sortie sont utilisables ; elles ne détectent pas à elles seules l’extinction complète du serveur.
 
 [Guide de supervision](supervision-diagnostic.md) · [Issue #36](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/36).
+
+Livraison : [PR #85](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/85), basée sur OPS-02 (PR #84 encore ouverte lors de la publication). Issue #36 ouverte jusqu’à fusion.

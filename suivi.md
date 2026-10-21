@@ -636,6 +636,8 @@ Sources : §10.4; DOCK-10.
 
 Critères d’acceptation : Panne worker ou SMTP observable sans exposer de secrets. Responsables et disponibilité cible à définir avant production.
 
+[PR #85](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/85), basée sur OPS-02 (#84). Issue ouverte jusqu’à fusion.
+
 [Guide](docs/supervision-diagnostic.md) · [Validation](docs/validation-ops03.md).
 
 ### RGPD-01 — Anonymisation des données nominatives après un an
