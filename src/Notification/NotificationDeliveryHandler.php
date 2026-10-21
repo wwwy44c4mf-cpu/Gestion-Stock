@@ -43,7 +43,7 @@ final class NotificationDeliveryHandler
             $this->db->executeStatement('INSERT INTO notification_delivery_attempts (event_id,attempt_number,result_code) VALUES (?,?,?)',[$message->id,$attempt,$code??'sent']);
             return ['code'=>$code,'attempt'=>$attempt,'terminal'=>$code!==null&&($code!=='smtp_delivery_failed'||$attempt>=4)];
         });
-        if(isset($result['attempt'])) {$this->logger->notice('notification_delivery',['notification_id'=>$message->id,'attempt'=>$result['attempt'],'result_code'=>$result['code']??'sent']);}
+        if(isset($result['attempt'])) {$this->logger->log(($result['code']??null)===null?'info':(($result['terminal']??false)?'error':'warning'),'notification_delivery',['notification_id'=>$message->id,'attempt'=>$result['attempt'],'result_code'=>$result['code']??'sent']);}
         if($result['code']!==null) {
             // Intentionally no original exception or diagnostic text: Messenger also persists errors.
             if($result['terminal']) {throw new UnrecoverableMessageHandlingException($result['code']);}

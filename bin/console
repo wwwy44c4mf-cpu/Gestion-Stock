@@ -7,5 +7,10 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
 return static function (array $context): Application {
-    return new Application(new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']));
+    return new class(new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG'])) extends Application {
+        public function renderThrowable(\Throwable $error, \Symfony\Component\Console\Output\OutputInterface $output): void
+        {
+            $output->writeln(json_encode(['timestamp'=>(new \DateTimeImmutable('now',new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z'),'level'=>'error','event'=>'console_error','code'=>'operation_failed','exception_class'=>$error::class],JSON_UNESCAPED_SLASHES|JSON_INVALID_UTF8_SUBSTITUTE));
+        }
+    };
 };

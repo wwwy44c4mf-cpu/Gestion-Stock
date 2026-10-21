@@ -1,5 +1,17 @@
 {
     admin off
+    log default {
+        exclude http.log.error
+        format filter {
+            wrap json
+            fields {
+                request delete
+                resp_headers delete
+                error delete
+                email delete
+            }
+        }
+    }
     email {$ACME_EMAIL}
     http_port 8080
     https_port 8443
@@ -9,6 +21,16 @@ http://{$APP_DOMAIN}:8080 {
     redir https://{$APP_DOMAIN}{uri} 308
 }
 https://{$APP_DOMAIN}:8443 {
+    log {
+        format filter {
+            wrap json
+            fields {
+                request delete
+                resp_headers delete
+                user_id delete
+            }
+        }
+    }
     tls internal
     header Strict-Transport-Security "max-age=31536000"
     header -Server

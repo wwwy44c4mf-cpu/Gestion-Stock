@@ -18,10 +18,11 @@ class ProductionTest(unittest.TestCase):
         status,headers,body=self.request('/api/v1/auth/csrf');self.assertEqual(200,status,body.decode(errors='replace')[:500])
         return json.loads(body)['token'],headers
     def test_https_certificate_redirect_and_browser_headers(self):
-        status,h,b=self.request('/connexion');self.assertEqual(200,status,b.decode(errors='replace')[:500])
+        status,h,b=self.request('/connexion',headers={'X-Request-Id':'b'*32});self.assertEqual(200,status,b.decode(errors='replace')[:500])
         for key,value in [('X-Content-Type-Options','nosniff'),('X-Frame-Options','DENY'),('Referrer-Policy','same-origin')]:self.assertEqual(value,h[key])
         self.assertIn("script-src 'self'",h['Content-Security-Policy']);self.assertIn('max-age=31536000',h['Strict-Transport-Security'])
         self.assertNotIn('Server',h);self.assertNotIn('X-Powered-By',h)
+        self.assertEqual(1,len(h.get_all('X-Request-Id')));self.assertRegex(h['X-Request-Id'],r'^[a-f0-9]{32}$');self.assertNotEqual('b'*32,h['X-Request-Id'])
         status,h,_=self.request('/connexion?retour=stock',root='http://stock.example.test:8080');self.assertEqual(308,status);self.assertEqual('https://stock.example.test/connexion?retour=stock',h['Location'])
     def test_secure_cookie_and_real_production_login(self):
         token,h=self.csrf();cookies=h.get_all('Set-Cookie');self.assertTrue(cookies)
@@ -37,5 +38,5 @@ class ProductionTest(unittest.TestCase):
     def test_private_files_and_assets(self):
         for path in ['/.env','/.secrets/app_secret','/composer.json','/docker/production/check.php']:
             s,_,b=self.request(path);self.assertIn(s,[302,403,404]);self.assertNotIn(b'APP_SECRET',b)
-        s,h,_=self.request('/assets/app.js');self.assertEqual(200,s);self.assertEqual('nosniff',h['X-Content-Type-Options'])
+        s,h,_=self.request('/assets/app.js');self.assertEqual(200,s);self.assertEqual('nosniff',h['X-Content-Type-Options']);self.assertRegex(h['X-Request-Id'],r'^[a-f0-9]{32}$')
 if __name__=='__main__':unittest.main(verbosity=2)

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 if (($argv[1] ?? '') === 'worker') {
     $modified = @filemtime('/tmp/worker-heartbeat');
-    exit($modified !== false && time() - $modified < 120 ? 0 : 1);
+    exit($modified !== false && time() - $modified >= 0 && time() - $modified < 120 ? 0 : 1);
 }
 
 if (($argv[1] ?? '') === 'fpm') {

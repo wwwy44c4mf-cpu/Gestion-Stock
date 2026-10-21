@@ -17,6 +17,10 @@ final class NativeAuthenticationTest extends TestCase
     #[PreserveGlobalState(false)]
     public function testNativeSessionRotationLogoutAndOldCookieReplay(): void
     {
+        // PHPUnit's isolated-process protocol treats stderr as a test error.
+        // HTTP logging is covered separately; keep native cookie/session assertions intact.
+        putenv('APP_LOG_LEVEL=emergency');
+        $_ENV['APP_LOG_LEVEL'] = $_SERVER['APP_LOG_LEVEL'] = 'emergency';
         $schema = 'auth_native_'.bin2hex(random_bytes(6));
         $setup = new Kernel('prod', false);
         $setup->boot();

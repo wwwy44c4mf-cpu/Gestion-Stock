@@ -216,3 +216,7 @@ Le profil facultatif `backup` conserve des archives chiffrées pendant 90 jours 
 ## Production HTTPS
 
 Caddy intégré à Docker Compose est retenu pour le serveur unique. Overlays de production, contrôle préalable, images versionnées, audit local sans réseau pendant l’analyse et procédure de mise à jour/restauration : [guide OPS-02](docs/deploiement-production.md) · [validation](docs/validation-ops02.md). Domaine et serveur réels restent à configurer avant déploiement.
+
+## Supervision et diagnostic
+
+`sh bin/diagnostic` contrôle en lecture seule services, base, files et échecs de courriel ; variante productive : `sh bin/diagnostic production`. Journaux JSON expurgés, identifiants de requête et rotation locale. [Guide OPS-03](docs/supervision-diagnostic.md) · [Validation](docs/validation-ops03.md). La supervision extérieure et son responsable restent à définir avant production.

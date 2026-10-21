@@ -15,3 +15,7 @@ services:
       - '../src/Security/Permission.php'
 
   App\Notification\MailDelivery: '@App\Notification\SmtpDelivery'
+
+  logger:
+    alias: App\Operations\StructuredLogger
+  Psr\Log\LoggerInterface: '@logger'

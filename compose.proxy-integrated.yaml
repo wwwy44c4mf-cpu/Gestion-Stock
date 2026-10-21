@@ -3,6 +3,7 @@ services:
     ports: !reset []
     networks: !override [frontend, tls_backend]
   proxy:
+    logging: {driver: local, options: {max-size: "10m", max-file: "3"}}
     build: {context: ., target: proxy}
     image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-proxy:${RELEASE_ID:?Définir RELEASE_ID immuable}
     user: "10001:10001"
@@ -36,6 +37,7 @@ services:
       retries: 3
       start_period: 30s
   tls-volume-init:
+    logging: {driver: local, options: {max-size: "10m", max-file: "3"}}
     image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-proxy:${RELEASE_ID:?Définir RELEASE_ID immuable}
     profiles: [setup]
     user: "0:0"

@@ -72,7 +72,7 @@ Le backend web n’a aucun port publié en mode intégré. Caddy remplace les en
 
 La production refuse les requêtes applicatives reconnues HTTP avant authentification, sans créer de session. Seules les deux sondes internes `/health/live` et `/health/ready` restent utilisables en HTTP avec le domaine autorisé. Le proxy redirige HTTP vers HTTPS. Cookies de session Secure, HttpOnly, SameSite=Lax, HSTS un an sans preload ni sous-domaines imposés, pas de mise en cache des pages privées. La CSP refuse scripts externes/inline, objets et intégration en iframe ; les styles inline restent autorisés pour les barres de statistiques existantes. Les protections CSRF, Argon2id, contrôle d’accès, limitation des tentatives et requêtes SQL paramétrées existantes restent actives. Les fichiers `.env`, secrets, sources PHP et répertoires privés ne sont pas servis par Nginx.
 
-Les accès Nginx journalisent la méthode et le chemin, sans arguments de requête, cookies ni en-têtes d’autorisation. Le binaire PHP ne divulgue pas sa version ni ses arguments d’exception. Le moindre privilège PostgreSQL et la traçabilité sont vérifiés par les tests existants.
+Les accès Nginx sont des lignes JSON avec statut, durée et identifiant de requête, sans chemin, arguments, IP, cookies ni en-têtes d’autorisation. Voir le [guide de supervision](supervision-diagnostic.md). Le binaire PHP ne divulgue pas sa version ni ses arguments d’exception. Le moindre privilège PostgreSQL et la traçabilité sont vérifiés par les tests existants.
 
 ## Mise à jour contrôlée
 
