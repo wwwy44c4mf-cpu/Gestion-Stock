@@ -45,3 +45,5 @@ Caddy intégré est le choix confirmé. La variante avec proxy existant conserve
 Domaine réel, DNS, ACME public, pare-feu, ressources et SMTP de production ne sont pas validés sur un serveur distant. La copie hors serveur et la protection séparée de la clé de sauvegarde restent à configurer après choix de destination. Les procédures exécutables et contrôles sont préparés ; aucune mise en production distante ni fusion GitHub réalisée.
 
 [Guide de déploiement](deploiement-production.md) · [Reprise OPS-01](sauvegardes-restauration.md) · [Issue #35](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35).
+
+Livraison : [PR #84](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/84), basée sur OPS-01 (PR #83 encore ouverte lors de la publication). Issue #35 ouverte jusqu’à fusion.

@@ -618,7 +618,9 @@ Sources : DOCK-03,04,05,07,08,09,10; §10.1.
 - [x] Durcir cookies, CSRF, XSS, injections, comptes et conteneurs ; analyser images et dépendances
 - [x] Documenter migrations, mises à jour et retour arrière sans perte silencieuse
 
-Critères d’acceptation : Contrôles de sécurité et procédure de rollback exécutables. Avant production : domaine, proxy, ressources et versions à confirmer.
+Critères d’acceptation : Contrôles de sécurité et procédure de rollback exécutables. Avant production : domaine, DNS/ACME et ressources réelles à confirmer ; Caddy intégré retenu, images épinglées et testées.
+
+[PR #84](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/84), basée sur OPS-01 (#83). Issue ouverte jusqu’à fusion.
 
 [Guide](docs/deploiement-production.md) · [Validation](docs/validation-ops02.md).
 
