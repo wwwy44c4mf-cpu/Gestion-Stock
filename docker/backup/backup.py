@@ -4,7 +4,7 @@ import argparse, contextlib, datetime as dt, fcntl, hashlib, json, os, pathlib, 
 import psycopg2
 from psycopg2 import sql
 
-ROOTS = '.gitignore .dockerignore .env.example Dockerfile compose.yaml composer.json composer.lock phpunit.xml.dist README.md suivi.md cdc.md bin config docker public src templates tests docs migrations'.split()
+ROOTS = '.gitignore .dockerignore .env.example Dockerfile compose.yaml compose.production.yaml compose.proxy-external.yaml compose.proxy-integrated.yaml .env.production.example composer.json composer.lock phpunit.xml.dist README.md suivi.md cdc.md bin config docker public src templates tests docs migrations'.split()
 SECRETS = ('app_secret', 'db_password', 'db_admin_password', 'mailer_dsn')
 NAME = re.compile(r'^stock-(\d{8}T\d{6}Z)-[a-f0-9]{12}\.backup\.age$')
 class Failure(Exception): pass

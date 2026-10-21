@@ -88,3 +88,5 @@ sh bin/test-backup-recovery
 Cette commande utilise un projet unique, des volumes séparés, de faux secrets et des données jetables. Elle teste corruption, clé erronée, rétention, export cohérent sous écriture concurrente, restauration transactionnelle refusée et restauration complète, puis accès web et recréation des conteneurs. Elle nettoie uniquement son projet de recette. Le résultat local ne garantit pas le délai sur un serveur réel : mesurer régulièrement la reprise complète, transfert compris, pour vérifier l’objectif d’un jour ouvré.
 
 Références : [pg_dump PostgreSQL 18](https://www.postgresql.org/docs/18/app-pgdump.html), [pg_restore](https://www.postgresql.org/docs/18/app-pgrestore.html), [age](https://github.com/FiloSottile/age/blob/main/README.md).
+
+Pour une reprise de production OPS-02, recopier la configuration récupérée `source/.env` vers `.env.production` et utiliser les overlays du [guide HTTPS](deploiement-production.md) avant toute ouverture publique. Le fichier privé réellement choisi par `PRODUCTION_ENV_FILE` est monté en lecture seule et sauvegardé, même s’il se trouve hors du dépôt.

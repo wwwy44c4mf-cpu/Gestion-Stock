@@ -5,6 +5,9 @@ x-app: &app
   environment: &app-env
     APP_ENV: ${APP_ENV:-prod}
     APP_DEBUG: ${APP_DEBUG:-0}
+    APP_REQUIRE_HTTPS: ${APP_REQUIRE_HTTPS:-0}
+    APP_TRUSTED_PROXIES: ${APP_TRUSTED_PROXIES:-}
+    APP_TRUSTED_HOST_PATTERN: ${APP_TRUSTED_HOST_PATTERN:-.+}
     APP_SECRET_FILE: /run/secrets/app_secret
     DATABASE_PASSWORD_FILE: /run/secrets/db_password
     DATABASE_HOST: db

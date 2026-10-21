@@ -1,0 +1,40 @@
+#!/bin/sh
+# No automatic database downgrade or destructive volume operation.
+set -eu
+cd "$(dirname "$0")/.."
+production_env=${PRODUCTION_ENV_FILE:-.env.production}
+proxy_mode=${PRODUCTION_PROXY_MODE:-external}
+case "$proxy_mode" in
+  external) proxy_file=compose.proxy-external.yaml ;;
+  integrated) proxy_file=compose.proxy-integrated.yaml ;;
+  *) echo 'PRODUCTION_PROXY_MODE doit valoir external ou integrated.' >&2; exit 2 ;;
+esac
+dc() {
+    if [ -n "${PRODUCTION_OVERRIDE_FILE:-}" ]; then
+        docker compose --env-file "$production_env" -f compose.yaml -f compose.production.yaml -f "$proxy_file" -f "$PRODUCTION_OVERRIDE_FILE" "$@"
+    else
+        docker compose --env-file "$production_env" -f compose.yaml -f compose.production.yaml -f "$proxy_file" "$@"
+    fi
+}
+case "${1:-}" in
+  config) dc config --quiet ;;
+  build) dc config --quiet; dc build app web db backup; if [ "$proxy_mode" = integrated ]; then dc build proxy; fi ;;
+  check) dc config --quiet; dc run --rm --no-deps app php docker/production/check.php ;;
+  update)
+    dc config --quiet
+    dc run --rm --no-deps app php docker/production/check.php
+    # The image is built explicitly before maintenance. No implicit pull/build here.
+    if [ "$proxy_mode" = integrated ]; then dc stop proxy; fi
+    dc stop web app worker scheduler backup
+    if ! dc run --rm --no-deps backup once; then echo 'Sauvegarde refusée : maintenance conservée, aucune migration exécutée.' >&2; exit 1; fi
+    if ! dc run --rm --no-deps app php bin/console doctrine:migrations:migrate --no-interaction; then echo 'Migration échouée : maintenance conservée. Suivre la procédure de reprise.' >&2; exit 1; fi
+    dc run --rm --no-deps app php bin/console doctrine:migrations:up-to-date
+    dc up -d --wait db app web
+    if [ "$proxy_mode" = integrated ]; then dc run --rm --no-deps tls-volume-init; dc up -d --wait proxy; fi
+    # Workers start only after the application and integrated proxy are healthy.
+    dc up -d init worker scheduler backup
+    echo 'Mise à jour terminée ; effectuer la recette HTTPS avant ouverture.'
+    ;;
+  status) dc ps ;;
+  *) echo 'Usage : sh bin/production {config|build|check|update|status}' >&2; exit 2 ;;
+esac

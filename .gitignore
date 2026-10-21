@@ -10,3 +10,9 @@
 /backup-recovery/
 *.backup.age
 *.backup.age.sha256
+
+.env.production
+
+.env.*
+!.env.example
+!.env.production.example

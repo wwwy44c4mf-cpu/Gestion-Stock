@@ -91,7 +91,7 @@ Après modification du code : `docker compose up -d --build --wait`. Le code est
 
 ## Avant production
 
-La configuration fournie est locale, en HTTP sur loopback. Le domaine et le reverse proxy restent à préciser ; OPS-02 ajoutera la configuration HTTPS de production et les contrôles correspondants. Ne pas publier cet environnement directement sur Internet. Les paramètres SMTP, sauvegardes, supervision, anonymisation et permissions métier restent couverts par leurs lots dédiés.
+La configuration fournie est locale, en HTTP sur loopback. Le proxy Caddy intégré est retenu pour la production ; le domaine et le serveur restent à préciser. Voir le [guide de déploiement HTTPS](docs/deploiement-production.md). Ne pas publier cet environnement directement sur Internet. Les paramètres SMTP, sauvegardes, supervision, anonymisation et permissions métier restent couverts par leurs lots dédiés.
 
 Références : [exigences Symfony](https://symfony.com/doc/8.1/setup.html), [version Symfony 8.1](https://symfony.com/releases/8.1), [persistance PostgreSQL 18](https://docs.docker.com/guides/postgresql/immediate-setup-and-data-persistence/), [cahier des charges](cdc.md).
 
@@ -212,3 +212,7 @@ Le journal en lecture seule est disponible dans `/audit` et `GET /api/v1/audit-l
 ## Sauvegardes quotidiennes
 
 Le profil facultatif `backup` conserve des archives chiffrées pendant 90 jours et permet une restauration contrôlée sur base vierge. [Activation, copie hors serveur et reprise](docs/sauvegardes-restauration.md) · [Recette OPS-01](docs/validation-ops01.md). La destination hors serveur reste à choisir avant production.
+
+## Production HTTPS
+
+Caddy intégré à Docker Compose est retenu pour le serveur unique. Overlays de production, contrôle préalable, images versionnées, audit local sans réseau pendant l’analyse et procédure de mise à jour/restauration : [guide OPS-02](docs/deploiement-production.md) · [validation](docs/validation-ops02.md). Domaine et serveur réels restent à configurer avant déploiement.

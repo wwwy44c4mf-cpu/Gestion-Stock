@@ -1,0 +1,80 @@
+#!/bin/sh
+set -eu
+cd "$(dirname "$0")/.."
+OPS_TEST_ROOT=$(mktemp -d /tmp/gestion-stock-ops02.XXXXXX)
+export OPS_TEST_ROOT
+OPS_TEST_PROJECT="gestion-stock-ops02-recette-$(date +%s)-$$"
+COMPOSE_PROJECT_NAME="$OPS_TEST_PROJECT"
+OPS_TEST_NETWORK="10.254.$(( $$ % 200 + 20 ))"
+APP_DOMAIN=stock.example.test
+APP_TRUSTED_HOST_PATTERN='^stock[.]example[.]test\z'
+APP_TRUSTED_PROXIES="$OPS_TEST_NETWORK.2"
+TLS_SUBNET="$OPS_TEST_NETWORK.0/24"
+TLS_DYNAMIC_RANGE="$OPS_TEST_NETWORK.128/25"
+TLS_PROXY_ADDRESS="$OPS_TEST_NETWORK.2"
+RELEASE_ID=tested
+DATABASE_RELEASE_ID=tested
+POSTGRES_DB=gestion_stock
+POSTGRES_USER=gestion_stock
+MAIL_DELIVERY_ENABLED=0
+ACME_EMAIL=recette@example.test
+export COMPOSE_PROJECT_NAME APP_DOMAIN APP_TRUSTED_HOST_PATTERN APP_TRUSTED_PROXIES TLS_SUBNET TLS_DYNAMIC_RANGE TLS_PROXY_ADDRESS RELEASE_ID DATABASE_RELEASE_ID POSTGRES_DB POSTGRES_USER MAIL_DELIVERY_ENABLED ACME_EMAIL
+PRODUCTION_ENV_FILE=$(mktemp /tmp/gestion-stock-ops02-env.XXXXXX)
+PRODUCTION_PROXY_MODE=integrated
+PRODUCTION_OVERRIDE_FILE=docker/production/compose.recette.yaml
+export PRODUCTION_ENV_FILE PRODUCTION_PROXY_MODE PRODUCTION_OVERRIDE_FILE
+built=0
+compose() { docker compose --env-file "$PRODUCTION_ENV_FILE" -f compose.yaml -f compose.production.yaml -f compose.proxy-integrated.yaml -f "$PRODUCTION_OVERRIDE_FILE" "$@"; }
+cleanup() {
+    result=$?;trap - EXIT INT TERM
+    compose --profile "*" stop >/dev/null 2>&1 || true
+    if [ "$built" = 1 ]; then compose run --rm --no-deps fixture-setup clean >/dev/null 2>&1 || true; fi
+    compose --profile "*" down --volumes --remove-orphans >/dev/null 2>&1 || true
+    rm -f "$PRODUCTION_ENV_FILE";rmdir "$OPS_TEST_ROOT" 2>/dev/null || true
+    exit "$result"
+}
+trap cleanup EXIT INT TERM
+cat > "$PRODUCTION_ENV_FILE" <<ENV
+COMPOSE_PROJECT_NAME=$OPS_TEST_PROJECT
+APP_ENV=prod
+APP_DEBUG=0
+APP_DOMAIN=stock.example.test
+APP_TRUSTED_HOST_PATTERN='$APP_TRUSTED_HOST_PATTERN'
+APP_TRUSTED_PROXIES=$APP_TRUSTED_PROXIES
+TLS_SUBNET=$TLS_SUBNET
+TLS_DYNAMIC_RANGE=$TLS_DYNAMIC_RANGE
+TLS_PROXY_ADDRESS=$TLS_PROXY_ADDRESS
+POSTGRES_DB=gestion_stock
+POSTGRES_USER=gestion_stock
+RELEASE_ID=tested
+DATABASE_RELEASE_ID=tested
+ACME_EMAIL=recette@example.test
+MAIL_DELIVERY_ENABLED=0
+ENV
+# Public dummy configuration only; readable by the unprivileged backup UID on Linux.
+chmod 644 "$PRODUCTION_ENV_FILE"
+compose build fixture-setup
+built=1
+compose run --rm --no-deps fixture-setup setup
+compose build app web db backup proxy https-test
+compose run --rm --no-deps tls-volume-init
+compose up -d --wait db
+compose run --rm --no-deps app php bin/console doctrine:migrations:migrate DoctrineMigrations\\Version20261021040000 --no-interaction
+compose run --rm --no-deps app php bin/console messenger:setup-transports --no-interaction
+compose run --rm --no-deps -e OPS_PRODUCTION_FIXTURE=1 app php docker/production/seed-recette.php
+sh bin/production check
+if compose run --rm --no-deps -e APP_REQUIRE_HTTPS=0 app php docker/production/check.php; then exit 1; fi
+if compose run --rm --no-deps -e APP_TRUSTED_PROXIES=0.0.0.0/0 app php docker/production/check.php; then exit 1; fi
+if compose run --rm --no-deps -e APP_TRUSTED_HOST_PATTERN=.+ app php docker/production/check.php; then exit 1; fi
+sh bin/production update
+prior_archive=$(compose run --rm --no-deps --entrypoint python3 backup -c 'import json;print(json.load(open("/backups/status.json"))["archive"])')
+if ! compose run --rm --no-deps https-test; then compose logs --tail=15 web; exit 1; fi
+# Re-run update against a populated database; no down-migration or data reset.
+sh bin/production update
+if ! compose run --rm --no-deps https-test; then compose logs --tail=15 web; exit 1; fi
+# Restore the snapshot taken before the actual 15 -> 16 migration, into a new volume.
+compose up -d --wait restore-db
+compose run --rm --no-deps -e DATABASE_HOST=restore-db -e RESTORE_CONFIRM_DATABASE=gestion_stock backup-restore restore-db "/backups/$prior_archive"
+compose run --rm --no-deps -e DATABASE_HOST=restore-db backup-restore verify-db "/backups/$prior_archive"
+compose run --rm --no-deps -e DATABASE_HOST=restore-db -e OPS_PRODUCTION_FIXTURE=1 app php docker/production/check-recovery-recette.php
+printf 'HTTPS, migration sur données existantes et restauration du schéma précédent validés.\n' 

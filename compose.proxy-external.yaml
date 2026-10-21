@@ -1,0 +1,4 @@
+# Proxy installé sur le même hôte : backend strictement sur loopback.
+services:
+  web:
+    ports: !override ["127.0.0.1:${HTTP_PORT:-8080}:8080"]

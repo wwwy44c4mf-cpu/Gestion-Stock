@@ -1,0 +1,25 @@
+#!/bin/sh
+# Scanner receives exported images only in a network-disabled container.
+set -eu
+scan_dir=${SECURITY_SCAN_DIRECTORY:?Définir un répertoire privé pour les exports et rapports}
+case "$scan_dir" in /*) ;; *) echo 'Le répertoire doit être absolu.' >&2; exit 2;; esac
+[ ! -L "$scan_dir" ] || exit 2
+umask 077
+mkdir -p "$scan_dir/cache" "$scan_dir/images" "$scan_dir/reports"
+chmod 700 "$scan_dir" "$scan_dir/cache" "$scan_dir/images" "$scan_dir/reports"
+scan_identity="$(id -u):$(id -g)"
+scanner=aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c
+# Network access is used solely to download public vulnerability databases.
+docker run --rm --user "$scan_identity" --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs /tmp -v "$scan_dir/cache:/cache" "$scanner" image --cache-dir /cache --download-db-only --no-progress
+[ "$#" -gt 0 ] || { echo 'Fournir au moins une image locale.' >&2; exit 2; }
+result=0
+for image in "$@"; do
+    case "$image" in *[!a-zA-Z0-9_./:@-]*|'') echo 'Nom d’image invalide.' >&2; exit 2;; esac
+    filename=$(printf '%s' "$image" | tr '/:@' '___')
+    docker image save --output "$scan_dir/images/$filename.tar" "$image"
+    docker run --rm --user "$scan_identity" --network none --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs /tmp -v "$scan_dir/cache:/cache" -v "$scan_dir/images:/images:ro" -v "$scan_dir/reports:/reports" "$scanner" image --cache-dir /cache --input "/images/$filename.tar" --offline-scan --skip-db-update --skip-java-db-update --scanners vuln --format json --output "/reports/$filename.json" --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL --no-progress
+    # Separate gate: report all findings; refuse unfixed or fixed HIGH/CRITICAL alike.
+    if ! docker run --rm --user "$scan_identity" --network none --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs /tmp -v "$scan_dir/cache:/cache" -v "$scan_dir/images:/images:ro" "$scanner" image --cache-dir /cache --input "/images/$filename.tar" --offline-scan --skip-db-update --skip-java-db-update --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --no-progress; then result=1; fi
+    rm "$scan_dir/images/$filename.tar"
+done
+exit "$result"

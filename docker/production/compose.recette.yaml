@@ -1,0 +1,75 @@
+# Applied after the actual production overlays, only by the isolated test driver.
+services:
+  fixture-setup:
+    build: {context: ., target: backup-test}
+    image: gestion-stock-ops02-fixture
+    user: "0:0"
+    entrypoint: [python3, /tests/backup_test.py]
+    volumes: ["${OPS_TEST_ROOT:?}:/fixture"]
+    network_mode: none
+  db:
+    healthcheck: {interval: 2s, timeout: 3s, retries: 30, start_period: 3s}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./docker/postgres/init-app.sh:/docker-entrypoint-initdb.d/10-app.sh:ro
+  restore-db:
+    image: ${COMPOSE_PROJECT_NAME:?}-db:${DATABASE_RELEASE_ID:?}
+    environment:
+      POSTGRES_DB: gestion_stock
+      POSTGRES_USER: postgres
+      APP_DB_USER: gestion_stock
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_admin_password
+      POSTGRES_INITDB_ARGS: --encoding=UTF8 --locale=C
+    secrets: [db_password, db_admin_password]
+    volumes:
+      - rollback_data:/var/lib/postgresql
+      - ./docker/postgres/init-app.sh:/docker-entrypoint-initdb.d/10-app.sh:ro
+    networks: [backend]
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, pg_isready, -U, postgres, -d, gestion_stock]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  app:
+    healthcheck: {interval: 2s, timeout: 5s, retries: 30, start_period: 3s}
+  web:
+    healthcheck: {interval: 2s, timeout: 5s, retries: 30, start_period: 3s}
+    ports: !reset []
+  proxy:
+    healthcheck: {interval: 2s, timeout: 5s, retries: 30, start_period: 3s}
+    ports: !reset []
+    volumes:
+      - ./docker/production/Caddyfile.recette:/etc/caddy/Caddyfile:ro
+    networks:
+      tls_backend:
+        aliases: [stock.example.test]
+  backup-files:
+    volumes:
+      - ${OPS_TEST_ROOT:?}/recovery:/recovery
+  https-test:
+    build: {context: ., target: contract-test}
+    image: gestion-stock-ops02-https-test
+    entrypoint: [python, /tests/production_test.py]
+    user: "0:0"
+    volumes:
+      - ./tests/production_test.py:/tests/production_test.py:ro
+      - tls_data:/tls:ro
+    networks: [tls_backend]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    cap_add: [DAC_READ_SEARCH]
+    security_opt: [no-new-privileges:true]
+secrets:
+  app_secret: {file: "${OPS_TEST_ROOT:?}/secrets/app_secret"}
+  db_password: {file: "${OPS_TEST_ROOT:?}/secrets/db_password"}
+  db_admin_password: {file: "${OPS_TEST_ROOT:?}/secrets/db_admin_password"}
+  mailer_dsn: {file: "${OPS_TEST_ROOT:?}/secrets/mailer_dsn"}
+  backup_recipient: {file: "${OPS_TEST_ROOT:?}/keys/backup_recipient"}
+  backup_identity: {file: "${OPS_TEST_ROOT:?}/keys/backup_identity"}
+
+volumes:
+  rollback_data: {}

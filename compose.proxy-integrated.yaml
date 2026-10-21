@@ -1,0 +1,58 @@
+services:
+  web:
+    ports: !reset []
+    networks: !override [frontend, tls_backend]
+  proxy:
+    build: {context: ., target: proxy}
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-proxy:${RELEASE_ID:?Définir RELEASE_ID immuable}
+    user: "10001:10001"
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?Définir APP_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL:?Définir ACME_EMAIL pour les certificats}
+      XDG_DATA_HOME: /data
+      XDG_CONFIG_HOME: /config
+    ports: ["${HTTPS_BIND:-0.0.0.0}:80:8080", "${HTTPS_BIND:-0.0.0.0}:443:8443"]
+    volumes:
+      - ./docker/production/Caddyfile:/etc/caddy/Caddyfile:ro
+      - tls_data:/data
+      - tls_config:/config
+    networks:
+      edge: {}
+      tls_backend:
+        ipv4_address: ${TLS_PROXY_ADDRESS:-10.253.240.2}
+    read_only: true
+    tmpfs: ["/tmp:uid=10001,gid=10001,mode=0700"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 30s
+    depends_on:
+      web: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, wget, -q, --spider, "http://127.0.0.1:2020/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+  tls-volume-init:
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-proxy:${RELEASE_ID:?Définir RELEASE_ID immuable}
+    profiles: [setup]
+    user: "0:0"
+    entrypoint: [sh, -ec]
+    command: ["chown 10001:10001 /data /config; chmod 700 /data /config"]
+    volumes: ["tls_data:/data", "tls_config:/config"]
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [CHOWN, FOWNER, DAC_OVERRIDE]
+    security_opt: [no-new-privileges:true]
+    restart: "no"
+networks:
+  tls_backend:
+    internal: true
+    ipam:
+      config: [{subnet: "${TLS_SUBNET:-10.253.240.0/24}", ip_range: "${TLS_DYNAMIC_RANGE:-10.253.240.128/25}"}]
+volumes:
+  tls_data: {}
+  tls_config: {}

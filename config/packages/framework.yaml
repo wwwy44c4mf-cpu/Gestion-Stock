@@ -1,5 +1,13 @@
+parameters:
+  env(APP_REQUIRE_HTTPS): '0'
+  env(APP_TRUSTED_PROXIES): ''
+  env(APP_TRUSTED_HOST_PATTERN): '.+'
+
 framework:
   secret: '%env(trim:file:APP_SECRET_FILE)%'
+  trusted_proxies: '%env(APP_TRUSTED_PROXIES)%'
+  trusted_hosts: ['%env(APP_TRUSTED_HOST_PATTERN)%']
+  trusted_headers: [x-forwarded-for, x-forwarded-proto]
   default_locale: fr
   router:
     utf8: true
