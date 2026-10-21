@@ -5,7 +5,7 @@ La page d’accueil `/` affiche les indicateurs réels de l’application. Les d
 ## Gestionnaires et administrateurs
 
 - Articles actifs : catalogue descriptif commun, limité à la catégorie exacte choisie. Le magasin ne modifie pas ce total ; le lien ouvre la même liste d’articles actifs.
-- Ruptures et sous-seuils sont comptés par article et magasin : un même article concerné dans deux magasins compte deux fois, conformément aux lignes de la liste des stocks (choix par défaut annoncé, ajustable selon la réponse utilisateur).
+- Ruptures et sous-seuils sont comptés par article et magasin : un même article concerné dans deux magasins compte deux fois, conformément aux lignes de la liste des stocks (choix confirmé par l’utilisateur).
 - Ruptures : stocks à zéro, y compris articles sans mouvement et articles désactivés, conformément à la liste des stocks.
 - Seuil bas atteint : quantité inférieure ou égale au seuil bas configuré pour l’article et le magasin. Absence de seuil : aucune classification sous seuil. Une rupture peut appartenir aux deux indicateurs.
 - Mouvements de période : tous les événements visibles du journal général, y compris annulations et remplacements. Chaque événement de transfert compte une seule fois, même quand les deux magasins sont autorisés. Les transferts partiellement visibles suivent les mêmes règles que le journal.

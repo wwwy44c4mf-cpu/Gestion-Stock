@@ -4,7 +4,7 @@ Recette complète réussie : **359 tests PHP / 4 669 assertions** et **4 validat
 
 ## Périmètre vérifié
 
-- Articles actifs du catalogue commun, catégorie exacte, nombre de stocks en rupture et sous seuil concordant avec les listes. Article sans solde affiché à zéro ; article désactivé conservé dans les stocks ; seuil absent exclu des sous-seuils. Comptage par article et magasin, choix par défaut annoncé dans la conversation.
+- Articles actifs du catalogue commun, catégorie exacte, nombre de stocks en rupture et sous seuil concordant avec les listes. Article sans solde affiché à zéro ; article désactivé conservé dans les stocks ; seuil absent exclu des sous-seuils. Comptage par article et magasin, choix confirmé par l’utilisateur dans la conversation.
 - Gestionnaire limité aux magasins actifs affectés ; administrateur avec accès aux magasins désactivés. Gestionnaire sans affectation : aucun stock ni mouvement, catalogue commun toujours lisible. Retrait d’affectation pris en compte et identifiants de magasins extérieurs refusés.
 - Mouvements identiques au journal : chaque transfert est compté une fois, y compris transfert partiellement visible, avec les mêmes droits. Annulations et remplacements inclus dans le nombre d’événements ; consommations annulées exclues des volumes.
 - Retours à leur date réelle, séparés des consommations. Concordance avec les statistiques, y compris pour un retour dont la consommation d’origine est hors période. Somme exacte de 18 014 398 509 481 982 unités conservée sous forme de chaîne. Bornes inclusives, journée de changement d’heure, fuseau Pacific/Honolulu et longue période sans matérialisation d’un calendrier.

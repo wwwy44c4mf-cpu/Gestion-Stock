@@ -9,6 +9,7 @@ Les décisions ci-dessous précisent ou remplacent les options correspondantes d
 
 | Sujet | Décision |
 |---|---|
+| Comptage des ruptures | Une rupture par article et magasin : un même article en rupture dans deux magasins compte deux fois. |
 | Interface | Symfony / Twig / Stimulus ; interface française responsive. |
 | Architecture | Application et dépendances intégralement sous Docker ; API REST /api/v1, PostgreSQL, worker et scheduler conteneurisés. Symfony 8.x proposé par le CDC ; versions PHP et dépendances compatibles à vérifier et épingler à l’implémentation. |
 | Statut des catégories | Désactivation et réactivation appliquées à toute la branche, sous-catégories et articles compris. La réactivation inclut les articles déjà désactivés auparavant. |
@@ -873,5 +874,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 21 octobre 2026 : CON-01 intégré (PR #79). STAT-01 livré pour revue : classements distincts, évolutions et répartitions filtrées selon les droits. Retours à leur date réelle confirmé par l’utilisateur. Recette complète : 350 tests PHP / 4 548 assertions et quatre validations OpenAPI ; contrôles visuels ordinateur et téléphone réussis. [Validation](docs/validation-stat01.md).
 - Livraison STAT-01 : [PR #80](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/80), basée sur main après intégration de CON-01. Issue #31 ouverte jusqu’à fusion.
 
-- 21 octobre 2026 : STAT-02 livré pour revue : tableau de bord réel, indicateurs de stock et d’activité, alertes par gravité, vue personnelle et liens filtrés. Ruptures et sous-seuils comptés par article et magasin par défaut. Recette complète : 359 tests PHP / 4 669 assertions et quatre validations OpenAPI ; contrôles ordinateur et téléphone réussis. [Guide](docs/tableau-de-bord.md), [validation](docs/validation-stat02.md).
+- 21 octobre 2026 : STAT-02 livré pour revue : tableau de bord réel, indicateurs de stock et d’activité, alertes par gravité, vue personnelle et liens filtrés. Ruptures et sous-seuils comptés par article et magasin, conformément au choix confirmé par l’utilisateur. Recette complète : 359 tests PHP / 4 669 assertions et quatre validations OpenAPI ; contrôles ordinateur et téléphone réussis. [Guide](docs/tableau-de-bord.md), [validation](docs/validation-stat02.md).
 - Livraison STAT-02 : [PR #81](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/81), dépendante de la PR #80. Issue #32 ouverte jusqu’à fusion.
