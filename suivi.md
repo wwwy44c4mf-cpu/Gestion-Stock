@@ -880,3 +880,4 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - Livraison STAT-02 : [PR #81](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/81), dépendante de la PR #80. Issue #32 ouverte jusqu’à fusion.
 
 - 21 octobre 2026 : ADM-01 livré pour revue : journal paginé et filtrable, périmètres admin/gestionnaire, utilisateur refusé, contexte public typé et masquage des acteurs/cibles de mouvements partiellement visibles. Recette complète : 368 tests PHP / 4 797 assertions et quatre validations OpenAPI ; contrôles ordinateur et téléphone réussis. Aucun audit métier de démonstration ajouté. [Guide](docs/journal-audit.md), [validation](docs/validation-adm01.md).
+- Livraison ADM-01 : [PR #82](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/82), dépendante de la PR #81. Issue #33 ouverte jusqu’à fusion.

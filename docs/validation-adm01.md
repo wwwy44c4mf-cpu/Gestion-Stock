@@ -21,3 +21,5 @@ Aucune migration ajoutée : 16 migrations installées. Avant/après : cinq mouve
 Contrat : **61 opérations / 97 schémas**, dont **59 disponibles / 2 prévues**. Aucun contrat d’écriture métier changé. Rétention et anonymisation : RGPD-01, sans modification de la décision d’un an.
 
 [Guide](journal-audit.md) · [Issue #33](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33).
+
+Livraison : [PR #82](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/82), basée sur STAT-02 (PR #81 encore ouverte lors de la publication). Issue #33 ouverte jusqu’à fusion.
