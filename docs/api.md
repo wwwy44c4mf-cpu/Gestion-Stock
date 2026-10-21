@@ -1,6 +1,6 @@
 # Contrats et socle API — SOC-03
 
-Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décrit 61 opérations et 96 schémas de données pour le MVP. Aucun appel à un service externe n’est nécessaire pour le lire ou pour le valider.
+Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décrit 61 opérations et 97 schémas de données pour le MVP. Aucun appel à un service externe n’est nécessaire pour le lire ou pour le valider.
 
 ## Ce qui fonctionne déjà
 
@@ -56,7 +56,7 @@ Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décri
 | `GET/PUT /api/v1/stores/{id}/alert-recipients` | Liste effective et préférences atomiques, audit et contrôle de concurrence |
 | `GET /api/v1/stores/{id}/alert-recipient-options` | Personnes éligibles, projection sans adresses ni affectations extérieures |
 
-Ces cinquante-huit opérations portent `x-implementation: available`. Les 3 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
+Ces cinquante-neuf opérations portent `x-implementation: available`. Les 2 autres portent `planned` : leurs contrats sont définis, mais elles seront développées dans leurs lots métier. Elles ne renvoient pas de fausses données de démonstration. Les routes `/api/v1/_test/*` vérifient les outils communs exclusivement en environnement test et sont absentes en production.
 
 Les routes `/health/live` et `/health/ready` de SOC-01 restent disponibles pour Docker ; la nouvelle sonde API ne remplace pas le contrôle PostgreSQL de readiness.
 
@@ -179,3 +179,7 @@ STAT-01 : `GET /statistics/consumptions` est disponible. Quantités exactes sous
 ## Tableau de bord (STAT-02)
 
 `GET /api/v1/dashboard` est disponible pour les administrateurs et gestionnaires avec les filtres date, magasin et catégorie exacte. Les quantités consommées et rendues restent séparées à leur date réelle. Les stocks et alertes sont actuels, indépendamment des dates. Les utilisateurs disposent du tableau personnel HTML et de `/statistics/consumptions`. Les listes `/movements` et `/alerts` acceptent aussi `category_id` pour conserver les filtres des indicateurs. Voir [le guide](tableau-de-bord.md).
+
+## Journal d’audit (ADM-01)
+
+`GET /api/v1/audit-logs` est disponible : vue administrative globale, vue gestionnaire limitée aux magasins actifs affectés, utilisateur refusé. Dates inclusives dans le fuseau du compte, filtres exacts par action/acteur/magasin et pagination stable. Le contexte est projeté selon une liste positive typée ; les secrets et contenus libres sont omis. Aucun endpoint d’écriture. Voir [le guide](journal-audit.md).

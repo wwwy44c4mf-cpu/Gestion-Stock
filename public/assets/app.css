@@ -39,3 +39,8 @@
 .statistics-bar span { display:block; height:100%; background:#17664e; }
 .statistics-bar-return span { background:#b05f2b; }
 .statistics-section summary { cursor:pointer; padding:12px 0; font-weight:650; }
+.audit-table { min-width: 65rem; }
+.audit-table td { vertical-align: top; }
+.audit-table td:last-child { min-width: 19rem; }
+.audit-table small { display:block; overflow-wrap:anywhere; max-width:20rem; }
+.audit-context { padding-left:1.2rem; margin:.5rem 0; overflow-wrap:anywhere; font-size:.85rem; }

@@ -5849,7 +5849,7 @@
       "get": {
         "operationId": "listAuditLogs",
         "summary": "Consulter le journal d’audit",
-        "description": "Administrateur global ; gestionnaire sur ses magasins, sans événements globaux hors périmètre. Utilisateur simple refusé. Aucun secret dans context.",
+        "description": "Administrateur : tous les événements, y compris globaux et magasins désactivés. Gestionnaire : événements rattachés à ses magasins actifs affectés ; événements globaux exclus. Utilisateur refusé. Filtres et comptages appliqués après masquage des acteurs/cibles de mouvements partiellement accessibles. Tri stable created_at puis id ; dates inclusives dans le fuseau du compte. Contexte projeté par liste positive typée ; secrets, empreintes de connexion et contenus libres jamais exposés. Aucun endpoint d’écriture. Le magasin est celui enregistré dans audit_logs, notamment le magasin source d’un transfert ; cette lecture ne reconstruit pas d’événements manquants.",
         "tags": [
           "audit-logs"
         ],
@@ -5863,7 +5863,7 @@
           "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [
           {
             "$ref": "#/components/parameters/Page"
@@ -5916,7 +5916,9 @@
             "in": "query",
             "schema": {
               "type": "string",
-              "maxLength": 80
+              "maxLength": 80,
+              "minLength": 1,
+              "pattern": "^[a-z][a-z0-9_.-]{0,79}$"
             },
             "description": "action"
           }
@@ -8302,11 +8304,29 @@
           },
           "context": {
             "type": "object",
-            "additionalProperties": true
+            "additionalProperties": true,
+            "description": "Projection positive des champs métier typés connus. Les champs inconnus et les secrets sont omis ; objet vide si aucun contexte public."
           },
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "actor_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 160
+          },
+          "store_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 160
+          },
+          "restricted": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false,
@@ -8318,7 +8338,10 @@
           "target_type",
           "target_id",
           "context",
-          "created_at"
+          "created_at",
+          "actor_name",
+          "store_name",
+          "restricted"
         ]
       },
       "ConsumptionTotals": {

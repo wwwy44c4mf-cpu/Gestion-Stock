@@ -204,3 +204,7 @@ Deux classements d’articles, évolution par jour/semaine/mois et répartitions
 ## STAT-02 — Tableau de bord
 
 La page d’accueil présente les stocks actuels, l’activité filtrée et les alertes en cours pour les gestionnaires et administrateurs, ainsi qu’une vue de consommation personnelle pour les utilisateurs. Chaque indicateur renvoie aux listes correspondantes. API de gestion : `GET /api/v1/dashboard`. Voir [le guide](docs/tableau-de-bord.md) et [la validation](docs/validation-stat02.md). Aucune migration ajoutée.
+
+## ADM-01 — Journal d’audit
+
+Le journal en lecture seule est disponible dans `/audit` et `GET /api/v1/audit-logs`, selon le rôle et les magasins autorisés. Filtres, pagination et contexte métier expurgé des secrets. Les producteurs sensibles restent transactionnels et les protections PostgreSQL existantes interdisent les modifications ordinaires. Voir [le guide](docs/journal-audit.md) et [la validation](docs/validation-adm01.md). Aucune migration ajoutée.
