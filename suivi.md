@@ -604,6 +604,8 @@ Sources : DOCK-10,11; §10.3.
 
 Critères d’acceptation : Restauration et recréation des conteneurs validées ; REC-15,16. Quotidien et 90 jours validés. Copie hors serveur à configurer après choix de destination ; risque de perte du serveur entier conservé jusque-là.
 
+[PR #83](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/83), basée sur ADM-01 (#82). Issue ouverte jusqu’à fusion.
+
 [Guide](docs/sauvegardes-restauration.md) · [Validation](docs/validation-ops01.md).
 
 ### OPS-02 — Déploiement HTTPS, sécurité et mises à jour

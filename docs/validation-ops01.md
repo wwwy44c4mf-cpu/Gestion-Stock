@@ -22,3 +22,5 @@ Les données existantes sont conservées : 16 migrations, cinq mouvements, somme
 La destination hors serveur n’est pas choisie : aucune copie extérieure ni protection contre la perte complète du serveur ne sont annoncées. Avant production, choisir cette destination, y transférer les archives et protéger séparément la clé privée, puis mesurer une reprise complète depuis cette copie. La durée locale de 45 secondes ne garantit pas le délai en production ; objectif accepté : un jour ouvré, avec risque résiduel et environ 24 h de données exposées après la dernière réussite quotidienne.
 
 [Guide d’exploitation](sauvegardes-restauration.md) · [Issue #34](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34).
+
+Livraison : [PR #83](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/83), basée sur ADM-01 (PR #82 encore ouverte). Issue #34 ouverte jusqu’à fusion.
