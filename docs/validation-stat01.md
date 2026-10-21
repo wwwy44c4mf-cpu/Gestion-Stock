@@ -22,3 +22,5 @@ Contrat : **61 opérations / 97 schémas**, dont **57 disponibles / 4 prévues**
 Décision utilisateur : comptabiliser les retours à leur date réelle, pour suivre l’activité de la période.
 
 [Guide](statistiques-consommation.md) · [Issue #31](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31).
+
+Livraison pour revue : [PR #80](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/80), basée sur main après intégration de CON-01.

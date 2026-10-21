@@ -869,3 +869,4 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 - 21 octobre 2026 : ALT-02 intégré (PR #75). ALT-03 livré pour revue : écran et préférences des destinataires, choix utilisateur personnalisable, 297 tests PHP / 4 099 assertions et quatre validations OpenAPI. Aucun ajout de démonstration aux données réelles.
 
 - 21 octobre 2026 : CON-01 intégré (PR #79). STAT-01 livré pour revue : classements distincts, évolutions et répartitions filtrées selon les droits. Retours à leur date réelle confirmé par l’utilisateur. Recette complète : 350 tests PHP / 4 548 assertions et quatre validations OpenAPI ; contrôles visuels ordinateur et téléphone réussis. [Validation](docs/validation-stat01.md).
+- Livraison STAT-01 : [PR #80](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/80), basée sur main après intégration de CON-01. Issue #31 ouverte jusqu’à fusion.
