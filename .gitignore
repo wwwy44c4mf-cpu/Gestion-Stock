@@ -6,3 +6,7 @@
 /var/
 /coverage/
 /.phpunit.cache/
+/backups/
+/backup-recovery/
+*.backup.age
+*.backup.age.sha256

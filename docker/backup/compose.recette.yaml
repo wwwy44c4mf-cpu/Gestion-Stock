@@ -1,0 +1,130 @@
+name: gestion-stock-ops01-recette
+x-app: &app
+  build: {context: ../.., target: runtime}
+  image: gestion-stock-ops01-recette-app
+  environment: &env
+    APP_ENV: dev
+    APP_DEBUG: 0
+    APP_SECRET_FILE: /run/secrets/app_secret
+    DATABASE_PASSWORD_FILE: /run/secrets/db_password
+    DATABASE_HOST: db
+    DATABASE_PORT: 5432
+    DATABASE_NAME: gestion_stock
+    DATABASE_USER: gestion_stock
+    MAIL_DELIVERY_ENABLED: 0
+    MAILER_DSN_FILE: /run/secrets/mailer_dsn
+    MAIL_FROM_ADDRESS: noreply@example.invalid
+    APP_PUBLIC_URL: http://web:8080
+    MESSENGER_TRANSPORT_DSN: doctrine://default?auto_setup=false
+  secrets: [app_secret, db_password, mailer_dsn]
+  networks: [recette]
+  read_only: true
+  tmpfs: ["/tmp:uid=10001,gid=10001,mode=1770", "/app/var:uid=10001,gid=10001,mode=0770"]
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  depends_on:
+    db: {condition: service_healthy}
+x-db: &db
+  build: {context: ../.., target: database}
+  image: gestion-stock-ops01-recette-db
+  environment:
+    POSTGRES_DB: gestion_stock
+    POSTGRES_USER: postgres
+    APP_DB_USER: gestion_stock
+    POSTGRES_PASSWORD_FILE: /run/secrets/db_admin_password
+    POSTGRES_INITDB_ARGS: --encoding=UTF8 --locale=C
+  secrets: [db_password, db_admin_password]
+  networks: [recette]
+  cap_drop: [ALL]
+  cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+  security_opt: [no-new-privileges:true]
+  healthcheck:
+    test: [CMD, pg_isready, -U, postgres, -d, gestion_stock]
+    interval: 2s
+    timeout: 3s
+    retries: 30
+services:
+  fixture-setup:
+    build: {context: ../.., target: backup-test}
+    image: gestion-stock-ops01-recette-backup-test
+    command: [setup]
+    user: "0:0"
+    volumes: ["${OPS_TEST_ROOT:?}:/fixture"]
+    network_mode: none
+  db:
+    <<: *db
+    volumes: ["source_data:/var/lib/postgresql", "../postgres/init-app.sh:/docker-entrypoint-initdb.d/10-app.sh:ro"]
+  restore-db:
+    <<: *db
+    volumes: ["restored_data:/var/lib/postgresql", "../postgres/init-app.sh:/docker-entrypoint-initdb.d/10-app.sh:ro"]
+  migrate:
+    <<: *app
+    command: [php, bin/console, doctrine:migrations:migrate, --no-interaction]
+  seed:
+    <<: *app
+    environment:
+      <<: *env
+      OPS_RECOVERY_FIXTURE: 1
+    command: [php, docker/backup/seed-recovery.php]
+  app:
+    <<: *app
+    environment:
+      <<: *env
+      DATABASE_HOST: restore-db
+    depends_on:
+      restore-db: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, php, docker/healthcheck.php, fpm]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+  web:
+    build: {context: ../.., target: web}
+    image: gestion-stock-ops01-recette-web
+    read_only: true
+    tmpfs: ["/tmp:uid=101,gid=101,mode=1770"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    networks: [recette]
+    depends_on:
+      app: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, wget, -q, --spider, http://127.0.0.1:8080/health/ready]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+  backup-test:
+    build: {context: ../.., target: backup-test}
+    image: gestion-stock-ops01-recette-backup-test
+    environment:
+      DATABASE_HOST: db
+      DATABASE_NAME: gestion_stock
+      DATABASE_USER: gestion_stock
+      DATABASE_PASSWORD_FILE: /run/secrets/db_password
+      BACKUP_SOURCE: /source
+      BACKUP_ENV_FILE: /fixture/recovery.env
+      BACKUP_DIRECTORY: /fixture/archives
+      BACKUP_RECIPIENT_FILE: /fixture/keys/backup_recipient
+      BACKUP_RETENTION_DAYS: 90
+      BACKUP_INTERVAL_SECONDS: 86400
+      TMPDIR: /work
+    secrets: [app_secret, db_password, db_admin_password, mailer_dsn]
+    volumes: ["${OPS_TEST_ROOT:?}:/fixture", "../..:/source:ro"]
+    networks: [recette]
+    read_only: true
+    tmpfs: ["/work:uid=10001,gid=10001,mode=0700,size=512m"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    depends_on:
+      db: {condition: service_healthy}
+      restore-db: {condition: service_healthy}
+volumes:
+  source_data: {}
+  restored_data: {}
+networks:
+  recette: {internal: true}
+secrets:
+  app_secret: {file: "${OPS_TEST_ROOT:?}/secrets/app_secret"}
+  db_password: {file: "${OPS_TEST_ROOT:?}/secrets/db_password"}
+  db_admin_password: {file: "${OPS_TEST_ROOT:?}/secrets/db_admin_password"}
+  mailer_dsn: {file: "${OPS_TEST_ROOT:?}/secrets/mailer_dsn"}

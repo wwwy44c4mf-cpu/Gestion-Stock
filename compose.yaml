@@ -160,6 +160,106 @@ services:
     security_opt: [no-new-privileges:true]
     restart: "no"
 
+  backup:
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-backup:ops-01
+    build:
+      context: .
+      target: backup
+    profiles: [backup]
+    environment: &backup-env
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${POSTGRES_DB:-gestion_stock}
+      DATABASE_USER: ${POSTGRES_USER:-gestion_stock}
+      DATABASE_PASSWORD_FILE: /run/secrets/db_password
+      BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-86400}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-90}
+      BACKUP_COMMAND_TIMEOUT: ${BACKUP_COMMAND_TIMEOUT:-600}
+      BACKUP_MAX_EXPANDED_BYTES: ${BACKUP_MAX_EXPANDED_BYTES:-10737418240}
+      TMPDIR: /work
+    secrets: [db_password, db_admin_password, app_secret, mailer_dsn, backup_recipient]
+    volumes:
+      - backup_data:/backups
+      - type: bind
+        source: .
+        target: /source
+        read_only: true
+    networks: [backend]
+    read_only: true
+    tmpfs: ["/work:uid=10001,gid=10001,mode=0700,size=${BACKUP_TMPFS_SIZE:-512m}"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 30s
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, python3, /opt/backup.py, health]
+      interval: 60s
+      timeout: 10s
+      retries: 2
+      start_period: 120s
+
+  backup-keygen:
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-backup:ops-01
+    build:
+      context: .
+      target: backup
+    profiles: [backup-tools]
+    command: [keygen]
+    user: "0:0"
+    environment:
+      TMPDIR: /work
+      BACKUP_KEY_UID: ${BACKUP_KEY_UID:-0}
+      BACKUP_KEY_GID: ${BACKUP_KEY_GID:-0}
+    volumes: ["./.secrets:/keys"]
+    network_mode: none
+    read_only: true
+    tmpfs: ["/work:mode=0700"]
+    cap_drop: [ALL]
+    cap_add: [DAC_OVERRIDE, CHOWN]
+    security_opt: [no-new-privileges:true]
+    restart: "no"
+
+  backup-files:
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-backup:ops-01
+    profiles: [backup-tools]
+    user: "0:0"
+    environment:
+      TMPDIR: /work
+      RESTORE_OUTPUT_UID: ${RESTORE_OUTPUT_UID:-0}
+      RESTORE_OUTPUT_GID: ${RESTORE_OUTPUT_GID:-0}
+    secrets: [backup_identity]
+    volumes:
+      - backup_data:/backups
+      - ${BACKUP_RECOVERY_DIRECTORY:-./backup-recovery}:/recovery
+    network_mode: none
+    read_only: true
+    tmpfs: ["/work:mode=0700,size=${BACKUP_TMPFS_SIZE:-512m}"]
+    cap_drop: [ALL]
+    cap_add: [DAC_OVERRIDE, CHOWN]
+    security_opt: [no-new-privileges:true]
+    restart: "no"
+
+  backup-restore:
+    image: ${COMPOSE_PROJECT_NAME:-gestion-stock}-backup:ops-01
+    profiles: [backup-tools]
+    user: "0:0"
+    environment:
+      <<: *backup-env
+      RESTORE_CONFIRM_DATABASE: ${RESTORE_CONFIRM_DATABASE:-}
+    secrets: [db_password, backup_identity]
+    volumes: ["backup_data:/backups:ro"]
+    networks: [backend]
+    read_only: true
+    tmpfs: ["/work:mode=0700,size=${BACKUP_TMPFS_SIZE:-512m}"]
+    cap_drop: [ALL]
+    cap_add: [DAC_OVERRIDE]
+    security_opt: [no-new-privileges:true]
+    restart: "no"
+
 networks:
   edge: {}
   frontend:
@@ -170,6 +270,7 @@ networks:
 
 volumes:
   postgres_data: {}
+  backup_data: {}
 
 secrets:
   app_secret:
@@ -181,3 +282,8 @@ secrets:
 
   mailer_dsn:
     file: ./.secrets/mailer_dsn
+
+  backup_recipient:
+    file: ./.secrets/backup_recipient
+  backup_identity:
+    file: ./.secrets/backup_identity

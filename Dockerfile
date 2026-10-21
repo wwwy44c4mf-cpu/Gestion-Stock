@@ -63,3 +63,18 @@ COPY docs/schemas/openapi-3.1.schema.json docs/schemas/openapi-3.1.schema.json
 COPY tests/contract_test.py tests/contract_test.py
 USER 10001:10001
 CMD ["python", "tests/contract_test.py"]
+
+FROM postgres:18-alpine@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873 AS backup
+RUN apk upgrade --no-cache \
+    && apk add --no-cache python3 py3-psycopg2 age \
+    && addgroup -g 10001 backup && adduser -D -u 10001 -G backup backup \
+    && mkdir -p /backups /work && chown backup:backup /backups /work
+COPY docker/backup/backup.py /opt/backup.py
+USER backup
+WORKDIR /work
+ENTRYPOINT ["python3", "/opt/backup.py"]
+CMD ["schedule"]
+
+FROM backup AS backup-test
+COPY tests/backup_test.py /tests/backup_test.py
+ENTRYPOINT ["python3", "/tests/backup_test.py"]

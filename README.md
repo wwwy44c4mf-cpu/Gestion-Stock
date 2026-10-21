@@ -76,7 +76,7 @@ docker compose down
 docker compose up -d --wait
 ```
 
-`down` conserve les volumes ; ne pas ajouter `--volumes` pour un redémarrage normal. Les caches se reconstruisent, la base et la file sont conservées. Un volume n’est pas une sauvegarde : procédures complètes et restauration relèvent d’OPS-01. Ne pas supprimer les secrets en conservant la base.
+`down` conserve les volumes ; ne pas ajouter `--volumes` pour un redémarrage normal. Les caches se reconstruisent, la base et la file sont conservées. Un volume n’est pas une sauvegarde : voir le [guide de sauvegarde et restauration](docs/sauvegardes-restauration.md). Ne pas supprimer les secrets en conservant la base.
 
 Vérifier la persistance sans données métier avec une sonde dans une queue dédiée :
 
@@ -208,3 +208,7 @@ La page d’accueil présente les stocks actuels, l’activité filtrée et les 
 ## ADM-01 — Journal d’audit
 
 Le journal en lecture seule est disponible dans `/audit` et `GET /api/v1/audit-logs`, selon le rôle et les magasins autorisés. Filtres, pagination et contexte métier expurgé des secrets. Les producteurs sensibles restent transactionnels et les protections PostgreSQL existantes interdisent les modifications ordinaires. Voir [le guide](docs/journal-audit.md) et [la validation](docs/validation-adm01.md). Aucune migration ajoutée.
+
+## Sauvegardes quotidiennes
+
+Le profil facultatif `backup` conserve des archives chiffrées pendant 90 jours et permet une restauration contrôlée sur base vierge. [Activation, copie hors serveur et reprise](docs/sauvegardes-restauration.md) · [Recette OPS-01](docs/validation-ops01.md). La destination hors serveur reste à choisir avant production.

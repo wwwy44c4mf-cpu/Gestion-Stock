@@ -1,0 +1,34 @@
+#!/bin/sh
+# All data and volumes belong exclusively to this disposable project.
+set -eu
+cd "$(dirname "$0")/.."
+OPS_TEST_STARTED=$(date +%s)
+OPS_TEST_ROOT=$(mktemp -d /tmp/gestion-stock-ops01.XXXXXX)
+export OPS_TEST_ROOT
+OPS_TEST_BUILT=0
+OPS_TEST_PROJECT="gestion-stock-ops01-recette-$(date +%s)-$$"
+compose() { docker compose -p "$OPS_TEST_PROJECT" -f docker/backup/compose.recette.yaml "$@"; }
+cleanup() {
+    result=$?
+    trap - EXIT INT TERM
+    if [ "$OPS_TEST_BUILT" = 1 ]; then compose run --rm --no-deps fixture-setup clean >/dev/null 2>&1 || true; fi
+    compose down --volumes --remove-orphans >/dev/null 2>&1 || true
+    rmdir "$OPS_TEST_ROOT" 2>/dev/null || true
+    exit "$result"
+}
+trap cleanup EXIT INT TERM
+compose build fixture-setup migrate db web
+OPS_TEST_BUILT=1
+compose run --rm --no-deps fixture-setup setup
+compose up -d --wait db restore-db
+compose run --rm migrate
+compose run --rm migrate php bin/console messenger:setup-transports --no-interaction
+compose run --rm seed
+compose run --rm backup-test
+compose up -d --wait app web
+compose run --rm backup-test web
+# REC-15: remove containers and recreate them, preserving these test volumes.
+compose down
+compose up -d --wait db restore-db app web
+compose run --rm backup-test recreated
+printf 'REC-15 et REC-16 validés sur une installation isolée (%s secondes).\n' "$(( $(date +%s) - OPS_TEST_STARTED ))"
