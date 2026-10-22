@@ -1,6 +1,6 @@
 # Contrats et socle API — SOC-03
 
-Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décrit 61 opérations et 97 schémas de données pour le MVP. Aucun appel à un service externe n’est nécessaire pour le lire ou pour le valider.
+Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décrit 61 opérations et 97 schémas de données pour le MVP. Aucun appel à un service externe n’est nécessaire pour le lire ou pour le valider. **59 opérations sont marquées `available` ; les deux opérations de réinitialisation du mot de passe sont encore `planned` (AUTH-04, issue #8)**. Un contrat présent ne crée pas une route : ne pas appeler ces deux opérations comme un service livré.
 
 ## Ce qui fonctionne déjà
 
@@ -119,11 +119,11 @@ Toutes les erreurs traitées par Symfony sous `/api/v1` sont des `application/pr
 
 400 : JSON invalide ; 401 : session absente/expirée ; 403 : rôle/périmètre/CSRF refusé ; 404 : ressource absente ou hors périmètre ; 405 : méthode refusée avec `Allow` ; 409 : version, stock, état ou idempotence en conflit ; 413 : taille ; 415 : type de contenu ; 422 : données/règles invalides ; 429 : débit avec `Retry-After` ; 500 : erreur interne masquée.
 
-`ApiProblem` fournit le code et un message constant. Ne pas y interpoler de corps client, SQL, mot de passe ou jeton. Les erreurs inattendues ne renvoient aucun détail d’exception ; le journal technique écrit seulement un message générique, l’identifiant de requête et la classe d’erreur. Les contrôles de visibilité métier devront refuser une requête ou renvoyer 404 avant de révéler l’existence d’un objet hors périmètre.
+`ApiProblem` fournit le code et un message constant. Ne pas y interpoler de corps client, SQL, mot de passe ou jeton. Les erreurs inattendues ne renvoient aucun détail d’exception ; le journal technique écrit seulement un message générique, l’identifiant de requête et la classe d’erreur. Les contrôles de visibilité métier doivent refuser une requête ou renvoyer 404 avant de révéler l’existence d’un objet hors périmètre.
 
 ## Sessions, CSRF et débit
 
-Le cookie de production est `GESTION_STOCK_SESSION`, HttpOnly et SameSite=Lax. Secure s’applique sur une requête HTTPS reconnue par Symfony ; le proxy et HTTPS de production seront configurés dans OPS-02. Le stockage natif se trouve dans la zone temporaire de l’application ; un redémarrage invalide les sessions. AUTH-01 fournit la connexion, la déconnexion, le profil et le renouvellement de session, avec expiration à 30 minutes d’inactivité et 12 heures absolues. La relecture du compte rejette une identité désactivée ou une version d’authentification modifiée. Les écrans de gestion des comptes restent dans AUTH-02.
+Le cookie de production est `GESTION_STOCK_SESSION`, HttpOnly et SameSite=Lax. Secure s’applique sur une requête HTTPS reconnue par Symfony ; le proxy et HTTPS de production sont configurés suivant OPS-02. Le stockage natif se trouve dans la zone temporaire de l’application ; un redémarrage invalide les sessions. AUTH-01 fournit la connexion, la déconnexion, le profil et le renouvellement de session, avec expiration à 30 minutes d’inactivité et 12 heures absolues. La relecture du compte rejette une identité désactivée ou une version d’authentification modifiée. Les écrans de gestion des comptes sont livrés par AUTH-02.
 
 Après une connexion, le cookie est renouvelé et les anciens jetons CSRF sont supprimés. Redemander un jeton avec le nouveau cookie. Avant une écriture, appeler `/auth/csrf`, conserver le cookie puis transmettre le champ `token` dans `X-CSRF-Token`. Le jeton est lié à cette session, y compris pour connexion et réinitialisation. Un jeton absent ou appartenant à une autre session donne 403. Il ne prouve pas l’identité d’un utilisateur et ne remplace pas les contrôles de rôle.
 
@@ -135,7 +135,7 @@ La réinitialisation et l’information ciblée sont limitées par adresse IP et
 
 La persistance du résultat, la sérialisation des accès concurrents et le retour 409 pour clé réemployée avec un contenu différent appartiennent aux services métier, en particulier STK-02. L’outil partagé ne simule pas une protection de rejeu en mémoire. Les autres créations marquées idempotentes devront aussi persister leur résultat dans leur lot ; le contrat ne les active pas.
 
-Pour chaque futur contrôleur métier : vérifier la session active, les rôles et les magasins depuis les données serveur ; lire les entrées via les outils communs et les schémas nommés ; appliquer les règles croisées dans une transaction ; filtrer aussi les totaux et les projections de noms ; utiliser les problèmes normalisés et respecter le contrat de réponse. Les schémas ne remplacent ni les autorisations ni le verrouillage des stocks.
+Pour chaque contrôleur métier : vérifier la session active, les rôles et les magasins depuis les données serveur ; lire les entrées via les outils communs et les schémas nommés ; appliquer les règles croisées dans une transaction ; filtrer aussi les totaux et les projections de noms ; utiliser les problèmes normalisés et respecter le contrat de réponse. Les schémas ne remplacent ni les autorisations ni le verrouillage des stocks.
 
 ## Validation et provenance
 
@@ -156,7 +156,7 @@ Les lectures `/stocks`, `/stores/{storeId}/stocks` et `/articles/{id}/stocks` ap
 
 ## Entrées de stock
 
-Le formulaire et `POST /api/v1/movements/entries` utilisent le moteur transactionnel de STK-02. Motif obligatoire, référence facultative, auteur et date serveur ; événement durable de recalcul en attente des futurs traitements d’alertes. [Guide](entrees-stock.md) · [Recette](validation-stk03.md).
+Le formulaire et `POST /api/v1/movements/entries` utilisent le moteur transactionnel de STK-02. Motif obligatoire, référence facultative, auteur et date serveur ; événement durable traité par le cycle des alertes. [Guide](entrees-stock.md) · [Recette](validation-stk03.md).
 
 STK-05 : [corrections et ajustements](corrections-stock.md). Les réponses d’écriture de ces trois nouvelles opérations n’annoncent pas de Location vers un détail API ; sa lecture est disponible depuis STK-08.
 

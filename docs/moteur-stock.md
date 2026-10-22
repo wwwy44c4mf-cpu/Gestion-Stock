@@ -22,7 +22,7 @@ Solde, incrément de version, mouvement immuable, événement durable et audit s
 
 La clé autorise 8 à 160 caractères ASCII parmi lettres, chiffres, `.`, `_`, `:`, `-`. Elle est unique par opérateur dans l’ensemble du journal, tous types d’opérations confondus. L’empreinte HMAC couvre l’opérateur, l’opération et le corps canonique ; l’ordre des propriétés et la casse des UUID n’en changent pas le résultat. Une différence de contenu ou d’opération avec la même clé donne 409. Une ancienne ligne sans empreinte est également refusée, jamais adoptée comme preuve de rejeu.
 
-Le rejeu restitue le même mouvement et sa date initiale sans toucher aux soldes, versions, événements ou audits, même si le stock a changé, si l’article a été archivé, si un inventaire a démarré ou si le bénéficiaire a été désactivé depuis. L’identité, le rôle et les accès de l’opérateur restent contrôlés à chaque appel ; une perte d’affectation n’accorde pas un droit d’écriture par le biais d’une ancienne clé. Les noms sont nuls dans ce résultat stable ; les futures vues pourront les présenter séparément selon les droits.
+Le rejeu restitue le même mouvement et sa date initiale sans toucher aux soldes, versions, événements ou audits, même si le stock a changé, si l’article a été archivé, si un inventaire a démarré ou si le bénéficiaire a été désactivé depuis. L’identité, le rôle et les accès de l’opérateur restent contrôlés à chaque appel ; une perte d’affectation n’accorde pas un droit d’écriture par le biais d’une ancienne clé. Les noms sont nuls dans ce résultat stable ; les vues les présentent séparément selon les droits.
 
 ## Journal, événements et exploitation
 
@@ -30,7 +30,7 @@ Les mouvements conservent la date serveur UTC ; aucune date rétroactive n’est
 
 La migration `Version20261018200000` ajoute `stock_change_events` : un événement unique par mouvement avec article, magasins concernés et date, destiné au recalcul des alertes. Il reste en attente jusqu’à l’intégration du consommateur dans les lots d’alertes ; aucun courriel ni appel SMTP ne fait partie de la transaction. La migration ne remplit ni ne modifie les stocks existants et ne produit pas de faux événements pour l’historique. Son retour arrière refuse de supprimer une table contenant des événements.
 
-`app:stock:reconcile` compare toujours les soldes au journal sans rien corriger. Un résultat non cohérent requiert une analyse et une correction métier contrôlée ; une écriture SQL manuelle des soldes contourne le moteur et reste détectable. Les futures écritures applicatives doivent passer par ce service plutôt que mettre à jour directement `stock_levels`.
+`app:stock:reconcile` compare toujours les soldes au journal sans rien corriger. Un résultat non cohérent requiert une analyse et une correction métier contrôlée ; une écriture SQL manuelle des soldes contourne le moteur et reste détectable. Les écritures applicatives doivent passer par ce service plutôt que mettre à jour directement `stock_levels`.
 
 Les consommations sont raccordées au moteur par leur formulaire et `POST /api/v1/movements/consumptions` depuis STK-04. Voir le [guide des consommations](consommations.md), notamment les règles de bénéficiaire tiers et de consultation personnelle de la confirmation.
 
@@ -40,7 +40,7 @@ Les consommations sont raccordées au moteur par leur formulaire et `POST /api/v
 
 `movement_corrections` lie l’origine, le contre-mouvement et le remplacement avec une contrainte de cohérence et une protection contre la mutation. Le résultat de rejeu utilise ces liens persistés, sans nouvelle attribution ni nouveau débit. Les annulations utilisent l’index unique existant sur l’origine. Les consommations avec retours actifs et les mouvements issus d’inventaires clôturés ne sont pas compensés ici. Les enregistrements de retour STK-07 verrouillent la consommation d’origine et refusent une origine déjà compensée pour sérialiser les retours avec les corrections.
 
-Appliquer `Version20261018223000` avant d’exposer les nouvelles pages de stock et confirmations. Les statistiques futures doivent compter les consommations effectives en excluant les origines compensées. [Guide et limites](corrections-stock.md).
+Appliquer `Version20261018223000` avant d’exposer les nouvelles pages de stock et confirmations. Les statistiques comptent les consommations effectives en excluant les origines compensées. [Guide et limites](corrections-stock.md).
 
 STK-06 raccorde `POST /api/v1/movements/transfers` et le formulaire de transfert au moteur commun. Un seul mouvement porte source et destination, un seul événement contient les deux magasins ; la confirmation HTML exige leur double périmètre de lecture. Les verrous de soldes restent ordonnés par UUID, y compris pour les transferts opposés. [Guide](transferts-stock.md).
 
@@ -48,7 +48,7 @@ STK-06 raccorde `POST /api/v1/movements/transfers` et le formulaire de transfert
 
 `StockReturnEngine::record` valide `ReturnCreate` et les droits sur la consommation, y compris la propriété personnelle USER sans affectation. Les mêmes tables d’état sont stabilisées en SHARE ; la clé de requête est sérialisée dans le même espace que les autres mouvements. La consommation est ensuite verrouillée FOR UPDATE avant lecture du cumul des retours non compensés et avant le solde. Le magasin et l’article viennent exclusivement de l’origine. Solde/version, retour, événement et audit sont atomiques.
 
-Pour une correction ou une annulation d’un retour, `StockCorrectionEngine` verrouille désormais la consommation avant le retour ciblé, puis le solde. Toute opération modifiant le cumul partage donc cet ordre. Un retour sur une consommation compensée est refusé ; un retour annulé est exclu du cumul et son remplacement corrigé y entre. Les statistiques futures doivent conserver les retours séparés des sorties et filtrer leurs versions compensées. [Guide](retours-stock.md).
+Pour une correction ou une annulation d’un retour, `StockCorrectionEngine` verrouille désormais la consommation avant le retour ciblé, puis le solde. Toute opération modifiant le cumul partage donc cet ordre. Un retour sur une consommation compensée est refusé ; un retour annulé est exclu du cumul et son remplacement corrigé y entre. Les statistiques conservent les retours séparés des sorties et filtrent leurs versions compensées. [Guide](retours-stock.md).
 
 ## Clôture des inventaires — INV-03
 

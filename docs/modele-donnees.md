@@ -54,9 +54,9 @@ erDiagram
 | `password_reset_tokens` | Empreinte de jeton unique, expiration et date d’utilisation ; aucun jeton en clair. |
 | `audit_logs` | Acteur, périmètre magasin facultatif, action, cible et contexte minimal ; UPDATE/DELETE refusés. |
 
-Les identifiants métier sont des UUID générés par PostgreSQL. Les clés étrangères utilisent `RESTRICT` : retirer un objet référencé ne détruit jamais ses historiques en cascade. L’archivage utilise `active`. Les utilisateurs peuvent être anonymisés en conservant leur UUID et les références historiques ; la politique automatique à un an reste dans RGPD-01.
+Les identifiants métier sont des UUID générés par PostgreSQL. Les clés étrangères utilisent `RESTRICT` : retirer un objet référencé ne détruit jamais ses historiques en cascade. L’archivage utilise `active`. RGPD-01 remplace les liens nominatifs anciens par une identité commune et efface les champs libres concernés ; [règles détaillées](conservation-donnees.md).
 
-Les horodatages sont des `timestamptz` : ils représentent des instants, affichables dans le fuseau utilisateur. Les mouvements possèdent un horodatage serveur et aucune date métier rétroactive. L’écriture par l’application devra réserver cet horodatage au serveur, sans le prendre dans une requête client.
+Les horodatages sont des `timestamptz` : ils représentent des instants, affichables dans le fuseau utilisateur. Les mouvements possèdent un horodatage serveur et aucune date métier rétroactive. L’écriture par l’application réserve cet horodatage au serveur, sans le prendre dans une requête client.
 
 ### Quantités exactes
 
@@ -76,7 +76,7 @@ Le bénéficiaire n’a pas de lien contraint vers `user_stores`, puisqu’un te
 
 ## Limites volontaires de SOC-02
 
-Ce lot livre le stockage et ses garanties structurelles. Il n’enregistre pas encore de mouvements métier. STK-02 devra mettre à jour solde et journal dans la même transaction, vérifier le disponible sous verrou et traiter les relectures d’une clé avec une requête différente. STK-07 devra contrôler le cumul des retours sous verrou ; INV-01/03 implémenteront les transitions, le gel de tous les mouvements et l’immutabilité d’un inventaire clôturé. Les cycles de catégories, les rôles de validation des propositions et les règles d’état détaillées seront contrôlés par leurs services. MAIL-01 assurera l’écriture transactionnelle de l’outbox et sa publication vers Messenger ; MAIL-03 programmera le récapitulatif à 08 h.
+SOC-02 a livré le stockage ; les lots métier raccordent ces garanties. STK-02 écrit solde, journal, audit et événement dans une transaction et contrôle le disponible sous verrou et le rejeu. STK-07 borne les retours ; INV-01/03 appliquent transitions, gel et clôture immuable. Les services catalogue et propositions contrôlent cycles, rôles et versions. MAIL-01 gère l’outbox durable et Messenger ; MAIL-03 prépare le récapitulatif de 08 h.
 
 Le hash de requête est prévu mais facultatif au niveau du stockage ; il deviendra obligatoire dans le service de création idempotente. Les payloads et contextes ne doivent contenir ni secrets, ni noms/courriels recopiés inutilement. L’historique est protégé contre UPDATE/DELETE usuels, pas contre un administrateur de base capable de modifier le schéma ou de désactiver ses triggers.
 
@@ -84,7 +84,7 @@ Index : mouvements par date, article/date, source/date, destination/date et cons
 
 ## Complément technique AUTH-02
 
-La table `user_creation_requests` relie un administrateur et sa clé d’idempotence au compte créé et au résultat JSON initial. Sa transaction est commune à la création, aux affectations et à l’audit. L’empreinte est protégée par HMAC ; aucun corps de création ni mot de passe n’y est stocké. Le résultat contient l’identité initiale et relève donc aussi de la future rétention/anonymisation RGPD-01.
+La table `user_creation_requests` relie un administrateur et sa clé d’idempotence au compte créé et au résultat JSON initial. Sa transaction est commune à la création, aux affectations et à l’audit. L’empreinte est protégée par HMAC ; aucun corps de création ni mot de passe n’y est stocké. Le résultat contient l’identité initiale et relève donc aussi de la rétention RGPD-01.
 
 ### STK-05 — Liens des corrections
 

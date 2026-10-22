@@ -14,7 +14,7 @@ Tous les nouveaux retours exigent un magasin actif. Les administrateurs peuvent 
 
 Le cumul des **retours effectifs** ne peut dépasser la quantité consommée. Un retour annulé n’entre plus dans le cumul ; lorsqu’il est corrigé, son remplacement entre à sa place. Les corrections et annulations de retour restent réservées à ADMIN/MANAGER autorisés. Les consommations ayant des retours actifs doivent d’abord voir ces retours annulés avant d’être corrigées ou annulées. Aucun retour nouveau ne vise une ancienne consommation déjà annulée ou corrigée : utiliser son remplacement.
 
-Un inventaire en cours ou en attente de validation bloque le retour. La capacité maximale du stock et la version du solde sont contrôlées. Une erreur annule ensemble le solde, le mouvement, l’audit et l’événement durable. Les futures alertes utiliseront cet événement ; l’écran n’annonce pas d’envoi de courriel.
+Un inventaire en cours ou en attente de validation bloque le retour. La capacité maximale du stock et la version du solde sont contrôlées. Une erreur annule ensemble le solde, le mouvement, l’audit et l’événement durable. Le cycle des alertes traite cet événement ; la confirmation ne prouve pas la livraison d’un courriel.
 
 La consommation est verrouillée avant le calcul du reste à rendre. Retours, corrections et annulations de retours suivent le même ordre de verrous. Deux personnes ne peuvent donc pas rendre simultanément plus d’unités que la consommation, y compris lorsqu’un retour existant est corrigé en parallèle.
 
@@ -38,7 +38,7 @@ Remplacer l’UUID d’exemple par une consommation réelle autorisée. Réponse
 
 Quantités nulles/négatives, fractionnaires, exposants, chaînes JSON numériques, dépassement de borne et champs supplémentaires : 422. Commentaire : 2 000 caractères maximum, texte UTF-8 sans nul binaire. Magasin, article, auteur, bénéficiaire et date fournis par le client sont refusés. Consommation inaccessible ou d’autrui pour USER : 404 ; quantité excessive, consommation compensée, inventaire, capacité dépassée ou clé conflictuelle : 409. CSRF absent/invalide : 403 ; session absente avec CSRF valide : 401.
 
-Aucune nouvelle migration après STK-05 (`Version20261018223000`). L’historique personnel complet reste dans CON-01 et les statistiques dans STAT-01 ; ce lot fournit la sélection des consommations à rendre, les compteurs et les confirmations de retour. [Recette](validation-stk07.md) · [Moteur](moteur-stock.md).
+Aucune nouvelle migration après STK-05 (`Version20261018223000`). L’historique personnel complet est livré par CON-01 et les statistiques par STAT-01 ; ce lot fournit la sélection des consommations à rendre, les compteurs et les confirmations de retour. [Recette](validation-stk07.md) · [Moteur](moteur-stock.md).
 
 ## Conservation des données — RGPD-01
 

@@ -39,3 +39,15 @@ jobs:
         run: sh bin/test-production
       - name: Pannes worker, SMTP et base de donnees
         run: sh bin/test-operations
+  installation:
+    name: Installation vierge et documentation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Liens locaux des guides
+        run: python3 docker/documentation/check.py
+      - name: Installation et demonstration Docker isolees
+        run: sh bin/test-installation

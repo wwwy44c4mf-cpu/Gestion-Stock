@@ -24,9 +24,9 @@ Les gestionnaires voient leurs propres propositions de catalogue ; l’administr
 
 La recherche des bénéficiaires est réservée aux administrateurs et aux gestionnaires affectés à au moins un magasin actif. Elle retourne uniquement `id` et `name` des comptes actifs, de tout rôle et tout magasin. Aucun courriel, rôle, affectation ou profil complet n’est exposé. Les comptes de développement restent invisibles hors de l’environnement `dev`.
 
-Les retours doivent référencer une consommation réelle ; son bénéficiaire et son magasin sont lus en base. Le magasin d’origine doit être actif. Un utilisateur peut rendre ses propres articles dans le magasin d’origine actif même après retrait de son affectation. Aucun endpoint de retour n’est livré par AUTH-03 ; la création et les limites quantitatives relèvent de STK-07.
+Les retours doivent référencer une consommation réelle ; son bénéficiaire et son magasin sont lus en base. Le magasin d’origine doit être actif. Un utilisateur peut rendre ses propres articles dans le magasin d’origine actif même après retrait de son affectation. La création et les limites quantitatives sont livrées par STK-07.
 
-## Intégration des prochains lots
+## Intégration des services métier
 
 - `Permission` est la matrice des rôles ; `AccessIdentity` vérifie en base activité, rôle, version d’authentification, empreinte du mot de passe et restriction de développement.
 - `AccessPolicy::assert()` contrôle une cible `AccessTarget` composée d’identifiants uniquement. Magasin, bénéficiaire et propriétaire d’une ressource sont relus en base. Rôle interdit : 403 ; ressource inexistante, identifiant invalide ou hors périmètre : 404, sans distinction.
@@ -34,9 +34,9 @@ Les retours doivent référencer une consommation réelle ; son bénéficiaire e
 - `assertConsumption()` contrôle le magasin puis le bénéficiaire actif ; l’affectation de ce dernier n’est pas requise. USER est limité à lui-même.
 - Les scopes SQL `stockScope`, `movementScope`, `consumptionScope`, `resourceScope` et `proposalScope` fournissent condition et paramètres liés. Ils doivent être appliqués dans `WHERE` **avant** compte, pagination, regroupement et somme. Les alias SQL sont validés ; aucun fragment client n’est interpolé.
 - Pour les statistiques de consommation, utiliser `consumptionScope(..., Permission::STATISTICS_READ)` ; le scope des stocks ne convient pas aux données personnelles. Pour le tableau de bord de gestion, vérifier aussi le rôle via `DASHBOARD_READ`.
-- Dans les futurs services de mutation, effectuer autorisation et écriture dans la même transaction, après les verrous métier, puis vérifier les autres règles : gel d’inventaire, stock disponible, idempotence, cumul des retours, etc. AUTH-03 ne remplace pas ces invariants du moteur STK-02.
+- Dans les services de mutation, effectuer autorisation et écriture dans la même transaction, après les verrous métier, puis vérifier les autres règles : gel d’inventaire, stock disponible, idempotence, cumul des retours, etc. AUTH-03 ne remplace pas ces invariants du moteur STK-02.
 
-Les API disponibles dans ce lot sont `GET /api/v1/stores`, `GET /api/v1/stores/{id}` et `GET /api/v1/consumption-beneficiaries`. Le contrat et le guide API distinguent les autres endpoints encore prévus. Les écrans métier restent des états d’attente ; leurs futures requêtes devront utiliser ces contrôles. Aucune donnée métier de démonstration n’est ajoutée à la base locale.
+Les API disponibles dans ce lot sont `GET /api/v1/stores`, `GET /api/v1/stores/{id}` et `GET /api/v1/consumption-beneficiaries`. Le [guide API](api.md) décrit les endpoints métier livrés. Les écrans utilisent ces mêmes contrôles. Les données de démonstration restent un chargement explicite réservé au développement ([guide](demonstration.md)).
 
 ## Vérification
 
