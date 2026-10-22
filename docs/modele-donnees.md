@@ -54,7 +54,7 @@ erDiagram
 | `password_reset_tokens` | Empreinte de jeton unique, expiration et date d’utilisation ; aucun jeton en clair. |
 | `audit_logs` | Acteur, périmètre magasin facultatif, action, cible et contexte minimal ; UPDATE/DELETE refusés. |
 
-Les identifiants métier sont des UUID générés par PostgreSQL. Les clés étrangères utilisent `RESTRICT` : retirer un objet référencé ne détruit jamais ses historiques en cascade. L’archivage utilise `active`. Les utilisateurs peuvent être anonymisés en conservant leur UUID et les références historiques ; la politique automatique à un an reste dans RGPD-01.
+Les identifiants métier sont des UUID générés par PostgreSQL. Les clés étrangères utilisent `RESTRICT` : retirer un objet référencé ne détruit jamais ses historiques en cascade. L’archivage utilise `active`. RGPD-01 remplace les liens nominatifs anciens par une identité commune et efface les champs libres concernés ; [règles détaillées](conservation-donnees.md).
 
 Les horodatages sont des `timestamptz` : ils représentent des instants, affichables dans le fuseau utilisateur. Les mouvements possèdent un horodatage serveur et aucune date métier rétroactive. L’écriture par l’application devra réserver cet horodatage au serveur, sans le prendre dans une requête client.
 

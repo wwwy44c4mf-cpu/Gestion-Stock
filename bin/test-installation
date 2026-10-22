@@ -1,0 +1,77 @@
+#!/bin/sh
+# Follow README in a separate source copy, new secrets and new Compose volumes.
+set -eu
+cd "$(dirname "$0")/.."
+installation_source=$(pwd)
+installation_root=$(mktemp -d /tmp/gestion-stock-installation.XXXXXX)
+installation_project="gestion-stock-doc01-$(date +%s)-$$"
+installation_report="$installation_source/var/delivery/$(date -u +%Y%m%dT%H%M%SZ)-$$"
+mkdir -p "$installation_report"
+export INSTALLATION_SOURCE="$installation_source" INSTALLATION_ROOT="$installation_root"
+export INSTALLATION_PROJECT="$installation_project"
+dc() { docker compose --project-directory "$installation_root" -p "$installation_project" "$@"; }
+cleanup() {
+ result=$?
+ trap - EXIT INT TERM
+ dc down --volumes --remove-orphans >/dev/null 2>&1 || true
+ # Only the fresh, uniquely named source copy created above is removed.
+ rm -rf "$installation_root"
+ printf 'Rapport installation : %s\n' "$installation_report"
+ exit "$result"
+}
+trap cleanup EXIT INT TERM
+python3 - <<'PY'
+import os,shutil
+from pathlib import Path
+source=Path(os.environ['INSTALLATION_SOURCE']); target=Path(os.environ['INSTALLATION_ROOT'])
+excluded={'.git','.secrets','.env','.env.production','vendor','var','.phpunit.cache','backups','backup-recovery','.agents','.codex','.aws','__pycache__','.DS_Store','.privacy-operation-lock'}
+for path in source.iterdir():
+    if path.name in excluded or path.name.startswith('.env.') and path.name not in ('.env.example','.env.production.example'):continue
+    if path.is_symlink():continue
+    if path.is_dir():shutil.copytree(path,target/path.name,ignore=shutil.ignore_patterns(*excluded))
+    else:shutil.copy2(path,target/path.name)
+PY
+docker run --rm --mount "type=bind,source=$installation_root,target=/workspace" -w /workspace composer:2@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac php docker/setup.php
+python3 - <<'PY'
+import os
+from pathlib import Path
+p=Path(os.environ['INSTALLATION_ROOT'])/'.env'
+s=p.read_text().replace('COMPOSE_PROJECT_NAME=gestion-stock','COMPOSE_PROJECT_NAME='+os.environ['INSTALLATION_PROJECT']).replace('HTTP_PORT=8080','HTTP_PORT=0').replace('APP_ENV=prod','APP_ENV=dev')
+p.write_text(s)
+PY
+dc config --quiet
+dc --profile test build app db web test contract-test > "$installation_report/build.log" 2>&1
+dc up -d --wait
+dc run --rm --no-deps app php bin/console doctrine:migrations:migrate --no-interaction
+if dc run --rm --no-deps -e APP_ENV=prod app php bin/console app:dev:load-demo --no-interaction; then
+ echo 'Demo unexpectedly accepted in production' >&2; exit 1
+fi
+dc run --rm --no-deps app php bin/console app:dev:load-demo --no-interaction
+if dc run --rm --no-deps app php bin/console app:dev:load-demo --no-interaction; then
+ echo 'Second demo load unexpectedly accepted' >&2; exit 1
+fi
+dc exec -T app php bin/console app:stock:reconcile
+dc run --rm --no-deps test composer validate --strict
+dc run --rm --no-deps test vendor/bin/phpunit tests/DevelopmentDemoTest.php tests/DevelopmentAdminTest.php > "$installation_report/tests.log" 2>&1
+dc run --rm contract-test
+installation_port=$(dc port web 8080)
+export INSTALLATION_URL="http://$installation_port"
+python3 - <<'PY'
+import json,os,urllib.request,http.cookiejar
+url=os.environ['INSTALLATION_URL']; client=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+assert client.open(url+'/health/ready').status==200
+assert client.open(url+'/connexion').status==200
+def api(path,body=None,csrf=None):
+    headers={'Content-Type':'application/json'}
+    if csrf:headers['X-CSRF-Token']=csrf
+    req=urllib.request.Request(url+path,headers=headers,data=None if body is None else json.dumps(body).encode())
+    return json.load(client.open(req))
+csrf=api('/api/v1/auth/csrf')['token']
+api('/api/v1/auth/login',{'email':'admin.demo@example.test','password':'Demo-Stock-2026!'},csrf)
+assert len(api('/api/v1/stores')['data'])==2
+assert len(api('/api/v1/articles')['data'])==20
+assert client.open(url+'/stocks').status==200
+print('Installation vierge et connexion de démonstration vérifiées par HTTP.')
+PY
+printf '{"status":"passed","fresh_source_copy":true,"synthetic_only":true,"demo_accounts":5,"stores":2,"articles":20}\n' > "$installation_report/result.json"
+cat "$installation_report/tests.log"
