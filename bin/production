@@ -17,6 +17,12 @@ dc() {
     fi
 }
 case "${1:-}" in
+ update|privacy)
+  if ! mkdir .privacy-operation-lock 2>/dev/null; then echo 'Une maintenance est déjà en cours.' >&2; exit 1; fi
+  trap 'rmdir .privacy-operation-lock' EXIT
+  ;;
+esac
+case "${1:-}" in
   config) dc config --quiet ;;
   build) dc config --quiet; dc build app web db backup; if [ "$proxy_mode" = integrated ]; then dc build proxy; fi ;;
   check) dc config --quiet; dc run --rm --no-deps app php docker/production/check.php ;;
@@ -29,11 +35,22 @@ case "${1:-}" in
     if ! dc run --rm --no-deps backup once; then echo 'Sauvegarde refusée : maintenance conservée, aucune migration exécutée.' >&2; exit 1; fi
     if ! dc run --rm --no-deps app php bin/console doctrine:migrations:migrate --no-interaction; then echo 'Migration échouée : maintenance conservée. Suivre la procédure de reprise.' >&2; exit 1; fi
     dc run --rm --no-deps app php bin/console doctrine:migrations:up-to-date
+    dc exec -T db sh -c 'exec psql -X -q --username postgres --dbname "$POSTGRES_DB" --set ON_ERROR_STOP=1' < docker/privacy/retention.sql
     dc up -d --wait db app web
     if [ "$proxy_mode" = integrated ]; then dc run --rm --no-deps tls-volume-init; dc up -d --wait proxy; fi
     # Workers start only after the application and integrated proxy are healthy.
     dc up -d init worker scheduler backup
     echo 'Mise à jour terminée ; effectuer la recette HTTPS avant ouverture.'
+    ;;
+  privacy)
+    dc config --quiet
+    if [ "$proxy_mode" = integrated ]; then dc stop proxy; fi
+    dc stop web app worker scheduler backup
+    dc exec -T db sh -c 'exec psql -X -q --username postgres --dbname "$POSTGRES_DB" --set ON_ERROR_STOP=1' < docker/privacy/retention.sql
+    dc up -d --wait db app web
+    if [ "$proxy_mode" = integrated ]; then dc up -d --wait proxy; fi
+    dc up -d init worker scheduler backup
+    echo 'Conservation terminée ; accès rétabli.'
     ;;
   status) dc ps ;;
   diagnostic)
@@ -47,5 +64,5 @@ case "${1:-}" in
     exit "$ops_result"
     ;;
   logs) dc logs --no-color --since 1h --tail=200 app worker scheduler ;;
-  *) echo 'Usage : sh bin/production {config|build|check|update|status|diagnostic|logs}' >&2; exit 2 ;;
+  *) echo 'Usage : sh bin/production {config|build|check|update|status|diagnostic|logs|privacy}' >&2; exit 2 ;;
 esac

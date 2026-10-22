@@ -1,0 +1,73 @@
+services:
+  db:
+    image: gestion-stock-soc01-db:soc-01
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: privacy_test
+      POSTGRES_PASSWORD_FILE: /run/secrets/admin
+      APP_DB_USER: privacy_app
+    volumes:
+      - ../postgres/init-app.sh:/docker-entrypoint-initdb.d/10-app.sh:ro
+    secrets:
+      - source: admin
+        target: admin
+      - source: password
+        target: db_password
+    tmpfs: [/var/lib/postgresql]
+    networks: [isolated]
+    healthcheck:
+      test: [CMD, pg_isready, -U, postgres, -d, privacy_test]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+  test:
+    image: gestion-stock-soc01-test:soc-01
+    environment:
+      APP_ENV: test
+      APP_DEBUG: 0
+      APP_LOG_LEVEL: error
+      APP_SECRET_FILE: /run/secrets/secret
+      DATABASE_PASSWORD_FILE: /run/secrets/password
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: privacy_test
+      DATABASE_USER: privacy_app
+      MAIL_DELIVERY_ENABLED: 0
+      MAILER_DSN_FILE: /run/secrets/mailer
+      MAIL_FROM_ADDRESS: nobody@example.invalid
+      APP_PUBLIC_URL: http://localhost
+      MESSENGER_TRANSPORT_DSN: doctrine://default?auto_setup=false
+    secrets:
+      - secret
+      - password
+      - mailer
+      - source: admin
+        target: privacy_test_admin
+    volumes:
+      - ../../src:/app/src:ro
+      - ../../config:/app/config:ro
+      - ../../migrations:/app/migrations:ro
+      - ../../tests:/app/tests:ro
+      - ../../templates:/app/templates:ro
+      - ./:/app/docker/privacy:ro
+    command: [vendor/bin/phpunit, tests/PrivacyRetentionTest.php, tests/RetentionPreviewTest.php]
+    networks: [isolated]
+    read_only: true
+    tmpfs: ["/tmp:uid=10001,gid=10001,mode=1770", "/app/var:uid=10001,gid=10001,mode=0770"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    depends_on:
+      db:
+        condition: service_healthy
+networks:
+  isolated:
+    internal: true
+secrets:
+  admin:
+    file: ${PRIVACY_TEST_ROOT:?}/admin
+  password:
+    file: ${PRIVACY_TEST_ROOT:?}/password
+  secret:
+    file: ${PRIVACY_TEST_ROOT:?}/secret
+  mailer:
+    file: ${PRIVACY_TEST_ROOT:?}/mailer

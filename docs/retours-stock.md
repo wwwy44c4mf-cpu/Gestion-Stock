@@ -39,3 +39,7 @@ Remplacer l’UUID d’exemple par une consommation réelle autorisée. Réponse
 Quantités nulles/négatives, fractionnaires, exposants, chaînes JSON numériques, dépassement de borne et champs supplémentaires : 422. Commentaire : 2 000 caractères maximum, texte UTF-8 sans nul binaire. Magasin, article, auteur, bénéficiaire et date fournis par le client sont refusés. Consommation inaccessible ou d’autrui pour USER : 404 ; quantité excessive, consommation compensée, inventaire, capacité dépassée ou clé conflictuelle : 409. CSRF absent/invalide : 403 ; session absente avec CSRF valide : 401.
 
 Aucune nouvelle migration après STK-05 (`Version20261018223000`). L’historique personnel complet reste dans CON-01 et les statistiques dans STAT-01 ; ce lot fournit la sélection des consommations à rendre, les compteurs et les confirmations de retour. [Recette](validation-stk07.md) · [Moteur](moteur-stock.md).
+
+## Conservation des données — RGPD-01
+
+Après anonymisation du bénéficiaire, seuls les administrateurs et gestionnaires autorisés sur le magasin d’origine peuvent enregistrer un retour. Le plafond cumulé et les protections d’inventaire restent applicables. Voir la [conservation des données](conservation-donnees.md).

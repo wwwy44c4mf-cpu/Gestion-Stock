@@ -48,7 +48,8 @@ final class InventoryWorkflow
         $fingerprint=hash_hmac('sha256',$this->keys->fingerprint($actor->id,'POST','/inventory-workflow/'.$action.'/'.$id,$body),$this->secret);
         return $this->db->transactional(function() use($actor,$action,$id,$body,$key,$fingerprint): array {
             // Global order matches all movement engines and account/catalog/store administration.
-            foreach(['users','user_stores','stores','articles'] as $table) {$this->db->executeStatement('LOCK TABLE '.$table.' IN SHARE MODE');}
+            $this->db->executeStatement('LOCK TABLE users IN SHARE ROW EXCLUSIVE MODE');
+            foreach(['user_stores','stores','articles'] as $table) {$this->db->executeStatement('LOCK TABLE '.$table.' IN SHARE MODE');}
             $this->db->executeStatement('LOCK TABLE inventories IN SHARE ROW EXCLUSIVE MODE');
             $this->identity->requireRole($actor,Permission::INVENTORY_WRITE);
             if($action==='create') {$this->policy->assert($actor,Permission::INVENTORY_WRITE,AccessTarget::store($body->store_id));$store=$body->store_id;}
@@ -77,6 +78,9 @@ final class InventoryWorkflow
                     $row=$this->db->fetchAssociative("UPDATE inventories SET status='pending_validation' WHERE id=? RETURNING *",[$id]);
                 } else {$row=$this->db->fetchAssociative("UPDATE inventories SET status='cancelled',cancelled_at=clock_timestamp() WHERE id=? RETURNING *",[$id]);}
             }
+            // AFTER triggers may erase old identities at closure; RETURNING
+            // contains the pre-trigger row and must never enter the replay cache.
+            if (in_array($action,['validate','cancel'],true)) { $row=$this->db->fetchAssociative('SELECT * FROM inventories WHERE id=?',[$id]); }
             $result=$action==='validate'?['data'=>['inventory'=>$this->directory->resource($row),'adjustment_ids'=>$context['adjustment_ids']]]:['data'=>$this->directory->resource($row)];
             $this->db->executeStatement("INSERT INTO audit_logs (actor_id,store_id,action,target_type,target_id,context) VALUES (?,?,?,'inventory',?,?::jsonb)",[$actor->id,$store,'inventory.'.$action,$row['id'],json_encode(['status'=>$row['status'],...$context],JSON_THROW_ON_ERROR)]);
             $this->db->executeStatement('INSERT INTO inventory_requests (actor_id,request_key,request_fingerprint,inventory_id,response) VALUES (?,?,?,?,?::jsonb)',[$actor->id,$key,$fingerprint,$row['id'],json_encode($result,JSON_THROW_ON_ERROR)]);

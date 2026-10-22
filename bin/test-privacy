@@ -1,0 +1,29 @@
+#!/bin/sh
+# Fully disposable database, credentials and internal Docker network.
+set -eu
+cd "$(dirname "$0")/.."
+PRIVACY_TEST_ROOT=$(mktemp -d /tmp/gestion-stock-privacy.XXXXXX)
+export PRIVACY_TEST_ROOT
+privacy_test_project="gestion-stock-privacy-$(date +%s)-$$"
+dc() { docker compose -p "$privacy_test_project" -f docker/privacy/compose.recette.yaml "$@"; }
+cleanup() {
+ result=$?
+ trap - EXIT INT TERM
+ dc down --volumes --remove-orphans >/dev/null 2>&1 || true
+ rm -f "$PRIVACY_TEST_ROOT/admin" "$PRIVACY_TEST_ROOT/password" "$PRIVACY_TEST_ROOT/secret" "$PRIVACY_TEST_ROOT/mailer"
+ rmdir "$PRIVACY_TEST_ROOT"
+ exit "$result"
+}
+trap cleanup EXIT INT TERM
+python3 - <<'PY'
+import os,secrets
+from pathlib import Path
+root=Path(os.environ['PRIVACY_TEST_ROOT'])
+for name in ('admin','password','secret'):
+    (root/name).write_text(secrets.token_hex(32))
+(root/'mailer').write_text('null://null')
+PY
+dc up -d --wait db
+dc run --rm test php bin/console doctrine:migrations:migrate --no-interaction
+dc run --rm test php bin/console messenger:setup-transports --no-interaction
+dc run --rm test "$@"

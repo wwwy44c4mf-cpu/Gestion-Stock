@@ -37,3 +37,7 @@ Au-delà de 10 000 intervalles ou de 1 000 groupes dans une répartition, la req
 Aucune migration et aucune écriture métier. Le tableau de bord général et les indicateurs de rupture appartiennent à STAT-02 ; les exports et comparaisons avancées restent hors de ce lot.
 
 Décision confirmée le 21 octobre 2026 : les retours sont comptés à leur date réelle dans les statistiques.
+
+## Conservation des données — RGPD-01
+
+Après effacement des bénéficiaires, les volumes restent dans les statistiques globales autorisées, regroupés sous l’identité commune ; ils ne restent pas attribués à un technicien. Les corrections liées à une consommation ancienne suivent ce détachement même si elles sont récentes. Voir la [conservation des données](conservation-donnees.md).

@@ -72,7 +72,7 @@ if ! compose run --rm --no-deps https-test; then compose logs --tail=15 web; exi
 # Re-run update against a populated database; no down-migration or data reset.
 sh bin/production update
 if ! compose run --rm --no-deps https-test; then compose logs --tail=15 web; exit 1; fi
-# Restore the snapshot taken before the actual 15 -> 16 migration, into a new volume.
+# Restore the snapshot taken before the actual 15 -> 17 migration, into a new volume.
 compose up -d --wait restore-db
 compose run --rm --no-deps -e DATABASE_HOST=restore-db -e RESTORE_CONFIRM_DATABASE=gestion_stock backup-restore restore-db "/backups/$prior_archive"
 compose run --rm --no-deps -e DATABASE_HOST=restore-db backup-restore verify-db "/backups/$prior_archive"

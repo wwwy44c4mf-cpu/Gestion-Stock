@@ -53,7 +53,7 @@ def atomic_json(path, value):
 def fingerprints(db):
     result={}
     with db.cursor() as c:
-        c.execute("SELECT schemaname,tablename FROM pg_tables WHERE schemaname NOT IN ('pg_catalog','information_schema') AND schemaname NOT LIKE 'pg_toast%%' ORDER BY schemaname,tablename")
+        c.execute("SELECT schemaname,tablename FROM pg_tables WHERE schemaname NOT IN ('pg_catalog','information_schema') AND schemaname NOT LIKE 'pg_toast%%' AND tablename<>'runtime_restore_gate' ORDER BY schemaname,tablename")
         tables=c.fetchall()
     for schema,table in tables:
         count=0; h=hashlib.sha256()
@@ -206,8 +206,13 @@ def restore_db(archive,identity):
                 if c.fetchone()[0]: raise Failure('restore_database_not_empty')
             db.rollback()
         run(['pg_restore','--no-owner','--no-acl','--single-transaction','--exit-on-error','--dbname='+os.environ.get('DATABASE_NAME','gestion_stock'),str(stage/'database.dump')],env=pg_env(),stdout=subprocess.DEVNULL)
+        with contextlib.closing(connection()) as db:
+            with db.cursor() as c:
+                c.execute('CREATE TABLE IF NOT EXISTS runtime_restore_gate(singleton boolean PRIMARY KEY DEFAULT true CHECK(singleton),privacy_required boolean NOT NULL)')
+                c.execute('INSERT INTO runtime_restore_gate VALUES(true,true) ON CONFLICT(singleton) DO UPDATE SET privacy_required=true')
+            db.commit()
         verify_database(manifest)
-    log('database_restored_and_verified')
+    log('database_restored_privacy_required')
 
 def verify_database(manifest):
     with contextlib.closing(connection()) as db:

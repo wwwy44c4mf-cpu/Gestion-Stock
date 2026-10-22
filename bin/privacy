@@ -1,0 +1,25 @@
+#!/bin/sh
+# The caller is an operator with Docker access. No application credential can
+# run retention.sql: its first instruction requires a PostgreSQL superuser.
+set -eu
+cd "$(dirname "$0")/.."
+privacy_mode=${1:-preview}
+case "$privacy_mode" in preview|apply) ;; *) echo 'Usage : sh bin/privacy {preview|apply}' >&2; exit 2;; esac
+privacy_env=${PRIVACY_ENV_FILE:-.env}
+privacy_project=${COMPOSE_PROJECT_NAME:-gestion-stock-soc01}
+dc() { docker compose --env-file "$privacy_env" -p "$privacy_project" "$@"; }
+if [ "$privacy_mode" = preview ]; then
+ dc exec -T app php bin/console app:privacy:preview --no-interaction
+ exit
+fi
+# An interrupted/failed run deliberately leaves application processes stopped.
+# No error trap reopens them. Only a successful SQL COMMIT permits restart.
+if ! mkdir .privacy-operation-lock 2>/dev/null; then echo 'Une maintenance est déjà en cours.' >&2; exit 1; fi
+trap 'rmdir .privacy-operation-lock' EXIT
+privacy_backup_running=$(dc ps --status running --services backup)
+dc stop web app worker scheduler backup
+dc exec -T db sh -c 'exec psql -X -q --username postgres --dbname "$POSTGRES_DB" --set ON_ERROR_STOP=1' < docker/privacy/retention.sql
+dc up -d --wait app web
+dc up -d worker scheduler
+if [ -n "$privacy_backup_running" ]; then dc up -d backup; fi
+printf '%s\n' 'Traitement de conservation terminé ; accès rétabli.'

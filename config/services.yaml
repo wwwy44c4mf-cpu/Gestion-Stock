@@ -6,6 +6,7 @@ services:
     resource: '../src/'
     exclude:
       - '../src/Kernel.php'
+      - '../src/Privacy/AnonymousIdentity.php'
       - '../src/Api/ApiProblem.php'
       - '../src/Api/Pagination.php'
       - '../src/Api/DateRange.php'

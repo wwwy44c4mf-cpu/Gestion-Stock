@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 {% block title %}Statistiques de consommation · Gestion de stock{% endblock %}
 {% block content %}
+<p class="muted">Les consommations anonymisées après un an ne figurent plus dans les vues personnelles. Une correction liée peut également en sortir avant un an. Les quantités restent dans les statistiques globales autorisées ; pour un retour ancien, contactez un gestionnaire du magasin d’origine.</p>
 {% set data = result.data %}{% set period = result.period %}
 <div class="page-heading"><div><p class="eyebrow">STATISTIQUES</p><h1>{{ app.user.role == 'USER' ? 'Mes statistiques de consommation' : 'Statistiques de consommation' }}</h1><p class="subtitle">{{ app.user.role == 'USER' ? 'Vos sorties et vos retours, dans les magasins d’origine encore actifs.' : 'L’activité des magasins que vous pouvez consulter.' }}</p></div><a href="{{ path('consumptions_list',filters|filter((value,key) => key in ['date_from','date_to','store_id','category_id'])) }}">Consommations de cette période</a></div>
 <section class="card statistics-section"><form method="get" class="account-filters" aria-label="Filtrer les statistiques">

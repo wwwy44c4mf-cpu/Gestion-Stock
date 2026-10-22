@@ -30,7 +30,7 @@ Les décisions ci-dessous précisent ou remplacent les options correspondantes d
 | Rappels | Dès le MVP, récapitulatif quotidien par destinataire à 08 h Europe/Paris tant que des alertes persistent. |
 | Hébergement | Un serveur unique sous Docker Compose ; SMTP existant disponible ; proxy HTTPS Caddy intégré retenu le 21 octobre 2026. Domaine et serveur à préciser. |
 | Dimensionnement initial | 2 magasins, 5 utilisateurs simultanés, 20 références et environ 10 mouvements par jour. |
-| Données nominatives | Conservation pendant un an puis anonymisation ; modalités précises à formaliser avant production. |
+| Données nominatives | Conservation pendant un an depuis chaque consommation ou action, puis suppression du lien nominatif même si le compte reste actif ; autres modalités à formaliser avant production. |
 | Sauvegardes | Quotidiennes, conservation 90 jours ; environ 24 h de données à risque depuis la dernière réussite. Destination hors serveur non choisie. |
 | Reprise | Remise en service souhaitée sous un jour ouvré. Aucune perte souhaitée, mais risque résiduel accepté sur un serveur unique ; second hébergement synchrone refusé. Aucun RPO nul garanti. |
 
@@ -41,7 +41,7 @@ Ces sujets ne constituent pas des choix déjà validés. Ils seront précisés u
 - Avant déploiement : nom de domaine, paramètres du proxy Caddy intégré, ressources du serveur, configuration SMTP sans partage de secrets dans Git, objectif de disponibilité.
 - Avant production : choisir la destination de sauvegarde hors serveur, y protéger séparément la clé et tester la copie/restauration. Fréquence quotidienne et rétention 90 jours validées ; surveiller leur réussite pour tenir le risque accepté.
 - Avant production : responsable de maintenance, supervision et restauration ; responsable de traitement des données.
-- Avant anonymisation en production : date de référence du délai d’un an, données de comptes actifs et statistiques personnelles, méthode empêchant la réidentification et traitement des sauvegardes restaurées. Préserver le journal quantitatif.
+- Avant activation de la conservation en production : valider finalités et durées avec le responsable de traitement, apprécier les possibilités de rapprochement externe, installer et surveiller le timer. Les règles des comptes, vues personnelles, retours et restaurations sont confirmées dans RGPD-01.
 - Avant diffusion : licence du code.
 - À préciser dans la conception : règles fines sur articles inactifs et changements de seuils. La configuration absente doit rester distincte d’un seuil zéro.
 
@@ -103,7 +103,7 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | OPS-01 | 5 | Sauvegardes, restauration et reprise | DOCK-10,11; §10.3 | SOC-01, SOC-02 | En revue | [#34](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34) |
 | OPS-02 | 5 | Déploiement HTTPS, sécurité et mises à jour | DOCK-03,04,05,07,08,09,10; §10.1 | SOC-01, AUTH-03 | En revue | [#35](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35) |
 | OPS-03 | 5 | Supervision et diagnostic | §10.4; DOCK-10 | SOC-01, MAIL-01 | En revue | [#36](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/36) |
-| RGPD-01 | 5 | Anonymisation des données nominatives après un an | §10.1; décision utilisateur | ADM-01, SOC-02 | À faire | [#37](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37) |
+| RGPD-01 | 5 | Anonymisation des données nominatives après un an | §10.1; décision utilisateur | ADM-01, SOC-02 | En revue | [#37](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37) |
 | QA-01 | 5 | Recette automatisée, concurrence et performances | REC-01 à REC-18; DOCK-12; §10.2,11 | INV-03, MAIL-03, STAT-02, OPS-01, OPS-02, RGPD-01 | À faire | [#38](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38) |
 | DOC-01 | 5 | Documentation, démonstration et livraison | §12,16 | QA-01 | À faire | [#39](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/39) |
 | V2-01 | V2 | MFA et authentification SSO OIDC | AUTH-08 | AUTH-01 | V2 différée | [#40](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/40) |
@@ -642,15 +642,37 @@ Critères d’acceptation : Panne worker ou SMTP observable sans exposer de secr
 
 ### RGPD-01 — Anonymisation des données nominatives après un an
 
-Issue : [#37](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37) · À faire · Dépendances : [ADM-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33), [SOC-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2).
+Issue : [#37](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37) · En revue · Dépendances : [ADM-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33), [SOC-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2).
 
 Sources : §10.1; décision utilisateur.
 
-- [ ] Cartographier données nominatives, journaux, événements et sauvegardes
-- [ ] Implémenter traitement planifié d’anonymisation à un an préservant quantités et cohérence historique
-- [ ] Définir procédure contrôlée et information utilisateurs ; éviter pseudonyme réidentifiable et cohérence avec restauration
+- [x] Cartographier données nominatives, journaux, événements et sauvegardes
+- [x] Implémenter traitement planifié d’anonymisation à un an préservant quantités et cohérence historique
+- [x] Définir procédure contrôlée et information utilisateurs ; éviter pseudonyme réidentifiable et cohérence avec restauration
 
-Critères d’acceptation : Un jeu de données ancien est anonymisé sans changer soldes ni agrégats. Avant production : responsable, point de départ de conservation et traitement des identités de comptes actifs à valider.
+Critères d’acceptation : Un jeu de données ancien est anonymisé sans changer soldes ni agrégats. Avant production : responsable de traitement, finalités, durées et activation du timer à valider. Les règles fonctionnelles sont confirmées ci-dessous.
+
+[Cartographie](docs/cartographie-donnees-personnelles.md), [règles et procédure](docs/conservation-donnees.md), [plan de recette](docs/recette-rgpd01-preparation.md) et [validation](docs/validation-rgpd01.md). Traitement opérateur atomique et finalisation immédiate des dossiers anciens ; protections quantitatives conservées, verrou de restauration, timer fourni pour installation sur serveur. Aucun effacement exécuté sur les données existantes.
+
+Décision confirmée : Après anonymisation d’une consommation, seuls les administrateurs et gestionnaires autorisés sur le magasin d’origine peuvent enregistrer un retour lié. Le bénéficiaire ne dispose plus du retour personnel sur cette ligne ; le magasin d’origine et le plafond des quantités retournables restent applicables.
+
+Décision confirmée : Après anonymisation, les consommations anciennes disparaissent de l’historique et des statistiques personnels. Elles restent comptabilisées dans les statistiques globales autorisées, sans attribution nominative.
+
+Décision confirmée : Sur les actions anonymisées après un an, effacer entièrement les commentaires, motifs et références libres ; conserver les articles, quantités, magasins et dates.
+
+Décision confirmée : Exception pour les inventaires et propositions d’articles encore ouverts : conserver leur auteur et leurs commentaires jusqu’à la clôture. À la clôture, effacer immédiatement les informations ayant déjà plus d’un an ; conserver le calcul du délai depuis chaque action, sans le faire repartir à la clôture.
+
+Décision confirmée : Effacer le nom et l’adresse courriel d’un compte après un an de désactivation. Appliquer séparément aux consommations et actions leur délai propre et les exceptions validées pour les dossiers ouverts.
+
+Décision confirmée : Si le compte est désactivé depuis au moins un an mais reste lié à un inventaire ou une proposition ouvert, différer l’effacement de son identité jusqu’à la clôture de tous ses dossiers ouverts. À cette clôture, effacer l’identité si le délai de désactivation est toujours atteint ; ne pas faire repartir le délai.
+
+Décision confirmée : Après restauration d’une sauvegarde, bloquer l’accès à l’application jusqu’à la réussite du retraitement des données dont le délai de conservation est dépassé, en appliquant les exceptions validées. En cas d’échec, maintenir l’application fermée ; ne pas réexposer les informations anciennes restaurées.
+
+Migration `Version20261022000000` (17). [Simulation](docs/simulation-conservation.md) en lecture seule, sans identité. Recette finale : **400 tests PHP / 5 053 assertions**, quatre contrôles OpenAPI ; sauvegarde/restauration protégée et mise à jour HTTPS réussies sur installations jetables. Le timer n’est pas activé sur le poste de développement.
+
+Décision confirmée : Lorsqu’une consommation ancienne est anonymisée, supprimer aussi le bénéficiaire de toutes les corrections liées, même récentes. Ces corrections quittent donc les vues personnelles ; les agrégats globaux restent conservés. Effacer également les copies de références et commentaires provenant de la consommation ancienne.
+
+Livraison pour revue : [PR #86](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/86), branche `codex/rgpd-01-retention`, basée sur main après intégration de OPS-03. Issue ouverte jusqu’à fusion.
 
 ### QA-01 — Recette automatisée, concurrence et performances
 
@@ -894,3 +916,5 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 
 - 21 octobre 2026 : ADM-01 livré pour revue : journal paginé et filtrable, périmètres admin/gestionnaire, utilisateur refusé, contexte public typé et masquage des acteurs/cibles de mouvements partiellement visibles. Recette complète : 368 tests PHP / 4 797 assertions et quatre validations OpenAPI ; contrôles ordinateur et téléphone réussis. Aucun audit métier de démonstration ajouté. [Guide](docs/journal-audit.md), [validation](docs/validation-adm01.md).
 - Livraison ADM-01 : [PR #82](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/82), dépendante de la PR #81. Issue #33 ouverte jusqu’à fusion.
+
+- 22 octobre 2026 : RGPD-01 développé et validé sur données fictives : conservation par action, dossiers ouverts, comptes désactivés, chaînes de corrections, procédure opérateur et verrou de restauration. 400 tests / 5 053 assertions ; aucun effacement sur les données existantes.

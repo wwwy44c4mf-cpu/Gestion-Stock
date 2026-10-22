@@ -29,3 +29,7 @@ La réponse contient `data`, `meta` et `totals`. Chaque ligne expose notamment `
 Aucune migration et aucune écriture métier : cet écran lit l’historique existant. Les statistiques et graphiques de consommation appartiennent à STAT-01.
 
 Décision du 21 octobre 2026 : conserver les lignes annulées ou remplacées pour la traçabilité, avec un statut explicite.
+
+## Conservation des données — RGPD-01
+
+Les consommations anonymisées après un an quittent les vues personnelles, tout comme leurs corrections liées même récentes. Elles restent dans les vues globales autorisées sous une identité commune. Voir les [règles de conservation](conservation-donnees.md).
