@@ -83,3 +83,7 @@ STK-05 ajoute `Version20261018223000` (huitième migration) pour `movement_corre
 ## Conservation des données — RGPD-01
 
 `Version20261022000000` ajoute l’horloge de désactivation, le verrou de restauration, le journal agrégé de conservation et les finalisations contrôlées des dossiers anciens. Le retour arrière est refusé après un traitement journalisé ; aucune donnée effacée ne peut être reconstruite par une migration descendante. Voir la [conservation des données](conservation-donnees.md).
+
+## Finalisation des comptes lors d’une clôture récente
+
+`Version20261022130000`, dix-huitième migration, corrige la libération immédiate des comptes désactivés depuis un an lorsque leur dernier dossier ouvert est récent. Les champs du dossier récent sont conservés jusqu’à leur propre échéance. La migration ne déclenche pas de traitement de conservation ; elle protège son retour arrière après toute exécution journalisée.

@@ -2,7 +2,7 @@
 
 ## Première configuration métier
 
-La récupération autonome du mot de passe reste à développer dans [AUTH-04 / issue #8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8). Ne pas l’annoncer comme disponible ; la réception d’alertes SMTP ne l’active pas. Cette fonctionnalité du MVP doit être traitée avant de déclarer sa livraison complète.
+La [réinitialisation du mot de passe](reinitialisation-mot-de-passe.md) exige SMTP activé et une URL publique correcte. Elle ne réactive pas un compte désactivé, ne change pas son rôle et n’envoie pas de mot de passe en clair.
 
 1. Installer avec le [README](../README.md) ou la [procédure de production](deploiement-production.md). Appliquer toutes les migrations et créer le premier administrateur normal par saisie masquée ; ne pas utiliser les comptes de démo en production.
 2. Créer les **Magasins**, puis les comptes, rôles et affectations dans **Administration**. L’administrateur a accès à tous les magasins ; le gestionnaire seulement aux magasins actifs affectés ; l’utilisateur consomme et consulte son périmètre personnel. [Comptes](administration-comptes.md) · [Permissions](controle-acces.md).

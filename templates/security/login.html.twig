@@ -11,6 +11,6 @@
         <div class="field"><label for="password">Mot de passe</label><input id="password" name="password" type="password" autocomplete="current-password" maxlength="128" required></div>
         <button type="submit" class="button primary">Se connecter</button>
     </form>
-    <p class="context-note">Pour obtenir un accès ou retrouver votre mot de passe, contactez votre administrateur.</p>
+    <p class="context-note"><a href="{{ path('password_reset_request') }}">Mot de passe oublié ?</a> Pour obtenir un accès, contactez votre administrateur.</p>
 </section>
 {% endblock %}

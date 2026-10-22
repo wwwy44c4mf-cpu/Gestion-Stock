@@ -18,9 +18,9 @@ Cette fiche prépare la livraison ; elle n’atteste pas d’une installation en
 | Tests et rapport | [Recette QA](recette-qa01.md), [rapport QA](validation-qa01.md), [installation DOC-01](validation-doc01.md) |
 | Sécurité, versions et contribution | [SECURITY](../SECURITY.md), [CHANGELOG](../CHANGELOG.md), [CONTRIBUTING](../CONTRIBUTING.md) |
 
-## Fonctionnalité MVP encore manquante
+## Réinitialisation du mot de passe
 
-**AUTH-04 — réinitialisation sécurisée du mot de passe** est encore à faire ([issue #8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8)) : demande, jeton temporaire à usage unique, lien en file et formulaire. SMTP seul ne fournit pas ce parcours. QA-01 vérifie REC-01 à REC-18 et les fonctions existantes ; sa réussite ne prouve pas la présence de cette fonctionnalité. La développer et la tester avant de déclarer le MVP complet.
+AUTH-04 fournit désormais demande, courriel temporaire et confirmation avec révocation des sessions ; [guide](reinitialisation-mot-de-passe.md). Le parcours doit être testé sur des boîtes de réception autorisées après configuration du SMTP réel. L’intégration et la recette du commit final restent nécessaires avant déclaration de livraison du MVP.
 
 ## Décisions et configuration avant ouverture
 

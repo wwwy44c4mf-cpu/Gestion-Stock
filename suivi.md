@@ -2,7 +2,7 @@
 
 Date de préparation : 18 octobre 2026.
 Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisateur recueillis dans cette conversation.
-État : SOC-01 à SOC-04 et AUTH-01/02 intégrés à main (PR #51 à #55 et #57). AUTH-03 intégré à main (PR #58). MAG-01 intégré à main (PR #59). ART-01 intégré à main (PR #60). ART-02, ART-03 et STK-01 intégrés à main (PR #61/#62). STK-02 intégré à main (PR #63). STK-03 et STK-04 intégrés à main (PR #64/#65). STK-05 intégré à main (PR #66). STK-06 intégré à main (PR #67). STK-07 intégré à main (PR #68). STK-08 intégré à main (PR #69). INV-01 intégré à main (PR #70). INV-02 intégré à main (PR #71). INV-03 intégré à main (PR #72). ALT-01 et MAIL-01 intégrés à main (PR #73/#74). ALT-02 intégré à main (PR #75). CON-01 intégré à main (PR #79). ALT-03, MAIL-02, MAIL-03, STAT-01, STAT-02, ADM-01, OPS-01, OPS-02 et OPS-03 en revue ; autres fonctionnalités à développer.
+État de cette livraison sur main : les 39 lots MVP sont terminés, après autorisation explicite de fusion des PR #86 à #89. Les corrections de revue et de sécurité sont reprises dans [le bilan de finalisation](docs/finalisation-mvp.md). Aucune ouverture de production n’est déclarée.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
 ## Décisions validées
@@ -74,7 +74,7 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | AUTH-01 | 1 | Connexion, sessions et profil | AUTH-01,02,03,07; §10.1 | SOC-02, SOC-03, SOC-04 | Terminé | [#5](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5) |
 | AUTH-02 | 1 | Administration des comptes et désactivation | AUTH-04,09 | AUTH-01 | Terminé | [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6) |
 | AUTH-03 | 1 | Rôles, affectations et contrôle des accès | AUTH-05; MAG-03; §2,4 | AUTH-02 | Terminé | [#7](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7) |
-| AUTH-04 | 1 | Réinitialisation sécurisée du mot de passe | AUTH-06; MAIL-02 | AUTH-01, MAIL-01 | À faire | [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) |
+| AUTH-04 | 1 | Réinitialisation sécurisée du mot de passe | AUTH-06; MAIL-02 | AUTH-01, MAIL-01 | Terminé | [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) |
 | MAG-01 | 1 | Création, modification et archivage des magasins | MAG-01,02,05 | AUTH-03 | Terminé | [#9](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/9) |
 | ART-01 | 1 | Catalogue global, catégories et archivage | ART-01,02,03; §4 | MAG-01 | Terminé | [#10](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10) |
 | ART-02 | 1 | Propositions d’articles et validation administrative | ART-01,02; décision utilisateur | ART-01 | Terminé | [#11](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/11) |
@@ -85,27 +85,27 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | STK-04 | 2 | Consommations et bénéficiaire tiers | STK-03; CON-01,02; CON-05 partiel | STK-02, STK-01 | Terminé | [#16](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16) |
 | STK-05 | 2 | Ajustements et corrections par contre-mouvement | STK-04,09 | STK-02 | Terminé | [#17](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17) |
 | STK-06 | 2 | Transferts atomiques entre magasins | STK-05 | STK-02 | Terminé | [#18](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/18) |
-| STK-07 | 2 | Retours liés à une consommation | Décision utilisateur; STAT-06 | STK-04 | Intégré | [#19](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19) |
-| STK-08 | 4 | Historique des mouvements filtrable | STK-08,09,10 | STK-03, STK-04, STK-05, STK-06, STK-07 | Intégré | [#20](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/20) |
-| INV-01 | 3 | Campagnes d’inventaire et gel des mouvements | INV-01,07 | STK-02 | Intégré | [#21](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/21) |
-| INV-02 | 3 | Saisie des comptages et calcul des écarts | INV-02,03 | INV-01 | Intégré | [#22](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/22) |
-| INV-03 | 3 | Validation atomique et clôture d’inventaire | INV-04,05,06 | INV-02, STK-05 | Intégré | [#23](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23) |
-| ALT-01 | 3 | Seuils personnalisés par article et magasin | ART-05; ALT-01 | ART-01, AUTH-03 | Intégré | [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24) |
-| ALT-02 | 3 | Cycle de vie des alertes et franchissements | ALT-01,03,04 | ALT-01, STK-02, MAIL-01 | Intégré | [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25) |
-| ALT-03 | 3 | Écran des alertes et destinataires | ALT-02,05 | ALT-02 | En revue | [#26](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26) |
-| MAIL-01 | 1 | SMTP, file durable et modèles de courriels | MAIL-01,02,04,05,06,08 | SOC-02 | Intégré | [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27) |
-| MAIL-02 | 3 | Messages d’information ciblés | MAIL-03 | MAIL-01, AUTH-03 | En revue | [#28](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/28) |
-| MAIL-03 | 3 | Récapitulatif quotidien des alertes à 08 h | ALT-06 partiel; MAIL-07 partiel; décision utilisateur | ALT-03, MAIL-01 | En revue | [#29](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29) |
-| CON-01 | 4 | Historique personnel et suivi des consommations | CON-03,04; décision utilisateur | STK-04, STK-07, AUTH-03 | En revue | [#30](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30) |
-| STAT-01 | 4 | Statistiques de consommation et filtres | STAT-01,02,03,04,06 | CON-01 | En revue | [#31](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31) |
-| STAT-02 | 4 | Tableau de bord et indicateurs | STAT-05; §6 | STAT-01, ALT-03, STK-01 | En revue | [#32](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32) |
-| ADM-01 | 4 | Journal d’audit métier | §2,10.1,10.4 | AUTH-03, STK-02 | En revue | [#33](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33) |
-| OPS-01 | 5 | Sauvegardes, restauration et reprise | DOCK-10,11; §10.3 | SOC-01, SOC-02 | En revue | [#34](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34) |
-| OPS-02 | 5 | Déploiement HTTPS, sécurité et mises à jour | DOCK-03,04,05,07,08,09,10; §10.1 | SOC-01, AUTH-03 | En revue | [#35](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35) |
-| OPS-03 | 5 | Supervision et diagnostic | §10.4; DOCK-10 | SOC-01, MAIL-01 | En revue | [#36](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/36) |
-| RGPD-01 | 5 | Anonymisation des données nominatives après un an | §10.1; décision utilisateur | ADM-01, SOC-02 | En revue | [#37](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37) |
-| QA-01 | 5 | Recette automatisée, concurrence et performances | REC-01 à REC-18; DOCK-12; §10.2,11 | INV-03, MAIL-03, STAT-02, OPS-01, OPS-02, RGPD-01 | En revue | [#38](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38) |
-| DOC-01 | 5 | Documentation, démonstration et livraison | §12,16 | QA-01 | En revue | [#39](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/39) |
+| STK-07 | 2 | Retours liés à une consommation | Décision utilisateur; STAT-06 | STK-04 | Terminé | [#19](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19) |
+| STK-08 | 4 | Historique des mouvements filtrable | STK-08,09,10 | STK-03, STK-04, STK-05, STK-06, STK-07 | Terminé | [#20](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/20) |
+| INV-01 | 3 | Campagnes d’inventaire et gel des mouvements | INV-01,07 | STK-02 | Terminé | [#21](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/21) |
+| INV-02 | 3 | Saisie des comptages et calcul des écarts | INV-02,03 | INV-01 | Terminé | [#22](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/22) |
+| INV-03 | 3 | Validation atomique et clôture d’inventaire | INV-04,05,06 | INV-02, STK-05 | Terminé | [#23](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23) |
+| ALT-01 | 3 | Seuils personnalisés par article et magasin | ART-05; ALT-01 | ART-01, AUTH-03 | Terminé | [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24) |
+| ALT-02 | 3 | Cycle de vie des alertes et franchissements | ALT-01,03,04 | ALT-01, STK-02, MAIL-01 | Terminé | [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25) |
+| ALT-03 | 3 | Écran des alertes et destinataires | ALT-02,05 | ALT-02 | Terminé | [#26](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26) |
+| MAIL-01 | 1 | SMTP, file durable et modèles de courriels | MAIL-01,02,04,05,06,08 | SOC-02 | Terminé | [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27) |
+| MAIL-02 | 3 | Messages d’information ciblés | MAIL-03 | MAIL-01, AUTH-03 | Terminé | [#28](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/28) |
+| MAIL-03 | 3 | Récapitulatif quotidien des alertes à 08 h | ALT-06 partiel; MAIL-07 partiel; décision utilisateur | ALT-03, MAIL-01 | Terminé | [#29](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29) |
+| CON-01 | 4 | Historique personnel et suivi des consommations | CON-03,04; décision utilisateur | STK-04, STK-07, AUTH-03 | Terminé | [#30](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30) |
+| STAT-01 | 4 | Statistiques de consommation et filtres | STAT-01,02,03,04,06 | CON-01 | Terminé | [#31](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31) |
+| STAT-02 | 4 | Tableau de bord et indicateurs | STAT-05; §6 | STAT-01, ALT-03, STK-01 | Terminé | [#32](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32) |
+| ADM-01 | 4 | Journal d’audit métier | §2,10.1,10.4 | AUTH-03, STK-02 | Terminé | [#33](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33) |
+| OPS-01 | 5 | Sauvegardes, restauration et reprise | DOCK-10,11; §10.3 | SOC-01, SOC-02 | Terminé | [#34](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34) |
+| OPS-02 | 5 | Déploiement HTTPS, sécurité et mises à jour | DOCK-03,04,05,07,08,09,10; §10.1 | SOC-01, AUTH-03 | Terminé | [#35](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35) |
+| OPS-03 | 5 | Supervision et diagnostic | §10.4; DOCK-10 | SOC-01, MAIL-01 | Terminé | [#36](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/36) |
+| RGPD-01 | 5 | Anonymisation des données nominatives après un an | §10.1; décision utilisateur | ADM-01, SOC-02 | Terminé | [#37](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37) |
+| QA-01 | 5 | Recette automatisée, concurrence et performances | REC-01 à REC-18; DOCK-12; §10.2,11 | INV-03, MAIL-03, STAT-02, OPS-01, OPS-02, RGPD-01 | Terminé | [#38](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38) |
+| DOC-01 | 5 | Documentation, démonstration et livraison | §12,16 | QA-01 | Terminé | [#39](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/39) |
 | V2-01 | V2 | MFA et authentification SSO OIDC | AUTH-08 | AUTH-01 | V2 différée | [#40](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/40) |
 | V2-02 | V2 | Emplacements internes des magasins | MAG-06 | MAG-01, STK-02 | V2 différée | [#41](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/41) |
 | V2-03 | V2 | Images, codes-barres et références fournisseur | ART-06 | ART-01 | V2 différée | [#42](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/42) |
@@ -222,15 +222,17 @@ Livraison pour revue : [PR #58](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### AUTH-04 — Réinitialisation sécurisée du mot de passe
 
-Issue : [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) · À faire · Dépendances : [AUTH-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
+Issue : [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) · Terminé · Dépendances : [AUTH-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
 
 Sources : AUTH-06; MAIL-02.
 
-- [ ] Créer demande, jeton temporaire à usage unique et formulaire de changement
-- [ ] Éviter l’énumération des comptes et les secrets dans les logs
-- [ ] Envoyer le lien par file durable
+- [x] Créer demande, jeton temporaire à usage unique et formulaire de changement
+- [x] Éviter l’énumération des comptes et les secrets dans les logs
+- [x] Envoyer le lien par file durable
 
 Critères d’acceptation : Jeton expiré ou déjà utilisé refusé ; mot de passe remplacé par un hash.
+
+Développement : parcours interface/API et envoi durable, liens de 30 minutes, contrôle du compte courant et révocation des sessions ; [guide](docs/reinitialisation-mot-de-passe.md). [PR #89](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/89), dépendante de #88. Recette locale : 415 tests PHP / 5 258 assertions et un test natif supplémentaire / 10 assertions ; OpenAPI, HTTP et charge réussis. [Rapport](docs/validation-auth04.md). Consulter la PR pour la CI finale.
 
 ### MAG-01 — Création, modification et archivage des magasins
 
@@ -430,7 +432,7 @@ Livraison pour revue : [PR #71](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### INV-03 — Validation atomique et clôture d’inventaire
 
-Issue : [#23](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23) · En revue · Dépendances : [INV-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/22), [STK-05](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17).
+Issue : [#23](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23) · Terminé · Dépendances : [INV-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/22), [STK-05](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/17).
 
 Sources : INV-04,05,06.
 
@@ -444,7 +446,7 @@ Livraison pour revue : [PR #72](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### ALT-01 — Seuils personnalisés par article et magasin
 
-Issue : [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24) · Intégré · Dépendances : [ART-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
+Issue : [#24](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24) · Terminé · Dépendances : [ART-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
 
 Sources : ART-05; ALT-01.
 
@@ -458,7 +460,7 @@ Livraison pour revue : [PR #73](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### ALT-02 — Cycle de vie des alertes et franchissements
 
-Issue : [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25) · Intégré · Dépendances : [ALT-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24), [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
+Issue : [#25](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25) · Terminé · Dépendances : [ALT-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/24), [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
 
 Sources : ALT-01,03,04.
 
@@ -472,7 +474,7 @@ Livraison pour revue : [PR #75](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### ALT-03 — Écran des alertes et destinataires
 
-Issue : [#26](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26) · En revue · Dépendances : [ALT-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25).
+Issue : [#26](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26) · Terminé · Dépendances : [ALT-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/25).
 
 Sources : ALT-02,05.
 
@@ -486,7 +488,7 @@ Livraison pour revue : [PR #76](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### MAIL-01 — SMTP, file durable et modèles de courriels
 
-Issue : [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27) · Intégré · Dépendances : [SOC-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2).
+Issue : [#27](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27) · Terminé · Dépendances : [SOC-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2).
 
 Sources : MAIL-01,02,04,05,06,08.
 
@@ -500,7 +502,7 @@ Livraison pour revue : [PR #74](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### MAIL-02 — Messages d’information ciblés
 
-Issue : [#28](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/28) · En revue · Dépendances : [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
+Issue : [#28](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/28) · Terminé · Dépendances : [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
 
 Sources : MAIL-03.
 
@@ -516,7 +518,7 @@ Livraison pour revue : [PR #77](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### MAIL-03 — Récapitulatif quotidien des alertes à 08 h
 
-Issue : [#29](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29) · En revue · Dépendances : [ALT-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
+Issue : [#29](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29) · Terminé · Dépendances : [ALT-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
 
 Sources : ALT-06 partiel; MAIL-07 partiel; décision utilisateur.
 
@@ -534,7 +536,7 @@ Livraison pour revue : [PR #78](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### CON-01 — Historique personnel et suivi des consommations
 
-Issue : [#30](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30) · En revue · Dépendances : [STK-04](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16), [STK-07](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
+Issue : [#30](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30) · Terminé · Dépendances : [STK-04](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/16), [STK-07](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/19), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
 
 Sources : CON-03,04; décision utilisateur.
 
@@ -552,7 +554,7 @@ Livraison pour revue : [PR #79](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### STAT-01 — Statistiques de consommation et filtres
 
-Issue : [#31](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31) · En revue · Dépendances : [CON-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30).
+Issue : [#31](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31) · Terminé · Dépendances : [CON-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/30).
 
 Sources : STAT-01,02,03,04,06.
 
@@ -566,7 +568,7 @@ Choix confirmé : compter les retours à leur date réelle dans les statistiques
 
 ### STAT-02 — Tableau de bord et indicateurs
 
-Issue : [#32](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32) · En revue · Dépendances : [STAT-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31), [ALT-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26), [STK-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13).
+Issue : [#32](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32) · Terminé · Dépendances : [STAT-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/31), [ALT-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/26), [STK-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/13).
 
 Sources : STAT-05; §6.
 
@@ -580,7 +582,7 @@ Critères d’acceptation : Les totaux concordent avec les listes et ne révèle
 
 ### ADM-01 — Journal d’audit métier
 
-Issue : [#33](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33) · En revue · Dépendances : [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7), [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14).
+Issue : [#33](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33) · Terminé · Dépendances : [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7), [STK-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/14).
 
 Sources : §2,10.1,10.4.
 
@@ -594,7 +596,7 @@ Critères d’acceptation : Une action sensible est attribuable et horodatée ; 
 
 ### OPS-01 — Sauvegardes, restauration et reprise
 
-Issue : [#34](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34) · En revue · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1), [SOC-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2).
+Issue : [#34](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34) · Terminé · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1), [SOC-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2).
 
 Sources : DOCK-10,11; §10.3.
 
@@ -610,7 +612,7 @@ Critères d’acceptation : Restauration et recréation des conteneurs validées
 
 ### OPS-02 — Déploiement HTTPS, sécurité et mises à jour
 
-Issue : [#35](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35) · En revue · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
+Issue : [#35](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35) · Terminé · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1), [AUTH-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7).
 
 Sources : DOCK-03,04,05,07,08,09,10; §10.1.
 
@@ -626,7 +628,7 @@ Critères d’acceptation : Contrôles de sécurité et procédure de rollback e
 
 ### OPS-03 — Supervision et diagnostic
 
-Issue : [#36](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/36) · En revue · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
+Issue : [#36](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/36) · Terminé · Dépendances : [SOC-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/1), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
 
 Sources : §10.4; DOCK-10.
 
@@ -642,7 +644,7 @@ Critères d’acceptation : Panne worker ou SMTP observable sans exposer de secr
 
 ### RGPD-01 — Anonymisation des données nominatives après un an
 
-Issue : [#37](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37) · En revue · Dépendances : [ADM-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33), [SOC-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2).
+Issue : [#37](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37) · Terminé · Dépendances : [ADM-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/33), [SOC-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/2).
 
 Sources : §10.1; décision utilisateur.
 
@@ -676,7 +678,7 @@ Livraison pour revue : [PR #86](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### QA-01 — Recette automatisée, concurrence et performances
 
-Issue : [#38](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38) · En revue · Dépendances : [INV-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23), [MAIL-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29), [STAT-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32), [OPS-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34), [OPS-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35), [RGPD-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37).
+Issue : [#38](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38) · Terminé · Dépendances : [INV-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23), [MAIL-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29), [STAT-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32), [OPS-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34), [OPS-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35), [RGPD-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37).
 
 Sources : REC-01 à REC-18; DOCK-12; §10.2,11.
 
@@ -690,7 +692,7 @@ Développement : [PR #87](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/8
 
 ### DOC-01 — Documentation, démonstration et livraison
 
-Issue : [#39](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/39) · En revue · Dépendances : [QA-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38).
+Issue : [#39](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/39) · Terminé · Dépendances : [QA-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38).
 
 Sources : §12,16.
 
@@ -700,7 +702,7 @@ Sources : §12,16.
 
 Critères d’acceptation : Installation Docker suivie sur environnement vierge et documentation cohérente. Licence et responsabilités à définir avant diffusion.
 
-Développement : [PR #88](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/88), [fiche de livraison](docs/livraison.md) et [validation](docs/validation-doc01.md). Guides et régime propriétaire livrés ; installation vierge réussie, 7 tests PHP / 92 assertions et 4 contrôles OpenAPI. Installation Linux CI réussie sur le code corrigé ; consulter la PR pour les contrôles du dernier commit. Le propriétaire assurera serveur, sauvegardes et incidents (confirmation du 22 octobre 2026) ; AUTH-04 reste à développer avant déclaration du MVP complet. Aucune ouverture de production réalisée.
+Développement : [PR #88](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/88), [fiche de livraison](docs/livraison.md) et [validation](docs/validation-doc01.md). Guides et régime propriétaire livrés ; installation vierge réussie, 7 tests PHP / 92 assertions et 4 contrôles OpenAPI. Installation Linux CI réussie sur le code corrigé ; consulter la PR pour les contrôles du dernier commit. Le propriétaire assurera serveur, sauvegardes et incidents (confirmation du 22 octobre 2026) ; AUTH-04 est développé dans le lot suivant, en cours de validation. Aucune ouverture de production réalisée.
 
 ### V2-01 — MFA et authentification SSO OIDC
 

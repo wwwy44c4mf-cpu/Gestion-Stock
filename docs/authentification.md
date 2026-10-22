@@ -6,7 +6,7 @@ L’entrée `/` et les pages `/espace/*` demandent une connexion. `/connexion` p
 
 `/profil` affiche l’identité, le rôle et le nombre de magasins actifs affectés. Seul le fuseau horaire IANA peut être modifié. Le nom, le courriel, le rôle et les affectations relèvent de l’administration AUTH-02/03. La déconnexion utilise un formulaire POST protégé par CSRF.
 
-La récupération du mot de passe sera livrée dans AUTH-04 ; l’écran indique actuellement de contacter l’administrateur.
+« Mot de passe oublié ? » ouvre la [réinitialisation sécurisée](reinitialisation-mot-de-passe.md) : lien de 30 minutes à usage unique, courriel asynchrone, nouveau mot de passe et fermeture des anciennes sessions. SMTP doit être configuré et activé.
 
 ## Premier administrateur
 

@@ -38,7 +38,7 @@ Le couple clé d’événement/destinataire est fixé par le producteur ; toute 
 
 Les versions HTML et texte couvrent stock bas, stock critique, information, réinitialisation de mot de passe et synthèse. Elles affichent article, magasin, quantité, seuil, date Europe/Paris et lien applicatif selon le type. Le HTML est échappé et les liens utilisent l’adresse applicative configurée. Les données sont validées avant insertion et de nouveau avant rendu. La composition d’audience et le déclenchement métier appartiennent aux lots producteurs ; aucune route de démonstration d’envoi n’est exposée.
 
-`NotificationOutbox::enqueue()` exige une transaction active sur la connexion métier. Le producteur doit y insérer l’événement, avec une clé stable propre au destinataire, avant le commit. Les modèles de réinitialisation ne rendent pas à eux seuls une procédure de réinitialisation disponible.
+`NotificationOutbox::enqueue()` exige une transaction active sur la connexion métier. Le producteur doit y insérer l’événement, avec une clé stable propre au destinataire, avant le commit. AUTH-04 raccorde la [réinitialisation](reinitialisation-mot-de-passe.md) : payload `reset_id` non secret, lien reconstitué en mémoire seulement après contrôle du destinataire et de l’échéance.
 
 Sources techniques : [Symfony Mailer](https://symfony.com/doc/current/mailer.html) et [Symfony Messenger](https://symfony.com/doc/current/messenger.html).
 

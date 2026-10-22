@@ -6,9 +6,10 @@ final class NotificationPayload
 {
     public function validate(string $type,array $payload): void
     {
-        $fields=match($type) {'stock_low','stock_critical'=>['article','store','quantity','threshold','occurred_at','path'],'information'=>['subject','body','path'],'password_reset'=>['path'],'daily_summary'=>['items'],default=>throw new \InvalidArgumentException('notification_type_invalid')};
+        $fields=match($type) {'stock_low','stock_critical'=>['article','store','quantity','threshold','occurred_at','path'],'information'=>['subject','body','path'],'password_reset'=>['reset_id'],'daily_summary'=>['items'],default=>throw new \InvalidArgumentException('notification_type_invalid')};
         if(array_diff(array_keys($payload),$fields) || array_diff($fields,array_keys($payload))) {throw new \InvalidArgumentException('notification_payload_invalid');}
         foreach($payload as $field=>$value) {
+            if($field==='reset_id') {if(!is_string($value)||!preg_match('/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/Di',$value)) {throw new \InvalidArgumentException('notification_reset_invalid');}continue;}
             if(in_array($field,['quantity','threshold'],true)) {if(!is_int($value)||$value<0||$value>9007199254740991) {throw new \InvalidArgumentException('notification_quantity_invalid');}}
             elseif($field==='items') {if(!is_array($value)||!array_is_list($value)||count($value)<1) {throw new \InvalidArgumentException('notification_summary_invalid');}foreach($value as $item) {if(!is_array($item)) {throw new \InvalidArgumentException('notification_summary_invalid');}if(array_key_exists('level',$item)) {if(!in_array($item['level'],['low','critical'],true)) {throw new \InvalidArgumentException('notification_summary_level_invalid');}unset($item['level']);}$this->validate('stock_low',$item);}}
             else {if(!is_string($value)||trim($value)===''||mb_strlen($value,'UTF-8')>($field==='body'?10000:2000)||!preg_match('//u',$value)||preg_match('/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/',$value)) {throw new \InvalidArgumentException('notification_text_invalid');}

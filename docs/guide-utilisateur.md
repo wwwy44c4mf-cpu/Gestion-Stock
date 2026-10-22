@@ -2,7 +2,7 @@
 
 ## Se connecter et choisir un magasin
 
-Ouvrir l’adresse fournie par l’administrateur, puis se connecter avec son courriel et son mot de passe. En cas d’oubli, contacter l’administrateur : la récupération autonome du mot de passe (AUTH-04) reste à développer, même si SMTP est configuré. Dans **Profil**, choisir son fuseau horaire. Les dates des opérations sont fixées à l’enregistrement ; une date passée ne peut pas être saisie.
+Ouvrir l’adresse fournie par l’administrateur, puis se connecter avec son courriel et son mot de passe. En cas d’oubli, utiliser **Mot de passe oublié ?** pour recevoir un lien valable 30 minutes ; si aucun message n’arrive, contacter l’administrateur. [Procédure](reinitialisation-mot-de-passe.md). Dans **Profil**, choisir son fuseau horaire. Les dates des opérations sont fixées à l’enregistrement ; une date passée ne peut pas être saisie.
 
 Le sélecteur **Magasin** limite l’affichage aux magasins autorisés. « Tous mes magasins » regroupe ce périmètre, sans accorder de droits supplémentaires. Un magasin désactivé n’est visible que par les administrateurs. Une session inactive expire après 30 minutes, avec une limite absolue de 12 heures ; une modification des accès peut imposer une reconnexion.
 

@@ -2,6 +2,10 @@
 
 Choix validé : serveur unique Docker Compose avec **Caddy intégré**, certificat HTTPS géré automatiquement. La configuration pour un proxy déjà installé reste fournie. Aucun serveur ni DNS n’a été modifié par cette livraison. Avant production : choisir domaine, adresse du serveur, ressources, responsable d’exploitation, destination des sauvegardes extérieures et modalités SMTP.
 
+## Correctifs de sécurité de la version candidate
+
+Le runtime PHP est verrouillé sur **8.4.27** par empreinte multiarchitecture, à la suite de [l’avis officiel du 21 octobre 2026](https://www.php.net/archive/2026.php). Le paramètre de construction `OS_SECURITY_REVISION=20261022` invalide explicitement le cache des étapes de mise à jour Alpine : une reconstruction doit réellement prendre les correctifs système disponibles. Modifier cette révision lors d’un rafraîchissement, construire de nouvelles images identifiées puis refaire la recette et l’audit ; ne pas réutiliser une étiquette de version publiée pour un autre contenu.
+
 ## Conditions préalables
 
 Docker Engine et Compose >= 2.24.4 sont nécessaires (les overlays utilisent `!override` et `!reset`). Prévoir DNS A/AAAA cohérents vers le serveur, ports 80 et 443 accessibles pour HTTPS et les validations ACME, accès sortant DNS/HTTPS, horloge synchronisée et disque surveillé. Ne pas publier d’AAAA si IPv6 n’atteint pas réellement ce serveur. Vérifier qu’aucun autre service n’utilise les ports 80/443 et que le sous-réseau Docker choisi ne chevauche pas les réseaux du serveur.
@@ -91,7 +95,7 @@ Arrêter les écritures et les consommateurs avant toute décision. Conserver un
 - Si le schéma a changé ou si une migration a partiellement réussi, conserver l’installation en maintenance. Restaurer le paquet de l’ancienne version dans un **nouveau projet et de nouveaux volumes** selon [OPS-01](sauvegardes-restauration.md), PostgreSQL 18 et images compatibles. Si les noms d’images contiennent l’ancien projet, les retaguer explicitement vers le projet de reprise, sans écraser l’original. Vérifier empreintes, réconciliation et accès applicatif avant bascule.
 - Une restauration revient à l’instantané sélectionné. Les écritures postérieures peuvent manquer : comparer l’état conservé, identifier les mouvements à reprendre et faire valider cette perte/reprise par le responsable métier avant réouverture. Ne pas annoncer un retour sans perte si ces écritures ne sont pas réconciliées.
 
-La restauration sur base vierge, les refus sur cible non vide et l’annulation d’un import SQL en erreur sont exécutés par `sh bin/test-backup-recovery`. La recette de production ci-dessous applique les migrations jusqu’à RGPD-01 (17 migrations au total) à une base contenant déjà 15 migrations et des données, exécute une seconde mise à jour sans remise à zéro, puis restaure dans un autre volume l’instantané à 15 migrations avec vérification de toutes les empreintes. Le retour arrière d’une future migration destructive doit être testé avec les données représentatives de cette migration avant son déploiement.
+La restauration sur base vierge, les refus sur cible non vide et l’annulation d’un import SQL en erreur sont exécutés par `sh bin/test-backup-recovery`. La recette de production ci-dessous applique les migrations jusqu’à la correction de clôture RGPD (18 migrations au total) à une base contenant déjà 15 migrations et des données, exécute une seconde mise à jour sans remise à zéro, puis restaure dans un autre volume l’instantané à 15 migrations avec vérification de toutes les empreintes. Le retour arrière d’une future migration destructive doit être testé avec les données représentatives de cette migration avant son déploiement.
 
 ## Variante avec proxy existant
 
