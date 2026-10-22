@@ -74,7 +74,7 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | AUTH-01 | 1 | Connexion, sessions et profil | AUTH-01,02,03,07; §10.1 | SOC-02, SOC-03, SOC-04 | Terminé | [#5](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5) |
 | AUTH-02 | 1 | Administration des comptes et désactivation | AUTH-04,09 | AUTH-01 | Terminé | [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6) |
 | AUTH-03 | 1 | Rôles, affectations et contrôle des accès | AUTH-05; MAG-03; §2,4 | AUTH-02 | Terminé | [#7](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7) |
-| AUTH-04 | 1 | Réinitialisation sécurisée du mot de passe | AUTH-06; MAIL-02 | AUTH-01, MAIL-01 | En cours | [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) |
+| AUTH-04 | 1 | Réinitialisation sécurisée du mot de passe | AUTH-06; MAIL-02 | AUTH-01, MAIL-01 | En revue | [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) |
 | MAG-01 | 1 | Création, modification et archivage des magasins | MAG-01,02,05 | AUTH-03 | Terminé | [#9](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/9) |
 | ART-01 | 1 | Catalogue global, catégories et archivage | ART-01,02,03; §4 | MAG-01 | Terminé | [#10](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10) |
 | ART-02 | 1 | Propositions d’articles et validation administrative | ART-01,02; décision utilisateur | ART-01 | Terminé | [#11](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/11) |
@@ -222,17 +222,17 @@ Livraison pour revue : [PR #58](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### AUTH-04 — Réinitialisation sécurisée du mot de passe
 
-Issue : [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) · En cours · Dépendances : [AUTH-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
+Issue : [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) · En revue · Dépendances : [AUTH-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
 
 Sources : AUTH-06; MAIL-02.
 
-- [ ] Créer demande, jeton temporaire à usage unique et formulaire de changement
-- [ ] Éviter l’énumération des comptes et les secrets dans les logs
-- [ ] Envoyer le lien par file durable
+- [x] Créer demande, jeton temporaire à usage unique et formulaire de changement
+- [x] Éviter l’énumération des comptes et les secrets dans les logs
+- [x] Envoyer le lien par file durable
 
 Critères d’acceptation : Jeton expiré ou déjà utilisé refusé ; mot de passe remplacé par un hash.
 
-Développement : parcours interface/API et envoi durable, liens de 30 minutes, contrôle du compte courant et révocation des sessions ; [guide](docs/reinitialisation-mot-de-passe.md). Recette en cours.
+Développement : parcours interface/API et envoi durable, liens de 30 minutes, contrôle du compte courant et révocation des sessions ; [guide](docs/reinitialisation-mot-de-passe.md). [PR #89](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/89), dépendante de #88. Recette locale : 415 tests PHP / 5 258 assertions et un test natif supplémentaire / 10 assertions ; OpenAPI, HTTP et charge réussis. [Rapport](docs/validation-auth04.md). Consulter la PR pour la CI finale.
 
 ### MAG-01 — Création, modification et archivage des magasins
 
