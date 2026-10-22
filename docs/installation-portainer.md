@@ -2,6 +2,8 @@
 
 Cette variante prépare une installation neuve sur Docker Standalone géré par Portainer. Elle réutilise le module Cloudflared existant, dont le réseau et l’adresse sont relevés dans **Containers → Cloudflared → Connected networks**. Elle ne crée pas de tunnel, n’ouvre aucun port hôte et n’installe rien dans Home Assistant Core. L’accès réel au serveur et le DNS ne sont pas validés par la recette locale.
 
+**Limite de support Home Assistant OS :** Home Assistant classe les conteneurs autonomes extérieurs à son écosystème comme logiciels non pris en charge. Certains logiciels peuvent aussi interférer avec le Supervisor. Cette stack est une variante Docker testée, pas une application Home Assistant officiellement gérée par le Supervisor. Voir [la règle officielle](https://www.home-assistant.io/more-info/unsupported/software/). L’exploitant doit connaître cette limite avant de choisir ce mode ; un hôte Docker séparé permet de garder la stack hors du système Home Assistant OS. Ne pas contourner les contrôles de santé du Supervisor.
+
 ## Préparation dans Portainer
 
 Vérifier l’espace disque et la mémoire disponibles pendant le fonctionnement normal de Home Assistant. Les six services permanents ont des plafonds de mémoire d’environ 2,1 Gio cumulés ; ces plafonds ne comprennent pas la construction des images. Surveiller la première construction et les services domotiques. Les quatre images sont construites sur l’architecture native du serveur depuis le dépôt public ; aucun registre privé ni jeton GitHub n’est nécessaire.
@@ -67,6 +69,8 @@ Cette variante refuse une nouvelle migration sur un simple redéploiement après
 ## Preuves et références
 
 `sh bin/test-portainer` utilise une copie de sources sans secrets réels, un réseau Cloudflared simulé et des volumes jetables. Il vérifie démarrage, conservation des secrets au redéploiement, absence de compte de démo, frontière proxy, sauvegarde chiffrée et aperçu de conservation. Il ne se connecte pas à Home Assistant et ne crée aucun DNS public. Les rapports sont dans `var/portainer/`, ignorés par Git.
+
+La recette comprend sept tests du provisionnement et une restauration sur une seconde base avec comparaison des empreintes, puis vérification du blocage et du retraitement avant réouverture. Le réseau du proxy simulé est créé avec un sous-réseau explicite libre, nécessaire aux IP fixes des clients sur Docker Engine. Les quatre images natives de la préparation ont été analysées le 22 octobre 2026 sans signal connu dans cet audit daté ; les rapports détaillés restent dans `var/security/portainer-ops04/`. Refaire l’analyse des images réellement construites sur le serveur avant ouverture ; cela ne remplace pas une vérification du code ni ne garantit l’absence de toute vulnérabilité.
 
 - [Portainer : stack depuis Git et variables](https://docs.portainer.io/user/docker/stacks/add)
 - [Module Cloudflared : hôtes supplémentaires](https://github.com/homeassistant-apps/app-cloudflared/blob/main/cloudflared/DOCS.md)
