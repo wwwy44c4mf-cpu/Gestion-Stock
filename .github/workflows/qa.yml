@@ -1,0 +1,41 @@
+name: Recette MVP
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: qa-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  core:
+    name: Metier, concurrence, RGPD et performances
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Recette Docker isolee
+        run: sh bin/test-qa core
+      - name: Rapport de performance
+        if: always()
+        shell: bash
+        run: |
+          python3 docker/qa/summary.py >> "$GITHUB_STEP_SUMMARY"
+  recovery:
+    name: Restauration, HTTPS et incidents
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Sauvegarde chiffree et restauration protegee
+        run: sh bin/test-backup-recovery
+      - name: HTTPS, mise a jour et reprise du schema precedent
+        run: sh bin/test-production
+      - name: Pannes worker, SMTP et base de donnees
+        run: sh bin/test-operations

@@ -1,0 +1,80 @@
+# Merge after docker/privacy/compose.recette.yaml; relative paths use that directory.
+services:
+  db:
+    image: gestion-stock-qa-db:qa01
+    build: {context: ../.., target: database}
+  test:
+    image: gestion-stock-qa-test:qa01
+    build: {context: ../.., target: test}
+    environment:
+      QA_FIXTURE: 1
+    volumes:
+      - ../qa:/app/docker/qa:ro
+      - ${QA_OUTPUT_DIRECTORY:?}:/qa-output
+  app:
+    image: gestion-stock-qa-app:qa01
+    build: {context: ../.., target: runtime}
+    environment:
+      APP_ENV: prod
+      APP_DEBUG: 0
+      APP_LOG_LEVEL: error
+      APP_SECRET_FILE: /run/secrets/secret
+      DATABASE_PASSWORD_FILE: /run/secrets/password
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: privacy_test
+      DATABASE_USER: privacy_app
+      MAIL_DELIVERY_ENABLED: 0
+      MAILER_DSN_FILE: /run/secrets/mailer
+      MAIL_FROM_ADDRESS: nobody@example.invalid
+      APP_PUBLIC_URL: http://web:8080
+      MESSENGER_TRANSPORT_DSN: doctrine://default?auto_setup=false
+    secrets: [secret, password, mailer]
+    networks: [isolated]
+    read_only: true
+    tmpfs: ["/tmp:uid=10001,gid=10001,mode=1770", "/app/var:uid=10001,gid=10001,mode=0770"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, php, docker/healthcheck.php, fpm]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    depends_on:
+      db: {condition: service_healthy}
+  web:
+    image: gestion-stock-qa-web:qa01
+    build: {context: ../.., target: web}
+    networks: [isolated]
+    read_only: true
+    tmpfs: ["/tmp:uid=101,gid=101,mode=1770"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, wget, -q, --spider, http://127.0.0.1:8080/health/ready]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    depends_on:
+      app: {condition: service_healthy}
+  probe:
+    image: gestion-stock-qa-probe:qa01
+    build: {context: ../.., target: contract-test}
+    entrypoint: [python, /qa/recette.py]
+    user: "10001:10001"
+    environment:
+      QA_FIXTURE: 1
+      QA_TARGET: http://web:8080
+    volumes:
+      - ../qa:/qa:ro
+      - ${QA_OUTPUT_DIRECTORY:?}:/qa-output
+    networks: [isolated]
+    read_only: true
+    tmpfs: ["/tmp:uid=10001,gid=10001,mode=1770"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  contract:
+    image: gestion-stock-qa-probe:qa01
+    network_mode: none
+    read_only: true
+    tmpfs: [/tmp]

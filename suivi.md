@@ -676,7 +676,7 @@ Livraison pour revue : [PR #86](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### QA-01 — Recette automatisée, concurrence et performances
 
-Issue : [#38](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38) · À faire · Dépendances : [INV-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23), [MAIL-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29), [STAT-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32), [OPS-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34), [OPS-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35), [RGPD-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37).
+Issue : [#38](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38) · En cours · Dépendances : [INV-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23), [MAIL-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29), [STAT-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32), [OPS-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34), [OPS-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35), [RGPD-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37).
 
 Sources : REC-01 à REC-18; DOCK-12; §10.2,11.
 
@@ -685,6 +685,8 @@ Sources : REC-01 à REC-18; DOCK-12; §10.2,11.
 - [ ] Mesurer 5 utilisateurs simultanés, 2 magasins, 20 articles, 10 mouvements/jour ; cibles p95 liste <2 s et mouvement <3 s ; produire rapport
 
 Critères d’acceptation : REC-01 à REC-18 passent ; tests de restauration et redémarrage documentés ; aucun accès inter-magasin.
+
+Développement : [banc de recette et matrice REC-01 à REC-18](docs/recette-qa01.md), cinq sessions HTTP réelles et charge sur données fictives. Première mesure locale conforme ; recette complète et CI en cours de validation.
 
 ### DOC-01 — Documentation, démonstration et livraison
 
