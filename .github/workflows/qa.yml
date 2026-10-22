@@ -61,3 +61,13 @@ jobs:
           persist-credentials: false
       - name: Installation Standalone isolee sans ports publies
         run: sh bin/test-portainer
+      - name: Diagnostic de recette Portainer en cas d'echec
+        if: failure()
+        shell: bash
+        run: |
+          for file in var/portainer/*/setup-tests.log var/portainer/*/start.log var/portainer/*/services.log; do
+            if [ -f "$file" ]; then
+              printf '%s\n' "$file"
+              tail -n 40 "$file"
+            fi
+          done

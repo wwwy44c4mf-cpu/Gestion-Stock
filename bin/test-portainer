@@ -36,7 +36,21 @@ for path in source.iterdir():
     if path.is_dir():shutil.copytree(path,target/path.name,ignore=shutil.ignore_patterns(*excluded))
     else:shutil.copy2(path,target/path.name)
 PY
-docker network create "$CLOUDFLARED_NETWORK" >/dev/null
+portainer_networks=$(docker network ls -q)
+# Docker Engine requires an explicit subnet for the fixed test-client IPs.
+# Pick a free test subnet instead of depending on Docker Desktop's behavior.
+docker network inspect $portainer_networks > "$portainer_report/networks.json"
+portainer_test_subnet=$(python3 - "$portainer_report/networks.json" <<'PY'
+import ipaddress,json,sys
+used=[ipaddress.ip_network(c['Subnet']) for n in json.load(open(sys.argv[1])) for c in ((n.get('IPAM') or {}).get('Config') or []) if c.get('Subnet') and ':' not in c['Subnet']]
+for i in range(256):
+    candidate=ipaddress.ip_network('198.18.'+str(i)+'.0/24')
+    if not any(candidate.overlaps(network) for network in used):
+        print(candidate);break
+else:raise SystemExit('No unused test subnet available')
+PY
+)
+docker network create --subnet "$portainer_test_subnet" "$CLOUDFLARED_NETWORK" >/dev/null
 portainer_subnet=$(docker network inspect "$CLOUDFLARED_NETWORK" --format '{{(index .IPAM.Config 0).Subnet}}')
 export CLOUDFLARED_ADDRESS=$(python3 -c 'import ipaddress,sys;print(ipaddress.ip_network(sys.argv[1]).network_address+10)' "$portainer_subnet")
 portainer_untrusted=$(python3 -c 'import ipaddress,sys;print(ipaddress.ip_network(sys.argv[1]).network_address+11)' "$portainer_subnet")
