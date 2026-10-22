@@ -36,4 +36,4 @@ UUID d’exemple à remplacer par les identifiants réels autorisés. Réponse 2
 
 Quantités décimales, exposants, chaînes numériques JSON, zéro/négatifs, bornes dépassées, champs supplémentaires et magasins identiques : 422. Périmètre inaccessible : 404 ; USER : 403 ; article inactif, stock insuffisant, capacité d’arrivée dépassée, inventaire ou clé conflictuelle : 409. CSRF invalide : 403 ; session absente avec CSRF valide : 401.
 
-Aucune nouvelle migration après STK-05 (`Version20261018223000`). Les événements attendent les futurs traitements d’alertes ; cet écran n’annonce pas d’envoi de courriel. [Moteur](moteur-stock.md) · [Validation](validation-stk06.md).
+Aucune nouvelle migration après STK-05 (`Version20261018223000`). Les événements sont traités par le cycle des alertes ; la confirmation n’est pas une preuve de livraison de courriel. [Moteur](moteur-stock.md) · [Validation](validation-stk06.md).

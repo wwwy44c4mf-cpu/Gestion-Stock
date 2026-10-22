@@ -10,7 +10,7 @@ Après succès, le formulaire redirige vers le détail du stock avec un message 
 
 Le formulaire conserve une clé par nouvelle entrée. Le même envoi répété restitue le même mouvement sans crédit supplémentaire. Le rejeu peut encore réussir après archivage ultérieur de l’article, car aucun nouveau mouvement n’est créé ; les droits actuels de l’opérateur restent obligatoires. Modifier une demande déjà validée en gardant sa clé donne un conflit, sans nouvelle écriture. Le lien « Ouvrir un nouveau formulaire » permet de commencer une nouvelle entrée distincte.
 
-Le serveur fixe l’opérateur et la date UTC. Aucun auteur ni date fournis par le client ne sont acceptés. Le moteur STK-02 valide ensemble solde, mouvement, audit et événement durable. Il ne copie pas le motif ou la référence dans l’audit. L’événement de `stock_change_events` attend le consommateur des futurs lots d’alertes ; cet écran n’annonce pas l’envoi d’un courriel.
+Le serveur fixe l’opérateur et la date UTC. Aucun auteur ni date fournis par le client ne sont acceptés. Le moteur STK-02 valide ensemble solde, mouvement, audit et événement durable. Il ne copie pas le motif ou la référence dans l’audit. L’événement de `stock_change_events` est traité par le [cycle des alertes](cycle-alertes.md) ; une confirmation de stock n’est pas une preuve de livraison de courriel.
 
 ## API
 

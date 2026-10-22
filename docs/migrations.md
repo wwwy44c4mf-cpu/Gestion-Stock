@@ -64,7 +64,7 @@ La migration `Version20261018110000` ajoute `users.development_only`, faux pour 
 
 ## Événements transactionnels de stock
 
-`Version20261018200000` ajoute `stock_change_events`, un événement durable unique par mouvement, avec article et magasins concernés. Le moteur l’écrit dans la même transaction que solde, journal et audit. Les consommateurs des futurs lots d’alertes renseigneront son état de traitement ; aucun appel SMTP n’est effectué dans le moteur. Les données existantes ne sont pas modifiées et aucun historique n’est rejoué par cette migration. Son retour arrière refuse toute suppression si des événements existent. La table d’historique conserve sa contrainte d’unicité opérateur/clé et son empreinte de requête : aucune copie supplémentaire des textes libres n’est ajoutée.
+`Version20261018200000` ajoute `stock_change_events`, un événement durable unique par mouvement, avec article et magasins concernés. Le moteur l’écrit dans la même transaction que solde, journal et audit. Les consommateurs d’alertes renseignent son état de traitement ; aucun appel SMTP n’est effectué dans le moteur. Les données existantes ne sont pas modifiées et aucun historique n’est rejoué par cette migration. Son retour arrière refuse toute suppression si des événements existent. La table d’historique conserve sa contrainte d’unicité opérateur/clé et son empreinte de requête : aucune copie supplémentaire des textes libres n’est ajoutée.
 
 STK-05 ajoute `Version20261018223000` (huitième migration) pour `movement_corrections`, ses clés étrangères, l’unicité, le contrôle de cohérence et l’immutabilité. Déployer cette migration avant le code des nouveaux écrans ; retour arrière protégé dès qu’une correction existe.
 

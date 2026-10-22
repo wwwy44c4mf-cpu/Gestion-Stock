@@ -9,5 +9,6 @@ des droits. Le propriétaire a retenu ce régime pour une utilisation privée.
 
 Les composants tiers conservent leurs licences respectives. Cette restriction
 ne remplace pas les licences des dépendances, des outils ou des schémas tiers
-(notamment docs/schemas/LICENSE-openapi.txt). Consulter leurs notices avant
+(notamment docs/schemas/LICENSE-openapi.txt et
+public/assets/vendor/STIMULUS-LICENSE.md). Consulter leurs notices avant
 toute diffusion autorisée.

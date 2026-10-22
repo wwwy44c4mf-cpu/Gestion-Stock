@@ -18,12 +18,16 @@ Cette fiche prépare la livraison ; elle n’atteste pas d’une installation en
 | Tests et rapport | [Recette QA](recette-qa01.md), [rapport QA](validation-qa01.md), [installation DOC-01](validation-doc01.md) |
 | Sécurité, versions et contribution | [SECURITY](../SECURITY.md), [CHANGELOG](../CHANGELOG.md), [CONTRIBUTING](../CONTRIBUTING.md) |
 
+## Fonctionnalité MVP encore manquante
+
+**AUTH-04 — réinitialisation sécurisée du mot de passe** est encore à faire ([issue #8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8)) : demande, jeton temporaire à usage unique, lien en file et formulaire. SMTP seul ne fournit pas ce parcours. QA-01 vérifie REC-01 à REC-18 et les fonctions existantes ; sa réussite ne prouve pas la présence de cette fonctionnalité. La développer et la tester avant de déclarer le MVP complet.
+
 ## Décisions et configuration avant ouverture
 
 | Élément | État |
 | --- | --- |
 | Licence | Utilisation privée, tous droits réservés ; dépôt GitHub actuellement public, sa visibilité n’a pas été modifiée |
-| Exploitant serveur/sauvegardes/incidents | À confirmer avec le propriétaire |
+| Exploitant serveur/sauvegardes/incidents | À désigner avant production ; demande transmise au propriétaire |
 | Responsable fonctionnel et habilitations | À désigner par l’organisation |
 | Responsable du traitement et validation des durées | À désigner/valider par l’organisation |
 | Serveur, ressources, domaine et DNS | À renseigner |

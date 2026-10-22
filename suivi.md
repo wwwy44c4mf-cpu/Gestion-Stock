@@ -105,7 +105,7 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | OPS-03 | 5 | Supervision et diagnostic | §10.4; DOCK-10 | SOC-01, MAIL-01 | En revue | [#36](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/36) |
 | RGPD-01 | 5 | Anonymisation des données nominatives après un an | §10.1; décision utilisateur | ADM-01, SOC-02 | En revue | [#37](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37) |
 | QA-01 | 5 | Recette automatisée, concurrence et performances | REC-01 à REC-18; DOCK-12; §10.2,11 | INV-03, MAIL-03, STAT-02, OPS-01, OPS-02, RGPD-01 | En revue | [#38](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38) |
-| DOC-01 | 5 | Documentation, démonstration et livraison | §12,16 | QA-01 | En cours | [#39](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/39) |
+| DOC-01 | 5 | Documentation, démonstration et livraison | §12,16 | QA-01 | En revue | [#39](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/39) |
 | V2-01 | V2 | MFA et authentification SSO OIDC | AUTH-08 | AUTH-01 | V2 différée | [#40](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/40) |
 | V2-02 | V2 | Emplacements internes des magasins | MAG-06 | MAG-01, STK-02 | V2 différée | [#41](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/41) |
 | V2-03 | V2 | Images, codes-barres et références fournisseur | ART-06 | ART-01 | V2 différée | [#42](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/42) |
@@ -690,17 +690,17 @@ Développement : [PR #87](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/8
 
 ### DOC-01 — Documentation, démonstration et livraison
 
-Issue : [#39](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/39) · En cours · Dépendances : [QA-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38).
+Issue : [#39](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/39) · En revue · Dépendances : [QA-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38).
 
 Sources : §12,16.
 
-- [ ] Rédiger README, guides utilisateur/admin, permissions, OpenAPI et diagrammes
-- [ ] Fournir données fictives, SECURITY.md, CHANGELOG.md et contribution Docker
-- [ ] Documenter sauvegarde/restauration, maintenance, mises à jour et recette ; choisir licence avec propriétaire
+- [x] Rédiger README, guides utilisateur/admin, permissions, OpenAPI et diagrammes
+- [x] Fournir données fictives, SECURITY.md, CHANGELOG.md et contribution Docker
+- [x] Documenter sauvegarde/restauration, maintenance, mises à jour et recette ; choisir licence avec propriétaire
 
 Critères d’acceptation : Installation Docker suivie sur environnement vierge et documentation cohérente. Licence et responsabilités à définir avant diffusion.
 
-Développement : [PR #88](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/88), [fiche de livraison](docs/livraison.md) et [validation](docs/validation-doc01.md). Guides et régime propriétaire livrés ; installation vierge réussie, 7 tests PHP / 92 assertions et 4 contrôles OpenAPI. CI et responsabilité d’exploitation à confirmer avant revue finale. Aucune ouverture de production réalisée.
+Développement : [PR #88](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/88), [fiche de livraison](docs/livraison.md) et [validation](docs/validation-doc01.md). Guides et régime propriétaire livrés ; installation vierge réussie, 7 tests PHP / 92 assertions et 4 contrôles OpenAPI. Installation Linux CI réussie sur le code corrigé ; consulter la PR pour les contrôles du dernier commit. Exploitant à désigner avant production ; AUTH-04 reste à développer avant déclaration du MVP complet. Aucune ouverture de production réalisée.
 
 ### V2-01 — MFA et authentification SSO OIDC
 
