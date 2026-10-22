@@ -1,6 +1,6 @@
 # Contribuer et développer avec Docker
 
-Le dépôt est privé et propriétaire : obtenir l’accord du propriétaire pour y contribuer ou diffuser du code. Ne pas inclure de données réelles dans les tests ni dans les captures.
+Le code du projet est propriétaire, tous droits réservés : obtenir l’accord du propriétaire pour y contribuer ou diffuser du code. Le dépôt GitHub est actuellement public ; ce régime de licence ne modifie pas sa visibilité. Ne pas inclure de données réelles dans les tests ni dans les captures.
 
 ## Préparer le poste
 

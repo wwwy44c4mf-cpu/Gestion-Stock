@@ -26,7 +26,7 @@ PHP 8.4, Symfony 8.1, Twig/Stimulus, DBAL/PostgreSQL 18, Nginx, Messenger et Sch
 Depuis une **copie neuve** du dépôt, préparer la configuration locale et les secrets aléatoires, sans les afficher :
 
 ```sh
-docker run --rm --mount "type=bind,source=$(pwd),target=/workspace" -w /workspace composer:2@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac php docker/setup.php
+docker run --rm --user "$(id -u):$(id -g)" --mount "type=bind,source=$(pwd),target=/workspace" -w /workspace composer:2@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac php docker/setup.php
 docker compose config --quiet
 docker compose up -d --build --wait
 docker compose run --rm --no-deps app php bin/console doctrine:migrations:migrate --no-interaction

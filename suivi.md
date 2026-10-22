@@ -700,7 +700,7 @@ Sources : §12,16.
 
 Critères d’acceptation : Installation Docker suivie sur environnement vierge et documentation cohérente. Licence et responsabilités à définir avant diffusion.
 
-Développement : guides consolidés, régime propriétaire confirmé, démonstration et installation isolées en cours de validation. Aucune ouverture de production réalisée.
+Développement : [PR #88](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/88), [fiche de livraison](docs/livraison.md) et [validation](docs/validation-doc01.md). Guides et régime propriétaire livrés ; installation vierge réussie, 7 tests PHP / 92 assertions et 4 contrôles OpenAPI. CI et responsabilité d’exploitation à confirmer avant revue finale. Aucune ouverture de production réalisée.
 
 ### V2-01 — MFA et authentification SSO OIDC
 
