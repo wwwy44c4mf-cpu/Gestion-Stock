@@ -104,7 +104,7 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | OPS-02 | 5 | Déploiement HTTPS, sécurité et mises à jour | DOCK-03,04,05,07,08,09,10; §10.1 | SOC-01, AUTH-03 | En revue | [#35](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35) |
 | OPS-03 | 5 | Supervision et diagnostic | §10.4; DOCK-10 | SOC-01, MAIL-01 | En revue | [#36](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/36) |
 | RGPD-01 | 5 | Anonymisation des données nominatives après un an | §10.1; décision utilisateur | ADM-01, SOC-02 | En revue | [#37](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37) |
-| QA-01 | 5 | Recette automatisée, concurrence et performances | REC-01 à REC-18; DOCK-12; §10.2,11 | INV-03, MAIL-03, STAT-02, OPS-01, OPS-02, RGPD-01 | À faire | [#38](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38) |
+| QA-01 | 5 | Recette automatisée, concurrence et performances | REC-01 à REC-18; DOCK-12; §10.2,11 | INV-03, MAIL-03, STAT-02, OPS-01, OPS-02, RGPD-01 | En revue | [#38](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38) |
 | DOC-01 | 5 | Documentation, démonstration et livraison | §12,16 | QA-01 | À faire | [#39](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/39) |
 | V2-01 | V2 | MFA et authentification SSO OIDC | AUTH-08 | AUTH-01 | V2 différée | [#40](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/40) |
 | V2-02 | V2 | Emplacements internes des magasins | MAG-06 | MAG-01, STK-02 | V2 différée | [#41](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/41) |
@@ -676,17 +676,17 @@ Livraison pour revue : [PR #86](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### QA-01 — Recette automatisée, concurrence et performances
 
-Issue : [#38](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38) · En cours · Dépendances : [INV-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23), [MAIL-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29), [STAT-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32), [OPS-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34), [OPS-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35), [RGPD-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37).
+Issue : [#38](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/38) · En revue · Dépendances : [INV-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/23), [MAIL-03](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/29), [STAT-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/32), [OPS-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/34), [OPS-02](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/35), [RGPD-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/37).
 
 Sources : REC-01 à REC-18; DOCK-12; §10.2,11.
 
-- [ ] Créer tests unitaires métier, intégration PostgreSQL/API, droits et parcours critiques exécutés en Docker/CI
-- [ ] Couvrir concurrence, retours, validation catalogue, inventaire gelé et anonymisation en plus des REC
-- [ ] Mesurer 5 utilisateurs simultanés, 2 magasins, 20 articles, 10 mouvements/jour ; cibles p95 liste <2 s et mouvement <3 s ; produire rapport
+- [x] Créer tests unitaires métier, intégration PostgreSQL/API, droits et parcours critiques exécutés en Docker/CI
+- [x] Couvrir concurrence, retours, validation catalogue, inventaire gelé et anonymisation en plus des REC
+- [x] Mesurer 5 utilisateurs simultanés, 2 magasins, 20 articles, 10 mouvements/jour ; cibles p95 liste <2 s et mouvement <3 s ; produire rapport
 
 Critères d’acceptation : REC-01 à REC-18 passent ; tests de restauration et redémarrage documentés ; aucun accès inter-magasin.
 
-Développement : [banc de recette et matrice REC-01 à REC-18](docs/recette-qa01.md), cinq sessions HTTP réelles et charge sur données fictives. Première mesure locale conforme ; recette complète et CI en cours de validation.
+Développement : [PR #87](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/87), [banc et matrice REC](docs/recette-qa01.md), [rapport de validation](docs/validation-qa01.md). 400 tests PHP (5 053 assertions), 4 contrôles OpenAPI, 5 tests du banc et 15 contrôles HTTP réussis. Charge de 920 requêtes sur cinq sessions : p95 stocks 63 ms, consommation 69 ms. Restauration, HTTPS et incidents validés ; CI réussie. Dépend de la PR RGPD #86.
 
 ### DOC-01 — Documentation, démonstration et livraison
 
