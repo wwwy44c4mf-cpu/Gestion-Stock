@@ -105,7 +105,7 @@ final class ArticleScanTest extends WebTestCase
     {
         $crawler=$this->client->request('GET','/administration/articles/nouveau');
         $this->client->submit($crawler->selectButton('Créer l’article')->form(['sku'=>'BAD-UI','name'=>'Invalid codes','scan_codes'=>"DUP\nDUP"]));
-        self::assertResponseStatusCodeSame(422);self::assertSelectorTextContains('#article-scan-codes',"DUP\nDUP");
+        self::assertResponseStatusCodeSame(422);self::assertSame("DUP\nDUP",$this->client->getCrawler()->filter('#article-scan-codes')->text(null,false));
         self::assertSame(0,(int)$this->db->fetchOne('SELECT count(*) FROM articles'));
     }
     public function testScannedReturnFilterKeepsOriginalBeneficiaryScopeAndArchivedArticles(): void
