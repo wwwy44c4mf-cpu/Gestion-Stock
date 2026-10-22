@@ -51,9 +51,9 @@ final class PasswordResetTest extends WebTestCase
 
     private function service(): PasswordReset { return static::getContainer()->get(PasswordReset::class); }
     private function event(): array { return $this->db->fetchAssociative("SELECT e.* FROM notification_events e JOIN password_reset_tokens r ON r.id::text=(e.payload->>'reset_id') WHERE e.type='password_reset' ORDER BY r.expires_at DESC LIMIT 1"); }
-    private function link(): string
+    private function link(string $recipient='person@example.test'): string
     {
-        $email=static::getContainer()->get(NotificationRenderer::class)->render($this->event(),'person@example.test');
+        $email=static::getContainer()->get(NotificationRenderer::class)->render($this->event(),$recipient);
         self::assertStringContainsString('Réinitialisation', $email->getHtmlBody());
         self::assertStringContainsString('ignorez ce courriel', $email->getTextBody());
         preg_match('~https?://[^\s]+/mot-de-passe/reinitialiser\?token=([^\s]+)~', $email->getTextBody(), $matches);
@@ -146,7 +146,7 @@ final class PasswordResetTest extends WebTestCase
     {
         $this->client->request('GET','/mot-de-passe/oublie');self::assertResponseIsSuccessful();
         $this->client->submitForm('Demander un lien',['email'=>'person@example.test']);self::assertResponseIsSuccessful();self::assertSelectorTextContains('[role="status"]',PasswordReset::ACCEPTED);
-        $token=$this->link();$this->client->request('GET','/mot-de-passe/reinitialiser?token='.rawurlencode($token));self::assertResponseRedirects('/mot-de-passe/reinitialiser',303);
+        $token=$this->link();$this->client->request('GET','/mot-de-passe/reinitialiser?token='.rawurlencode($token));self::assertResponseStatusCodeSame(303);self::assertMatchesRegularExpression('~^/mot-de-passe/reinitialiser\?form=[a-f0-9]{32}$~',$this->client->getResponse()->headers->get('Location'));
         self::assertSame('no-referrer',$this->client->getResponse()->headers->get('Referrer-Policy'));self::assertStringNotContainsString($token,$this->client->getResponse()->getContent());
         $this->client->followRedirect();self::assertResponseIsSuccessful();self::assertStringNotContainsString($token,$this->client->getResponse()->getContent());
         self::assertNull($this->db->fetchOne('SELECT used_at FROM password_reset_tokens'));
@@ -155,6 +155,25 @@ final class PasswordResetTest extends WebTestCase
         $this->client->followRedirect();self::assertSelectorTextContains('h1','Connexion');
         $this->api('confirm',['token'=>$token,'password'=>'Another-test-password!']);self::assertResponseStatusCodeSame(422);
     }
+    public function testTwoTabsKeepTheirOwnAccountAndRejectSwappedFormNonce(): void
+    {
+        $other=$this->db->fetchOne("INSERT INTO users(email,name,password_hash,role_id) VALUES ('other@example.test','Other',?,3) RETURNING id",[password_hash('Other-old-password-2026!',PASSWORD_ARGON2ID)]);
+        $this->service()->request('person@example.test');$first=$this->link();
+        $this->service()->request('other@example.test');$second=$this->link('other@example.test');
+        $this->client->request('GET','/mot-de-passe/reinitialiser?token='.rawurlencode($first));$this->client->followRedirect();
+        $firstForm=$this->client->getCrawler()->selectButton('Enregistrer le mot de passe')->form();$firstNonce=$firstForm['form_nonce']->getValue();
+        $this->client->request('GET','/mot-de-passe/reinitialiser?token='.rawurlencode($second));$this->client->followRedirect();
+        $secondForm=$this->client->getCrawler()->selectButton('Enregistrer le mot de passe')->form();
+        self::assertNotSame($firstForm['form_nonce']->getValue(),$secondForm['form_nonce']->getValue());
+        $this->client->submit($firstForm,['form_nonce'=>$secondForm['form_nonce']->getValue(),'password'=>'First-new-password-2026!','password_confirmation'=>'First-new-password-2026!']);self::assertResponseStatusCodeSame(403);
+        $this->client->submit($firstForm,['form_nonce'=>$firstNonce,'password'=>'First-new-password-2026!','password_confirmation'=>'First-new-password-2026!']);self::assertResponseRedirects('/connexion',303);
+        self::assertTrue(password_verify('First-new-password-2026!',$this->db->fetchOne("SELECT password_hash FROM users WHERE email='person@example.test'")));
+        self::assertTrue(password_verify('Other-old-password-2026!',$this->db->fetchOne('SELECT password_hash FROM users WHERE id=?',[$other])));
+        $this->client->submit($secondForm,['password'=>'Second-new-password-2026!','password_confirmation'=>'Second-new-password-2026!']);self::assertResponseRedirects('/connexion',303);
+        self::assertTrue(password_verify('Second-new-password-2026!',$this->db->fetchOne('SELECT password_hash FROM users WHERE id=?',[$other])));
+        self::assertTrue(password_verify('First-new-password-2026!',$this->db->fetchOne("SELECT password_hash FROM users WHERE email='person@example.test'")));
+    }
+
     public function testConfirmationRollbackAndInvalidPasswordPreserveUsableToken(): void
     {
         $this->service()->request('person@example.test');$token=$this->link();

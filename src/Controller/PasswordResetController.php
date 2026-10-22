@@ -59,32 +59,42 @@ final class PasswordResetController extends AbstractController
     #[Route('/mot-de-passe/reinitialiser', name: 'password_reset_confirm', methods: ['GET','POST'])]
     public function confirmForm(Request $request): Response
     {
-        // Exchange the URL secret for server-side session storage immediately.
+        $session=$request->getSession();
+        $forms=array_filter($session->get('_password_reset_forms', []), static fn (array $form): bool => $form['created_at'] > time()-1800);
+        $nonce=$request->isMethod('POST') ? $request->request->getString('form_nonce') : $request->query->getString('form');
+        if (!preg_match('/^[a-f0-9]{32}$/D', $nonce)) { $nonce=''; }
+        // Each tab keeps its own selector; the URL never carries the usable token again.
         if ($request->isMethod('GET') && $request->query->has('token')) {
             $token=$request->query->getString('token');
-            $request->getSession()->set('_password_reset_token', preg_match('/^[a-f0-9-]{36}\.[a-f0-9]{64}$/D', $token) ? $token : '');
-            return $this->redirectToRoute('password_reset_confirm', status: 303)->setPrivate();
+            $nonce=bin2hex(random_bytes(16));
+            $forms[$nonce]=['token'=>preg_match('/^[a-f0-9-]{36}\.[a-f0-9]{64}$/D', $token) ? $token : '', 'created_at'=>time()];
+            $forms=array_slice($forms, -10, null, true);
+            $session->set('_password_reset_forms', $forms);
+            $session->remove('_password_reset_token');
+            return $this->redirectToRoute('password_reset_confirm', ['form'=>$nonce], status: 303)->setPrivate();
         }
         $error=null; $status=200;
         if ($request->isMethod('POST')) {
             try {
-                $this->protect($request, 'confirm');
+                $this->protect($request, 'confirm', $nonce);
                 $password=$request->request->getString('password');
                 if (!hash_equals($password, $request->request->getString('password_confirmation'))) {
                     throw new ApiProblem(422, 'password_mismatch', 'Les deux mots de passe doivent être identiques.');
                 }
-                $this->reset->confirm($request->getSession()->get('_password_reset_token', ''), $password);
-                $request->getSession()->remove('_password_reset_token');
+                $this->reset->confirm($forms[$nonce]['token'] ?? '', $password);
+                unset($forms[$nonce]);
+                $session->set('_password_reset_forms', $forms);
                 $this->addFlash('success', 'Votre mot de passe a été modifié. Connectez-vous avec le nouveau mot de passe.');
                 return $this->redirectToRoute('login', status: 303);
             } catch (ApiProblem $exception) { $status=$exception->status; $error=$exception->getMessage(); }
         }
-        return $this->render('security/reset_confirm.html.twig', ['error'=>$error], new Response(status: $status));
+        return $this->render('security/reset_confirm.html.twig', ['error'=>$error, 'form_nonce'=>$nonce], new Response(status: $status));
     }
 
-    private function protect(Request $request, string $operation): void
+    private function protect(Request $request, string $operation, string $nonce=''): void
     {
-        if (!$this->csrf->isTokenValid(new CsrfToken('password_reset_'.$operation, $request->request->getString('_csrf_token')))) {
+        $csrfId='password_reset_'.$operation.($operation==='confirm' ? '_'.$nonce : '');
+        if (!$this->csrf->isTokenValid(new CsrfToken($csrfId, $request->request->getString('_csrf_token')))) {
             throw new ApiProblem(403, 'invalid_csrf_token', 'Formulaire expiré. Rechargez la page.');
         }
         $key=hash('sha256', $request->getClientIp().'|api_password_reset_'.$operation);

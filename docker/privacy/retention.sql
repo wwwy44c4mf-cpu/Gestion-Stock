@@ -80,7 +80,7 @@ UPDATE stock_movements SET author_id='00000000-0000-4000-8000-000000000001',
  WHERE id IN (SELECT id FROM privacy_due);
 UPDATE stock_movements SET consumer_id='00000000-0000-4000-8000-000000000001',reference=NULL,comment=NULL
  WHERE id IN (SELECT id FROM privacy_consumers) AND consumer_id<>'00000000-0000-4000-8000-000000000001';
-UPDATE stock_movements SET reference=NULL WHERE related_movement_id IN (SELECT id FROM privacy_consumers) AND reference IS NOT NULL;
+UPDATE stock_movements SET reference=NULL,comment=NULL WHERE related_movement_id IN (SELECT id FROM privacy_consumers) AND (reference IS NOT NULL OR comment IS NOT NULL);
 UPDATE inventories SET
  created_by=CASE WHEN created_at+interval '1 year'<=(SELECT at FROM privacy_clock) THEN '00000000-0000-4000-8000-000000000001'::uuid ELSE created_by END,
  validated_by=CASE WHEN closed_at+interval '1 year'<=(SELECT at FROM privacy_clock) THEN '00000000-0000-4000-8000-000000000001'::uuid ELSE validated_by END

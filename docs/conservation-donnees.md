@@ -39,3 +39,7 @@ Les sauvegardes restent chiffrées et conservées 90 jours : l’effacement dans
 ## Limites à valider avant production
 
 Le maintien des dates exactes, magasins et articles peut permettre des rapprochements avec des informations externes. Le retrait des liens nominatifs ne constitue donc pas, à lui seul, une garantie d’anonymat irréversible de tout le jeu. Les libellés du catalogue et adresses de magasins sont des référentiels conservés : ils ne doivent pas servir à enregistrer des noms de techniciens ou de clients. Le responsable du traitement doit valider la finalité et les durées avant production. [CNIL — anonymisation](https://www.cnil.fr/fr/technologies/lanonymisation-de-donnees-personnelles), [CNIL — durées de conservation](https://www.cnil.fr/fr/passer-laction/les-durees-de-conservation-des-donnees).
+
+## Correction de finalisation — 18e migration
+
+`Version20261022130000` appelle également la libération des comptes arrivés à échéance lors de la clôture d’un dossier récent, sans effacer prématurément les champs récents de ce dossier. Le traitement conserve aussi l’effacement des commentaires copiés dans les contre-mouvements récents d’une consommation ancienne. La migration remplace la fonction de clôture ; elle ne lance aucun effacement sur les données existantes. Le retour arrière reste refusé après un traitement de conservation journalisé.
