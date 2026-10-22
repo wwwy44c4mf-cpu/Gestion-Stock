@@ -90,6 +90,15 @@ FROM backup AS backup-test
 COPY tests/backup_test.py /tests/backup_test.py
 ENTRYPOINT ["python3", "/tests/backup_test.py"]
 
+# Portainer Standalone: no host-side checkout or relative bind mounts required.
+FROM database AS portainer-database
+COPY docker/postgres/init-app.sh /docker-entrypoint-initdb.d/10-app.sh
+COPY docker/privacy/retention.sql /opt/gestion-stock/retention.sql
+
+FROM backup AS portainer-backup
+COPY . /source
+COPY docker/portainer/setup.py /opt/portainer-setup.py
+
 # Rebuild Caddy with patched Go and x/net; dependency graph is locked in the repo.
 FROM golang:1.27.3-alpine@sha256:f2c872bcee949b7be9c490efd02b48a8a2fbf947cdf533f1c58525ec9d8170fd AS proxy-build
 WORKDIR /build

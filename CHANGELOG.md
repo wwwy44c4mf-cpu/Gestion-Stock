@@ -6,6 +6,8 @@ Aucune version stable ni mise en production n’est déclarée. Les PR ouvertes 
 
 ### Fonctionnalités
 
+- Variante Portainer Standalone / Home Assistant OS : volumes de secrets, initialisation neuve, raccordement au module Cloudflared, limites de ressources et recette de restauration isolée. Les prérequis d’exploitation restent à configurer sur le serveur réel.
+
 - Socle Docker, PostgreSQL, Symfony/Twig/Stimulus, API OpenAPI et interface française.
 - Connexion, profil, comptes et affectations ; administrateur de test limité au développement.
 - Réinitialisation du mot de passe par lien de 30 minutes à usage unique, file durable sans jeton utilisable et révocation des anciennes sessions.

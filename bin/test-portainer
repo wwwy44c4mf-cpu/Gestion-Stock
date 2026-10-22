@@ -1,0 +1,96 @@
+#!/bin/sh
+# Disposable Standalone deployment; no real Home Assistant network or credentials.
+set -eu
+cd "$(dirname "$0")/.."
+portainer_source=$(pwd)
+portainer_root=$(mktemp -d /tmp/gestion-stock-portainer.XXXXXX)
+portainer_project="gestion-stock-portainer-test-$(date +%s)-$$"
+portainer_report="$portainer_source/var/portainer/$(date -u +%Y%m%dT%H%M%SZ)-$$"
+mkdir -p "$portainer_report"
+export PORTAINER_SOURCE="$portainer_source" PORTAINER_ROOT="$portainer_root"
+export COMPOSE_PROJECT_NAME="$portainer_project"
+export RELEASE_ID=ops04-test DATABASE_RELEASE_ID=ops04-test
+export APP_DOMAIN=stock.example.test APP_TRUSTED_HOST_PATTERN='^stock[.]example[.]test\z'
+export CLOUDFLARED_NETWORK="${portainer_project}-cloudflared"
+dc() { docker compose --project-directory "$portainer_root" -f "$portainer_root/compose.portainer.yaml" -p "$portainer_project" "$@"; }
+cleanup() {
+ result=$?
+ trap - EXIT INT TERM
+ dc logs --no-color setup db initialize app backup > "$portainer_report/services.log" 2>&1 || true
+ docker rm -f "$portainer_project-restore-db" >/dev/null 2>&1 || true
+ dc down --volumes --remove-orphans >/dev/null 2>&1 || true
+ docker network rm "$CLOUDFLARED_NETWORK" >/dev/null 2>&1 || true
+ rm -rf "$portainer_root"
+ printf 'Rapport Portainer : %s\n' "$portainer_report"
+ exit "$result"
+}
+trap cleanup EXIT INT TERM
+python3 - <<'PY'
+import os,shutil
+from pathlib import Path
+source=Path(os.environ['PORTAINER_SOURCE']); target=Path(os.environ['PORTAINER_ROOT'])
+excluded={'.git','.secrets','.env','vendor','var','.phpunit.cache','backups','backup-recovery','.agents','.codex','.aws','__pycache__','.DS_Store','.privacy-operation-lock'}
+for path in source.iterdir():
+    if path.name in excluded or path.name.startswith('.env.') and path.name not in ('.env.example','.env.production.example'):continue
+    if path.is_symlink():continue
+    if path.is_dir():shutil.copytree(path,target/path.name,ignore=shutil.ignore_patterns(*excluded))
+    else:shutil.copy2(path,target/path.name)
+PY
+portainer_networks=$(docker network ls -q)
+# Docker Engine requires an explicit subnet for the fixed test-client IPs.
+# Pick a free test subnet instead of depending on Docker Desktop's behavior.
+docker network inspect $portainer_networks > "$portainer_report/networks.json"
+portainer_test_subnet=$(python3 - "$portainer_report/networks.json" <<'PY'
+import ipaddress,json,sys
+used=[ipaddress.ip_network(c['Subnet']) for n in json.load(open(sys.argv[1])) for c in ((n.get('IPAM') or {}).get('Config') or []) if c.get('Subnet') and ':' not in c['Subnet']]
+for i in range(256):
+    candidate=ipaddress.ip_network('198.18.'+str(i)+'.0/24')
+    if not any(candidate.overlaps(network) for network in used):
+        print(candidate);break
+else:raise SystemExit('No unused test subnet available')
+PY
+)
+docker network create --subnet "$portainer_test_subnet" "$CLOUDFLARED_NETWORK" >/dev/null
+portainer_subnet=$(docker network inspect "$CLOUDFLARED_NETWORK" --format '{{(index .IPAM.Config 0).Subnet}}')
+export CLOUDFLARED_ADDRESS=$(python3 -c 'import ipaddress,sys;print(ipaddress.ip_network(sys.argv[1]).network_address+10)' "$portainer_subnet")
+portainer_untrusted=$(python3 -c 'import ipaddress,sys;print(ipaddress.ip_network(sys.argv[1]).network_address+11)' "$portainer_subnet")
+dc config --format json > "$portainer_report/compose.json"
+python3 - "$portainer_report/compose.json" <<'PY'
+import json,sys
+config=json.load(open(sys.argv[1]))
+for service in config['services'].values():
+    assert not service.get('ports')
+    assert all(v['type']=='volume' for v in service.get('volumes', []))
+assert config['networks']['cloudflared']['external']
+assert all('cloudflared' not in s.get('networks',{}) for n,s in config['services'].items() if n!='web')
+print('Aucun port publié ni montage de fichier hôte ; seul web rejoint le réseau du tunnel.')
+PY
+dc build app web db backup > "$portainer_report/build.log" 2>&1
+docker run --rm --network none --read-only --cap-drop ALL --cap-add CHOWN --cap-add DAC_OVERRIDE --cap-add FOWNER --user 0:0 --tmpfs /tmp --entrypoint python3 "$portainer_project-backup:$RELEASE_ID" /source/tests/portainer_setup_test.py > "$portainer_report/setup-tests.log" 2>&1
+dc up -d --wait --wait-timeout 240 > "$portainer_report/start.log" 2>&1
+dc exec -T app php bin/console app:stock:reconcile
+dc exec -T db psql -X -q -U postgres -d gestion_stock -tAc 'SELECT count(*) FROM users WHERE email IS NOT NULL' > "$portainer_report/accounts.txt"
+test "$(tr -d '[:space:]' < "$portainer_report/accounts.txt")" = 0
+dc run --rm --no-deps setup > "$portainer_report/setup-repeat.log" 2>&1
+dc up -d --wait --wait-timeout 120 > "$portainer_report/redeploy.log" 2>&1
+dc exec -T app php bin/console doctrine:migrations:up-to-date --no-interaction
+docker run --rm --network "$CLOUDFLARED_NETWORK" --ip "$CLOUDFLARED_ADDRESS" --read-only --cap-drop ALL --entrypoint python3 "$portainer_project-backup:$RELEASE_ID" /source/tests/portainer_http_test.py trusted
+docker run --rm --network "$CLOUDFLARED_NETWORK" --ip "$portainer_untrusted" --read-only --cap-drop ALL --entrypoint python3 "$portainer_project-backup:$RELEASE_ID" /source/tests/portainer_http_test.py untrusted
+dc exec -T backup python3 /opt/backup.py health
+dc exec -T backup python3 -c 'from pathlib import Path; assert list(Path("/backups").glob("*.backup.age")); assert not Path("/run/secrets/backup_identity").exists(); assert not Path("/recovery-key").exists(); print("Sauvegarde chiffrée présente ; clé privée absente du service sauvegarde.")'
+portainer_archive=$(dc exec -T backup python3 -c 'import json; print(json.load(open("/backups/status.json"))["archive"])')
+docker run --rm -d --name "$portainer_project-restore-db" --network "${portainer_project}_backend" --network-alias portainer-restore-db --memory 512m --cpus 1 --mount "type=volume,source=${portainer_project}_db_secrets,target=/run/secrets,readonly" -e POSTGRES_DB=gestion_stock_restore -e POSTGRES_USER=postgres -e APP_DB_USER=gestion_stock -e POSTGRES_PASSWORD_FILE=/run/secrets/db_admin_password "$portainer_project-db:$DATABASE_RELEASE_ID" >/dev/null
+portainer_ready=0
+while ! docker exec "$portainer_project-restore-db" pg_isready -h 127.0.0.1 -U postgres -d gestion_stock_restore >/dev/null 2>&1; do
+ portainer_ready=$((portainer_ready+1))
+ test "$portainer_ready" -lt 60
+ sleep 1
+done
+docker run --rm --network "${portainer_project}_backend" --read-only --cap-drop ALL --cap-add DAC_OVERRIDE --user 0:0 --tmpfs /work:mode=0700,size=256m --mount "type=volume,source=${portainer_project}_backup_secrets,target=/run/secrets,readonly" --mount "type=volume,source=${portainer_project}_recovery_key,target=/recovery-key,readonly" --mount "type=volume,source=${portainer_project}_backup_data,target=/backups,readonly" -e TMPDIR=/work -e DATABASE_HOST=portainer-restore-db -e DATABASE_NAME=gestion_stock_restore -e DATABASE_USER=gestion_stock -e RESTORE_CONFIRM_DATABASE=gestion_stock_restore "$portainer_project-backup:$RELEASE_ID" restore-db "/backups/$portainer_archive" --identity /recovery-key/backup_identity
+test "$(docker exec "$portainer_project-restore-db" psql -X -q -U postgres -d gestion_stock_restore -tAc 'SELECT privacy_required FROM runtime_restore_gate WHERE singleton')" = t
+docker exec "$portainer_project-restore-db" psql -X -q -U postgres -d gestion_stock_restore --set ON_ERROR_STOP=1 -f /opt/gestion-stock/retention.sql > "$portainer_report/recovery-retention.log" 2>&1
+test "$(docker exec "$portainer_project-restore-db" psql -X -q -U postgres -d gestion_stock_restore -tAc 'SELECT privacy_required FROM runtime_restore_gate WHERE singleton')" = f
+printf '%s\n' 'Restauration vérifiée par empreintes ; retraitement obligatoire avant réouverture.'
+dc exec -T app php bin/console app:privacy:preview --no-interaction > "$portainer_report/privacy-preview.log"
+printf '{"status":"passed","synthetic_only":true,"ports_published":false,"secrets_persisted":true,"proxy_boundary":true}\n' > "$portainer_report/result.json"
+printf '%s\n' 'portainer_passed'
