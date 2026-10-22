@@ -43,8 +43,8 @@ final class PrivacyRetentionTest extends KernelTestCase
         $u=$this->db->fetchOne("INSERT INTO users(email,name,password_hash,role_id) VALUES ('confidential@example.test','private-name','private-hash',1) RETURNING id");
         $s=$this->db->fetchOne("INSERT INTO stores(code,name) VALUES ('A','Store') RETURNING id");$a=$this->db->fetchOne("INSERT INTO articles(sku,name) VALUES ('A','Article') RETURNING id");
         $e=$this->db->fetchOne("INSERT INTO stock_movements(type,article_id,destination_store_id,quantity,author_id,reason,reference,comment,created_at,idempotency_key) VALUES ('entry',?,?,20,?,'private-reason','private-reference','private-comment',clock_timestamp()-interval '2 years','private-key') RETURNING id",[$a,$s,$u]);
-        $c=$this->db->fetchOne("INSERT INTO stock_movements(type,article_id,source_store_id,quantity,author_id,consumer_id,reference,created_at,idempotency_key) VALUES ('consumption',?,?,2,?,?,'private-reference',clock_timestamp()-interval '2 years','private-consumption') RETURNING id",[$a,$s,$u,$u]);
-        $r=$this->db->fetchOne("INSERT INTO stock_movements(type,article_id,destination_store_id,quantity,author_id,related_movement_id,reason,idempotency_key) VALUES ('reversal',?,?,2,?,?,'Recent correction','recent-reversal') RETURNING id",[$a,$s,$u,$c]);
+        $c=$this->db->fetchOne("INSERT INTO stock_movements(type,article_id,source_store_id,quantity,author_id,consumer_id,reference,comment,created_at,idempotency_key) VALUES ('consumption',?,?,2,?,?,'private-reference','copied-personal-comment',clock_timestamp()-interval '2 years','private-consumption') RETURNING id",[$a,$s,$u,$u]);
+        $r=$this->db->fetchOne("INSERT INTO stock_movements(type,article_id,destination_store_id,quantity,author_id,related_movement_id,reason,comment,idempotency_key) VALUES ('reversal',?,?,2,?,?,'Recent correction','copied-personal-comment','recent-reversal') RETURNING id",[$a,$s,$u,$c]);
         $n=$this->db->fetchOne("INSERT INTO stock_movements(type,article_id,source_store_id,quantity,author_id,consumer_id,reference,idempotency_key) VALUES ('consumption',?,?,3,?,?,'private-reference','recent-replacement') RETURNING id",[$a,$s,$u,$u]);
         $this->db->executeStatement('INSERT INTO movement_corrections VALUES (?,?,?)',[$c,$r,$n]);$this->db->executeStatement('INSERT INTO stock_levels(article_id,store_id,quantity) VALUES (?,?,17)',[$a,$s]);
         $this->db->executeStatement("INSERT INTO audit_logs(actor_id,action,target_type,target_id,context,created_at) VALUES (?,'stock.entry','stock_movement',?,'{\"name\":\"private-name\"}',clock_timestamp()-interval '2 years')",[$u,$e]);
@@ -63,6 +63,34 @@ final class PrivacyRetentionTest extends KernelTestCase
         self::assertSame(0,$this->db->fetchOne("SELECT count(*) FROM pg_trigger WHERE tgrelid IN (SELECT oid FROM pg_class WHERE relnamespace=?::regnamespace) AND NOT tgisinternal AND tgenabled='D'",[$this->schema]));
         $this->expectException(\Doctrine\DBAL\Exception::class);$this->db->executeStatement('UPDATE stock_movements SET quantity=1 WHERE id=?',[$f['e']]);
     }
+    public function testOldConsumptionClearsPersonalCommentsCopiedIntoRecentReversal(): void
+    {
+        $f=$this->fixtures();self::assertSame('copied-personal-comment',$this->db->fetchOne('SELECT comment FROM stock_movements WHERE id=?',[$f['r']]));
+        $this->runRetention();
+        self::assertNull($this->db->fetchOne('SELECT comment FROM stock_movements WHERE id=?',[$f['r']]));
+        self::assertNull($this->db->fetchOne('SELECT comment FROM stock_movements WHERE id=?',[$f['c']]));
+        self::assertSame('Recent correction',$this->db->fetchOne('SELECT reason FROM stock_movements WHERE id=?',[$f['r']]));
+    }
+    public function testClosingRecentInventoryReleasesDueAccountImmediately(): void { $this->closeRecentCase('inventory'); }
+    public function testClosingRecentProposalReleasesDueAccountImmediately(): void { $this->closeRecentCase('proposal'); }
+    private function closeRecentCase(string $kind): void
+    {
+        $f=$this->fixtures();$reviewer=$this->db->fetchOne("INSERT INTO users(email,name,password_hash,role_id) VALUES ('reviewer@example.test','Reviewer','hash',1) RETURNING id");
+        $this->db->executeStatement('UPDATE users SET active=false WHERE id=?',[$f['u']]);
+        $this->admin->executeStatement('ALTER TABLE users DISABLE TRIGGER users_deactivation_clock');
+        $this->admin->executeStatement("UPDATE users SET deactivated_at=clock_timestamp()-interval '2 years' WHERE id=?",[$f['u']]);
+        $this->admin->executeStatement('ALTER TABLE users ENABLE TRIGGER users_deactivation_clock');
+        if($kind==='inventory') {$case=$this->db->fetchOne('INSERT INTO inventories(store_id,created_by) VALUES (?,?) RETURNING id',[$f['s'],$f['u']]);}
+        else {$case=$this->db->fetchOne("INSERT INTO article_proposals(operation,payload,proposed_by) VALUES ('create','{\"name\":\"Recent personal text\"}',?) RETURNING id",[$f['u']]);}
+        $this->runRetention();self::assertSame('private-name',$this->db->fetchOne('SELECT name FROM users WHERE id=?',[$f['u']]));
+        if($kind==='inventory') {$this->db->executeStatement("UPDATE inventories SET status='cancelled',cancelled_at=clock_timestamp() WHERE id=?",[$case]);}
+        else {$this->db->executeStatement("UPDATE article_proposals SET status='rejected',reviewed_by=?,reviewed_at=clock_timestamp(),review_comment='Recent comment' WHERE id=?",[$reviewer,$case]);}
+        $account=$this->db->fetchAssociative('SELECT name,email,password_hash,anonymized_at FROM users WHERE id=?',[$f['u']]);
+        foreach(['name','email','password_hash'] as $field) {self::assertNull($account[$field]);}self::assertNotNull($account['anonymized_at']);
+        if($kind==='inventory') {self::assertSame($f['u'],$this->db->fetchOne('SELECT created_by FROM inventories WHERE id=?',[$case]));}
+        else {self::assertStringContainsString('Recent personal text',$this->db->fetchOne('SELECT payload::text FROM article_proposals WHERE id=?',[$case]));self::assertSame('Recent comment',$this->db->fetchOne('SELECT review_comment FROM article_proposals WHERE id=?',[$case]));}
+    }
+
     public function testOpenCasesDeferIdentityAndLastClosureErasesImmediately(): void
     {
         $f=$this->fixtures();
