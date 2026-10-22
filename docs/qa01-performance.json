@@ -1,0 +1,68 @@
+{
+  "status": "passed",
+  "timestamp_utc": "2026-10-22T00:27:33.000071+00:00",
+  "concurrent_sessions": 5,
+  "cycles_per_session": 40,
+  "measured_requests": 920,
+  "warmup_reads": 18,
+  "duration_seconds": 9.095,
+  "history_days": 360,
+  "historical_movements_per_day": 10,
+  "historical_movements": 3600,
+  "initial_entries": 40,
+  "stores": 2,
+  "articles": 20,
+  "architecture": "aarch64",
+  "transport": "HTTP interne Docker, PHP prod, debug désactivé",
+  "runtime": {
+    "php": "8.4.26",
+    "postgres": "18.6"
+  },
+  "docker_host": {
+    "cpus": 8,
+    "memory_bytes": 4106604544,
+    "platform": "linux/aarch64"
+  },
+  "endpoints": {
+    "stock_list": {
+      "samples": 200,
+      "p50_ms": 32.335,
+      "p95_ms": 63.246,
+      "max_ms": 95.175,
+      "limit_ms": 2000,
+      "passed": true
+    },
+    "consumption_history": {
+      "samples": 200,
+      "p50_ms": 45.479,
+      "p95_ms": 85.309,
+      "max_ms": 119.601,
+      "limit_ms": 2000,
+      "passed": true
+    },
+    "statistics": {
+      "samples": 200,
+      "p50_ms": 43.906,
+      "p95_ms": 77.85,
+      "max_ms": 155.066,
+      "limit_ms": 2000,
+      "passed": true
+    },
+    "dashboard": {
+      "samples": 120,
+      "p50_ms": 41.958,
+      "p95_ms": 67.802,
+      "max_ms": 169.972,
+      "limit_ms": 2000,
+      "passed": true
+    },
+    "consumption_write": {
+      "samples": 200,
+      "p50_ms": 42.426,
+      "p95_ms": 68.659,
+      "max_ms": 164.372,
+      "limit_ms": 3000,
+      "passed": true
+    }
+  }
+}

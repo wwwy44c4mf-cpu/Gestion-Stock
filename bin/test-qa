@@ -1,0 +1,56 @@
+#!/bin/sh
+# Builds from repository sources; never reads .env or .secrets of the live app.
+set -eu
+cd "$(dirname "$0")/.."
+qa_mode=${1:-core}
+case "$qa_mode" in core|full|performance) ;; *) echo 'Usage : sh bin/test-qa {core|full|performance}' >&2; exit 2;; esac
+PRIVACY_TEST_ROOT=$(mktemp -d /tmp/gestion-stock-qa.XXXXXX)
+export PRIVACY_TEST_ROOT
+QA_OUTPUT_DIRECTORY="$(pwd)/var/qa/$(date -u +%Y%m%dT%H%M%SZ)-$$"
+export QA_OUTPUT_DIRECTORY
+mkdir -p "$QA_OUTPUT_DIRECTORY"
+# Outputs contain only synthetic fixture metadata and aggregate test metrics.
+chmod 777 "$QA_OUTPUT_DIRECTORY"
+qa_project="gestion-stock-qa-$(date +%s)-$$"
+dc() { docker compose -p "$qa_project" -f docker/privacy/compose.recette.yaml -f docker/qa/compose.recette.yaml "$@"; }
+cleanup() {
+ result=$?
+ trap - EXIT INT TERM
+ dc down --volumes --remove-orphans >/dev/null 2>&1 || true
+ rm -f "$PRIVACY_TEST_ROOT/admin" "$PRIVACY_TEST_ROOT/password" "$PRIVACY_TEST_ROOT/secret" "$PRIVACY_TEST_ROOT/mailer"
+ rmdir "$PRIVACY_TEST_ROOT"
+ printf 'Rapports de recette : %s\n' "$QA_OUTPUT_DIRECTORY"
+ exit "$result"
+}
+trap cleanup EXIT INT TERM
+python3 - <<'PY'
+import os,secrets
+from pathlib import Path
+root=Path(os.environ['PRIVACY_TEST_ROOT'])
+for name in ('admin','password','secret'):
+    (root/name).write_text(secrets.token_hex(32))
+(root/'mailer').write_text('null://null')
+PY
+docker info --format '{"cpus":{{.NCPU}},"memory_bytes":{{.MemTotal}},"platform":"{{.OSType}}/{{.Architecture}}"}' > "$QA_OUTPUT_DIRECTORY/host.json"
+dc build db test app web probe
+dc up -d --wait db
+dc run --rm test php bin/console doctrine:migrations:migrate --no-interaction
+dc run --rm test php bin/console messenger:setup-transports --no-interaction
+dc run --rm contract
+if [ "$qa_mode" != performance ]; then
+ dc run --rm test vendor/bin/phpunit --log-junit /qa-output/phpunit.xml
+ python3 docker/qa/check_coverage.py "$QA_OUTPUT_DIRECTORY" core
+fi
+dc run --rm --entrypoint python probe -m unittest discover -s /qa -p '*_test.py' -v
+dc run --rm test php docker/qa/fixture.php seed
+dc up -d --wait app web
+dc run --rm probe
+dc run --rm test php docker/qa/fixture.php verify
+if [ "$qa_mode" = full ]; then
+ dc down --volumes --remove-orphans
+ sh bin/test-backup-recovery
+ touch "$QA_OUTPUT_DIRECTORY/backup-recovery.passed"
+ sh bin/test-production
+ sh bin/test-operations
+ python3 docker/qa/check_coverage.py "$QA_OUTPUT_DIRECTORY" full
+fi
