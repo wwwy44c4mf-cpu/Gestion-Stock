@@ -174,6 +174,20 @@ final class PasswordResetTest extends WebTestCase
         self::assertTrue(password_verify('First-new-password-2026!',$this->db->fetchOne("SELECT password_hash FROM users WHERE email='person@example.test'")));
     }
 
+    public function testEvictedResetFormCannotUseTheMostRecentTab(): void
+    {
+        $this->service()->request('person@example.test');$token=$this->link();$first=null;$latest=null;
+        for($i=0;$i<11;$i++) {
+            $this->client->request('GET','/mot-de-passe/reinitialiser?token='.rawurlencode($token));$this->client->followRedirect();
+            $latest=$this->client->getCrawler()->selectButton('Enregistrer le mot de passe')->form();if($i===0) {$first=$latest;}
+        }
+        $values=['password'=>'New-tab-password-2026!','password_confirmation'=>'New-tab-password-2026!'];
+        $this->client->submit($first,$values);self::assertResponseStatusCodeSame(403);
+        self::assertTrue(password_verify('Old-test-password-2026!',$this->db->fetchOne("SELECT password_hash FROM users WHERE email='person@example.test'")));
+        $this->client->submit($latest,$values);self::assertResponseRedirects('/connexion',303);
+        self::assertTrue(password_verify('New-tab-password-2026!',$this->db->fetchOne("SELECT password_hash FROM users WHERE email='person@example.test'")));
+    }
+
     public function testConfirmationRollbackAndInvalidPasswordPreserveUsableToken(): void
     {
         $this->service()->request('person@example.test');$token=$this->link();

@@ -60,19 +60,23 @@ final class PasswordResetController extends AbstractController
     public function confirmForm(Request $request): Response
     {
         $session=$request->getSession();
-        $forms=array_filter($session->get('_password_reset_forms', []), static fn (array $form): bool => $form['created_at'] > time()-1800);
+        $previous=$session->get('_password_reset_forms', []);
+        $forms=array_filter($previous, static fn (array $form): bool => $form['created_at'] > time()-1800);
         $nonce=$request->isMethod('POST') ? $request->request->getString('form_nonce') : $request->query->getString('form');
-        if (!preg_match('/^[a-f0-9]{32}$/D', $nonce)) { $nonce=''; }
+        if (!preg_match('/^[a-f0-9]{32}$/D', $nonce) || !isset($forms[$nonce])) { $nonce=''; }
         // Each tab keeps its own selector; the URL never carries the usable token again.
         if ($request->isMethod('GET') && $request->query->has('token')) {
             $token=$request->query->getString('token');
             $nonce=bin2hex(random_bytes(16));
             $forms[$nonce]=['token'=>preg_match('/^[a-f0-9-]{36}\.[a-f0-9]{64}$/D', $token) ? $token : '', 'created_at'=>time()];
             $forms=array_slice($forms, -10, null, true);
+            foreach (array_diff_key($previous, $forms) as $oldNonce=>$unused) { $this->csrf->removeToken('password_reset_confirm_'.$oldNonce); }
             $session->set('_password_reset_forms', $forms);
             $session->remove('_password_reset_token');
             return $this->redirectToRoute('password_reset_confirm', ['form'=>$nonce], status: 303)->setPrivate();
         }
+        foreach (array_diff_key($previous, $forms) as $oldNonce=>$unused) { $this->csrf->removeToken('password_reset_confirm_'.$oldNonce); }
+        $session->set('_password_reset_forms', $forms);
         $error=null; $status=200;
         if ($request->isMethod('POST')) {
             try {
@@ -84,6 +88,7 @@ final class PasswordResetController extends AbstractController
                 $this->reset->confirm($forms[$nonce]['token'] ?? '', $password);
                 unset($forms[$nonce]);
                 $session->set('_password_reset_forms', $forms);
+                $this->csrf->removeToken('password_reset_confirm_'.$nonce);
                 $this->addFlash('success', 'Votre mot de passe a été modifié. Connectez-vous avec le nouveau mot de passe.');
                 return $this->redirectToRoute('login', status: 303);
             } catch (ApiProblem $exception) { $status=$exception->status; $error=$exception->getMessage(); }

@@ -15,6 +15,13 @@ Aucune version stable ni mise en production n’est déclarée. Les PR ouvertes 
 - Seuils par article/magasin, alertes, destinataires, messages ciblés et rappel quotidien.
 - Historiques personnels et globaux, statistiques, tableau de bord et audit.
 
+### Corrections de finalisation
+
+- Isolation de chaque formulaire de réinitialisation dans sa session, y compris plusieurs onglets ; formulaires expirés et clés CSRF nettoyés.
+- Effacement des commentaires copiés dans les contre-mouvements récents d’une consommation ancienne.
+- Migration 18 : libération immédiate d’un compte arrivé à échéance à la clôture de son dernier dossier récent, sans effacement prématuré des champs de ce dossier.
+- PHP 8.4.27 verrouillé et rafraîchissement explicite des paquets Alpine.
+
 ### Exploitation et qualité
 
 - Sauvegardes quotidiennes chiffrées conservées 90 jours, restauration contrôlée.

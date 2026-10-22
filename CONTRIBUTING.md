@@ -31,3 +31,5 @@ Le banc QA demande aussi un shell POSIX et Python 3 sur l’hôte ; les dépenda
 5. Exécuter la recette affectée ; joindre son résultat, les limites et les étapes manuelles à la PR. La CI n’effectue aucun déploiement.
 
 Aucun secret dans le code, une commande, les journaux de CI ou une issue. Le changement d’une dépendance ou d’une image demande un verrou actualisé et un audit ; ne pas supprimer les alertes pour rendre un rapport vert. Ne pas lancer `down --volumes` sur une installation contenant des données utiles. Un retour arrière de schéma peut être refusé pour préserver l’historique : utiliser la procédure de restauration validée.
+
+Les correctifs du moteur PHP nécessitent une nouvelle version/empreinte de l’image dans le Dockerfile et une plateforme Composer cohérente, sans mettre à jour les autres paquets sans motif. Pour les correctifs Alpine, avancer `OS_SECURITY_REVISION` afin de ne pas réutiliser une étape `apk upgrade` en cache. Refaire les audits et la recette de cette nouvelle construction.

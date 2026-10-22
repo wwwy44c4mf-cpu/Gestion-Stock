@@ -1,8 +1,10 @@
 # syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
 FROM composer:2@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac AS composer
 
-FROM php:8.4-fpm-alpine@sha256:78cd8de9970a9cd6ff4d98860a94eb5bf37dd2d5776b4785562dbfad01c29d5a AS php-base
-RUN apk upgrade --no-cache \
+FROM php:8.4.27-fpm-alpine@sha256:8ce34c869fae0f8da2c82d8aeda222f0782e8e5ae2b370fb43cbad84e9e2ea55 AS php-base
+# Bump this revision when refreshing Alpine security packages.
+ARG OS_SECURITY_REVISION=20261022
+RUN test -n "$OS_SECURITY_REVISION" && apk upgrade --no-cache \
     && apk add --no-cache icu-libs libpq fcgi unzip \
     && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS icu-dev postgresql-dev linux-headers \
     && docker-php-ext-install -j"$(nproc)" intl pdo_pgsql pcntl opcache \
@@ -38,8 +40,10 @@ USER app
 CMD ["vendor/bin/phpunit"]
 
 FROM nginx:stable-alpine@sha256:970364228b1e4f932abc22d321932816782cca8a20b85a77552a7cfe9acfb3b5 AS web
+# Bump this revision when refreshing Alpine security packages.
+ARG OS_SECURITY_REVISION=20261022
 # Aucun module dynamique n’est chargé par la configuration fournie.
-RUN apk del nginx-module-acme nginx-module-geoip nginx-module-image-filter nginx-module-njs nginx-module-xslt \
+RUN test -n "$OS_SECURITY_REVISION" && apk del nginx-module-acme nginx-module-geoip nginx-module-image-filter nginx-module-njs nginx-module-xslt \
     && apk upgrade --no-cache
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY public/ /app/public/
@@ -48,9 +52,11 @@ ENTRYPOINT ["nginx"]
 CMD ["-g", "daemon off;"]
 
 FROM postgres:18-alpine@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873 AS database
+# Bump this revision when refreshing Alpine security packages.
+ARG OS_SECURITY_REVISION=20261022
 # Le gosu embarqué utilise un ancien runtime Go ; su-exec fournit ici le même
 # changement d’UID sans ce runtime. L’entrypoint officiel reste utilisé.
-RUN apk upgrade --no-cache \
+RUN test -n "$OS_SECURITY_REVISION" && apk upgrade --no-cache \
     && apk add --no-cache su-exec \
     && sed -i 's/exec gosu /exec su-exec /' /usr/local/bin/docker-entrypoint.sh \
     && rm /usr/local/bin/gosu
@@ -67,7 +73,9 @@ USER 10001:10001
 CMD ["python", "tests/contract_test.py"]
 
 FROM postgres:18-alpine@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873 AS backup
-RUN apk upgrade --no-cache \
+# Bump this revision when refreshing Alpine security packages.
+ARG OS_SECURITY_REVISION=20261022
+RUN test -n "$OS_SECURITY_REVISION" && apk upgrade --no-cache \
     && apk add --no-cache python3 py3-psycopg2 age \
     && rm /usr/local/bin/gosu \
     && addgroup -g 10001 backup && adduser -D -u 10001 -G backup backup \
@@ -93,7 +101,9 @@ RUN go list -mod=readonly -deps . > /dependencies.txt \
 RUN CGO_ENABLED=0 go build -mod=readonly -trimpath -ldflags='-s -w -X github.com/caddyserver/caddy/v2.CustomVersion=v2.11.7-gestion-stock-ops02' -o /caddy .
 
 FROM caddy:2.11.7-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f AS proxy
-RUN apk upgrade --no-cache && chown -R 10001:10001 /data /config
+# Bump this revision when refreshing Alpine security packages.
+ARG OS_SECURITY_REVISION=20261022
+RUN test -n "$OS_SECURITY_REVISION" && apk upgrade --no-cache && chown -R 10001:10001 /data /config
 COPY --from=proxy-build /caddy /usr/bin/caddy
 COPY --from=proxy-build /dependencies.txt /usr/share/gestion-stock/proxy-dependencies.txt
 USER 10001:10001

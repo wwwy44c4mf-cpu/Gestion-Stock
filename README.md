@@ -12,7 +12,7 @@ Le MVP est en recette/revue ; aucune mise en production n’est déclarée. La [
 | Configurer et gérer | [Guide administrateur](docs/guide-administrateur.md) et [permissions](docs/controle-acces.md) |
 | Présenter avec des données fictives | [Démonstration](docs/demonstration.md) |
 | Comprendre et intégrer | [Architecture](docs/architecture.md), [modèle](docs/modele-donnees.md), [API](docs/api.md), [OpenAPI](docs/openapi.json) |
-| Déployer, maintenir, restaurer | [Fiche de livraison](docs/livraison.md) et [production HTTPS](docs/deploiement-production.md) |
+| Déployer, maintenir, restaurer | [Fiche de livraison](docs/livraison.md), [bilan de finalisation](docs/finalisation-mvp.md) et [production HTTPS](docs/deploiement-production.md) |
 | Développer, tester, signaler un problème | [Contribution](CONTRIBUTING.md), [recette](docs/recette-qa01.md), [sécurité](SECURITY.md) |
 
 ## Prérequis
