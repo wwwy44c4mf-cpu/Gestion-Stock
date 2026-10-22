@@ -1,0 +1,16 @@
+ZXing browser 0.2.1 (MIT), library 0.23.0 (Apache-2.0), text-encoding 0.9.0 (Unlicense OR Apache-2.0).
+Sources: https://github.com/zxing-js/browser and https://github.com/zxing-js/library
+Built locally with esbuild 0.28.2; exact packages are locked in frontend/pnpm-lock.yaml.
+
+Copyright notices from upstream sources:
+Copyright (C) 2010 ZXing authors
+Copyright (C) 2012 ZXing authors
+Copyright (c) 1994, 2004, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 1994, 2010, Oracle and/or its affiliates. All rights reserved.
+Copyright 2007 ZXing authors
+Copyright 2008 ZXing authors
+Copyright 2009 ZXing authors
+Copyright 2010 ZXing authors
+Copyright 2011 ZXing authors
+Copyright 2012 ZXing authors
+Copyright 2013 ZXing authors

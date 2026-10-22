@@ -74,6 +74,16 @@ test "$(tr -d '[:space:]' < "$portainer_report/accounts.txt")" = 0
 dc run --rm --no-deps setup > "$portainer_report/setup-repeat.log" 2>&1
 dc up -d --wait --wait-timeout 120 > "$portainer_report/redeploy.log" 2>&1
 dc exec -T app php bin/console doctrine:migrations:up-to-date --no-interaction
+# Exercise the operator console on a disposable, empty installation: a simple
+# redeploy must refuse pending migrations, while maintenance can apply them.
+dc stop web app worker scheduler backup > "$portainer_report/maintenance-stop.log" 2>&1
+dc exec -T maintenance php bin/console doctrine:migrations:migrate 'DoctrineMigrations\Version20261022130000' --no-interaction > "$portainer_report/schema-previous.log" 2>&1
+if dc run --rm --no-deps initialize > "$portainer_report/pending-migration-refused.log" 2>&1; then
+ echo 'Pending migration unexpectedly accepted by redeploy' >&2; exit 1
+fi
+dc exec -T maintenance php bin/console doctrine:migrations:migrate --no-interaction > "$portainer_report/operator-migration.log" 2>&1
+dc run --rm --no-deps initialize > "$portainer_report/initialize-after-migration.log" 2>&1
+dc up -d --wait --wait-timeout 120 > "$portainer_report/maintenance-restart.log" 2>&1
 docker run --rm --network "$CLOUDFLARED_NETWORK" --ip "$CLOUDFLARED_ADDRESS" --read-only --cap-drop ALL --entrypoint python3 "$portainer_project-backup:$RELEASE_ID" /source/tests/portainer_http_test.py trusted
 docker run --rm --network "$CLOUDFLARED_NETWORK" --ip "$portainer_untrusted" --read-only --cap-drop ALL --entrypoint python3 "$portainer_project-backup:$RELEASE_ID" /source/tests/portainer_http_test.py untrusted
 dc exec -T backup python3 /opt/backup.py health

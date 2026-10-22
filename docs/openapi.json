@@ -6285,6 +6285,87 @@
           }
         }
       }
+    },
+    "/articles/resolve-code": {
+      "post": {
+        "operationId": "resolveArticleCode",
+        "summary": "Retrouver un article par code-barres ou QR code",
+        "description": "Recherche exacte, sans création de mouvement ni chargement des URL scannées.",
+        "tags": [
+          "articles"
+        ],
+        "security": [
+          {
+            "SessionCookie": [],
+            "CsrfToken": []
+          }
+        ],
+        "x-roles": [
+          "ADMIN",
+          "MANAGER",
+          "USER"
+        ],
+        "x-perimeter": "Catalogue descriptif global ; aucune lecture de stock ou de consommation.",
+        "x-implementation": "available",
+        "parameters": [],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "200": {
+            "description": "Article correspondant, sans solde de stock",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleResource"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArticleCodeLookup"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-integer-encoding": "Nombres JSON en base 10 sans décimale ni exposant."
+      }
     }
   },
   "components": {
@@ -7183,6 +7264,16 @@
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "scan_codes": {
+            "type": "array",
+            "maxItems": 50,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
           }
         },
         "additionalProperties": false,
@@ -7233,6 +7324,16 @@
           "active": {
             "type": "boolean",
             "default": true
+          },
+          "scan_codes": {
+            "type": "array",
+            "maxItems": 50,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
           }
         },
         "additionalProperties": false,
@@ -7262,6 +7363,16 @@
           },
           "active": {
             "type": "boolean"
+          },
+          "scan_codes": {
+            "type": "array",
+            "maxItems": 50,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
           }
         },
         "additionalProperties": false,
@@ -7294,6 +7405,16 @@
           },
           "active": {
             "type": "boolean"
+          },
+          "scan_codes": {
+            "type": "array",
+            "maxItems": 50,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
           }
         },
         "additionalProperties": false,
@@ -9656,6 +9777,20 @@
           "consumed_quantity",
           "returned_quantity"
         ]
+      },
+      "ArticleCodeLookup": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          }
+        }
       }
     }
   }

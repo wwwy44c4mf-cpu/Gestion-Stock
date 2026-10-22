@@ -1,0 +1,59 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import Scanner from '../public/assets/scanner-controller.js';
+
+function fixture(mode = 'select') {
+    const nodes = {
+        article: { value: 'old', options: [{ value: 'old' }, { value: 'new-id' }], dispatchEvent() {} },
+        quantity: { value: '99', focus() {} },
+        codes: { value: 'EXISTING', dispatchEvent() {}, focus() {} },
+    };
+    const instance = new Scanner({ scope: { element: { isConnected: true } } });
+    Object.assign(instance, { sequence: 0, modeValue: mode, selectValue: 'article', hasSelectValue: mode === 'select', quantityValue: 'quantity', textareaValue: 'codes',
+        csrfValue: 'fixture-csrf', statusTarget: { textContent: '' }, codeTarget: { value: '' }, returnUrlValue: '/consommations/retours' });
+    globalThis.document = { getElementById: id => nodes[id] };
+    globalThis.window = { location: { origin: 'https://stock.example.test', assign(url) { instance.redirect = url; } } };
+    return { instance, nodes };
+}
+
+test('scan selects the article and clears quantity without submitting a movement', async () => {
+    const f = fixture(); let calls = 0;
+    globalThis.fetch = async (url, options) => {
+        calls++;
+        assert.equal(url, '/api/v1/articles/resolve-code'); assert.equal(options.method, 'POST');
+        assert.equal(options.headers['X-CSRF-Token'], 'fixture-csrf');
+        assert.deepEqual(JSON.parse(options.body), { code: '0012345678905' });
+        return { ok: true, json: async () => ({ data: { id: 'new-id', active: true, sku: 'REF', name: 'Item' } }) };
+    };
+    await f.instance.accept('0012345678905');
+    assert.equal(calls, 1); assert.equal(f.nodes.article.value, 'new-id'); assert.equal(f.nodes.quantity.value, '');
+});
+test('unknown code clears the prior selection and provides manual recovery', async () => {
+    const f = fixture();
+    globalThis.fetch = async () => ({ ok: false, json: async () => ({ detail: 'Code inconnu.' }) });
+    await f.instance.accept('UNKNOWN');
+    assert.equal(f.nodes.article.value, ''); assert.equal(f.instance.statusTarget.textContent, 'Code inconnu.');
+});
+test('registering an opaque QR URL writes text only, without requests or navigation', async () => {
+    const f = fixture('register');
+    globalThis.fetch = () => { throw new Error('No request expected'); };
+    const qr = 'https://example.test/product?x=<script>alert(1)</script>';
+    await f.instance.accept(qr);
+    assert.equal(f.nodes.codes.value, `EXISTING\n${qr}`); assert.equal(f.instance.redirect, undefined);
+    await f.instance.accept(qr); assert.equal(f.nodes.codes.value, `EXISTING\n${qr}`);
+});
+test('return scan filters eligible originals by article ID rather than creating a return', async () => {
+    const f = fixture('return');
+    globalThis.fetch = async () => ({ ok: true, json: async () => ({ data: { id: 'archived-id', active: false } }) });
+    await f.instance.accept('RETURN-CODE');
+    assert.equal(f.instance.redirect, 'https://stock.example.test/consommations/retours?article_id=archived-id');
+});
+test('late lookup response cannot overwrite a more recent scan', async () => {
+    const f = fixture(); let resolveFirst;
+    globalThis.fetch = async () => new Promise(resolve => { resolveFirst = resolve; });
+    const first = f.instance.accept('FIRST');
+    globalThis.fetch = async () => ({ ok: false, json: async () => ({ detail: 'Second inconnu' }) });
+    await f.instance.accept('SECOND');
+    resolveFirst({ ok: true, json: async () => ({ data: { id: 'new-id', active: true } }) }); await first;
+    assert.equal(f.nodes.article.value, ''); assert.equal(f.instance.statusTarget.textContent, 'Second inconnu');
+});

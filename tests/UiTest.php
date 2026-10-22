@@ -17,7 +17,7 @@ final class UiTest extends WebTestCase
         self::assertSelectorExists('nav[aria-label="Navigation principale"] a[aria-current="page"]');
         self::assertSelectorNotExists('nav a[href="/espace/administration"]');
         self::assertSelectorNotExists('select#magasin');
-        self::assertSelectorExists('script[type="module"][src="/assets/app.js"]');
+        self::assertSelectorExists('script[type="module"][src^="/assets/app.js?v="]');
     }
 
     public function testNavigationUsesRoleAndStoreContext(): void

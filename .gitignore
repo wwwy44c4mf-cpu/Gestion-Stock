@@ -18,3 +18,5 @@
 !.env.production.example
 
 /.privacy-operation-lock/
+
+**/node_modules/

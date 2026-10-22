@@ -1,0 +1,16 @@
+<div class="scanner" data-controller="scanner" data-scanner-mode-value="{{ mode }}"
+{% if select_id is defined %}data-scanner-select-value="{{ select_id }}" data-scanner-quantity-value="{{ quantity_id }}"{% endif %}
+{% if textarea_id is defined %}data-scanner-textarea-value="{{ textarea_id }}"{% endif %}
+{% if mode == 'return' %}data-scanner-return-url-value="{{ path('consumptions_return_list') }}"{% endif %}
+data-scanner-csrf-value="{{ csrf_token('api') }}">
+    <button class="button" type="button" data-scanner-target="start" data-action="scanner#open">Scanner un code-barres ou QR code</button>
+    <details><summary>Saisir le code manuellement</summary><label>Code de l’article<input type="text" maxlength="512" autocomplete="off" data-scanner-target="code" data-action="keydown->scanner#manual"></label><button class="button" type="button" data-action="scanner#manual">{{ mode == 'register' ? 'Ajouter ce code' : 'Rechercher ce code' }}</button></details>
+    <p class="muted scanner-status" role="status" aria-live="polite" data-scanner-target="status"></p>
+    <dialog class="scanner-dialog" data-scanner-target="dialog" data-action="cancel->scanner#cancel" aria-label="Lecture du code avec la caméra">
+        <h2>Scanner un article</h2>
+        <p data-scanner-target="previewStatus" role="status"></p>
+        <video data-scanner-target="video" autoplay muted playsinline aria-label="Aperçu de la caméra arrière"></video>
+        <p>Le scan ne modifie aucune quantité. La caméra s’arrête après la lecture.</p>
+        <button class="button" type="button" data-action="scanner#close">Fermer la caméra</button>
+    </dialog>
+</div>

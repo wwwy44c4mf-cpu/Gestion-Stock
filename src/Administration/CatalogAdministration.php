@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Administration;
 
 use App\Access\CatalogDirectory;
+use App\Access\ArticleCodes;
 use App\Api\ApiProblem;
 use App\Api\IdempotencyKey;
 use App\Api\OpenApiContract;
@@ -41,7 +42,12 @@ final class CatalogAdministration
                 }
                 if ($kind === 'article') {
                     $this->categoryTarget($body->category_id ?? null);
-                    $id = $this->db->fetchOne('INSERT INTO articles (sku,name,description,category_id,unit_code,active) VALUES (?,?,?,?,?,?) RETURNING id', [trim($body->sku),trim($body->name),$body->description ?? '',$body->category_id ?? null,'unit',$body->active ?? true], [\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::BOOLEAN]);
+                    $codes = $body->scan_codes ?? [];
+                    $this->checkCodes($codes);
+                    $parameters = [trim($body->sku),trim($body->name),$body->description ?? '',$body->category_id ?? null,'unit',$body->active ?? true];
+                    $types = [\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::BOOLEAN];
+                    if ($codes !== []) { $parameters[] = json_encode($codes,JSON_THROW_ON_ERROR); $types[] = \Doctrine\DBAL\ParameterType::STRING; }
+                    $id = $this->db->fetchOne('INSERT INTO articles (sku,name,description,category_id,unit_code,active'.($codes === [] ? '' : ',scan_codes').') VALUES (?,?,?,?,?,?'.($codes === [] ? '' : ',?::jsonb').') RETURNING id', $parameters, $types);
                 } else {
                     $this->categoryTarget($body->parent_id ?? null);
                     $id = $this->db->fetchOne('INSERT INTO categories (name,parent_id,active) VALUES (?,?,?) RETURNING id', [trim($body->name),$body->parent_id ?? null,$body->active ?? true], [\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::BOOLEAN]);
@@ -58,6 +64,7 @@ final class CatalogAdministration
         $this->identity->requireRole($actor, Permission::CATALOG_ADMIN); $this->validate($kind, $body, false);
         return $this->db->transactional(function () use ($actor,$kind,$id,$body): array {
             $this->lock($actor); $before = $this->directory->get($actor,$kind,$id)['data']; $id = $before['id'];
+            if ($kind === 'article' && isset($body->scan_codes)) { $this->checkCodes($body->scan_codes, $id); }
             if ($kind === 'article' && $body->version !== $before['version']) { throw new ApiProblem(409, 'stale_article', 'Cet article a été modifié. Rechargez sa fiche avant de réessayer.'); }
             $next = array_replace($before,get_object_vars($body)); $next['name'] = trim($next['name']);
             foreach (['category_id','parent_id'] as $reference) { if (isset($next[$reference])) { $next[$reference] = strtolower($next[$reference]); } }
@@ -72,7 +79,12 @@ final class CatalogAdministration
             if ($fields !== []) {
                 if ($kind === 'article') {
                     if ($before['version'] >= 9007199254740991) { throw new ApiProblem(409,'article_version_limit','La version de cet article ne peut plus être incrémentée.'); }
-                    $this->db->executeStatement('UPDATE articles SET name = ?,description = ?,category_id = ?,active = ?,version = version + 1,updated_at = clock_timestamp() WHERE id = ?', [$next['name'],$next['description'],$next['category_id'],$next['active'],$id], [\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::BOOLEAN,\Doctrine\DBAL\ParameterType::STRING]);
+                    $parameters = [$next['name'],$next['description'],$next['category_id'],$next['active']];
+                    $types = [\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::BOOLEAN];
+                    $codesSql = '';
+                    if (in_array('scan_codes',$fields,true)) { $codesSql = ',scan_codes=?::jsonb'; $parameters[] = json_encode($next['scan_codes'],JSON_THROW_ON_ERROR); $types[] = \Doctrine\DBAL\ParameterType::STRING; }
+                    $parameters[] = $id; $types[] = \Doctrine\DBAL\ParameterType::STRING;
+                    $this->db->executeStatement('UPDATE articles SET name = ?,description = ?,category_id = ?,active = ?,version = version + 1,updated_at = clock_timestamp()'.$codesSql.' WHERE id = ?', $parameters, $types);
                 } else {
                     $this->db->executeStatement('UPDATE categories SET name = ?,parent_id = ?,active = ? WHERE id = ?', [$next['name'],$next['parent_id'],$next['active'],$id], [\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::STRING,\Doctrine\DBAL\ParameterType::BOOLEAN,\Doctrine\DBAL\ParameterType::STRING]);
                 }
@@ -91,11 +103,13 @@ final class CatalogAdministration
         $this->validatePayload($payload,$operation === 'create' ? 'ArticleCreate' : 'ArticleChanges');
         if ($operation === 'create') {
             $this->categoryTarget($payload->category_id ?? null);
+            $this->checkCodes($payload->scan_codes ?? []);
             if ($this->db->fetchOne('SELECT 1 FROM articles WHERE lower(btrim(sku)) = lower(btrim(?))',[ $payload->sku ])) { throw new ApiProblem(409,'sku_already_used','Cette référence existe déjà dans le catalogue.'); }
             return;
         }
         if ($articleId === null || $version === null) { throw new ApiProblem(422,'invalid_proposal','L’article et sa version sont obligatoires.'); }
         $before=$this->directory->get($actor,'article',$articleId)['data'];
+        if (isset($payload->scan_codes)) { $this->checkCodes($payload->scan_codes, $articleId); }
         if ($version !== $before['version']) { throw new ApiProblem(409,'stale_article','L’article a changé. Rechargez sa fiche avant de proposer une modification.'); }
         $next=array_replace($before,get_object_vars($payload));
         $next['name']=trim($next['name']);if ($next['category_id'] !== null) { $next['category_id']=strtolower($next['category_id']); }
@@ -139,6 +153,14 @@ final class CatalogAdministration
     {
         foreach (get_object_vars($body) as $value) { if (is_string($value) && (!preg_match('//u',$value) || str_contains($value,"\0"))) { throw new ApiProblem(422,'invalid_text','Les textes doivent être en UTF-8 et sans caractère nul.'); } }
         if (!$this->contract->valid($body,['$ref'=>'#/components/schemas/'.$schema]) || (isset($body->name) && trim($body->name)==='') || (isset($body->sku) && trim($body->sku)==='')) { throw new ApiProblem(422,'validation_failed','Vérifiez les champs obligatoires et les valeurs autorisées.'); }
+        if (isset($body->scan_codes)) { $body->scan_codes = ArticleCodes::normalize($body->scan_codes); }
+    }
+    private function checkCodes(array $codes, ?string $articleId=null): void
+    {
+        foreach ($codes as $code) {
+            $owner = $this->db->fetchOne('SELECT article_id FROM article_scan_codes WHERE code=?', [$code]);
+            if ($owner && $owner !== $articleId) { throw new ApiProblem(409,'scan_code_already_used','Un de ces codes est déjà associé à un autre article, même désactivé.'); }
+        }
     }
     private function audit(StockUser $actor,string $kind,string $id,string $action,array $fields,?string $cascadeFrom=null): void
     {

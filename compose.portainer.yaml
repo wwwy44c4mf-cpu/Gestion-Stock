@@ -106,6 +106,12 @@ services:
     depends_on: {db: {condition: service_healthy}}
     restart: "no"
 
+  maintenance:
+    <<: *app
+    command: [sh, -c, exec sleep infinity]
+    networks: [backend]
+    depends_on: {db: {condition: service_healthy}}
+
   app:
     <<: *app
     networks: [frontend, backend, outbound]
