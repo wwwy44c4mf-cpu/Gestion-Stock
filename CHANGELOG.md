@@ -8,6 +8,7 @@ Aucune version stable ni mise en production n’est déclarée. Les PR ouvertes 
 
 - Socle Docker, PostgreSQL, Symfony/Twig/Stimulus, API OpenAPI et interface française.
 - Connexion, profil, comptes et affectations ; administrateur de test limité au développement.
+- Réinitialisation du mot de passe par lien de 30 minutes à usage unique, file durable sans jeton utilisable et révocation des anciennes sessions.
 - Magasins, catégories, catalogue commun et propositions validées par un administrateur.
 - Stocks, entrées, consommations, corrections compensées, transferts et retours liés.
 - Inventaires avec photographie, gel, comptage et validation atomique.

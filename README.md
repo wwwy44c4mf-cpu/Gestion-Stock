@@ -2,7 +2,7 @@
 
 Application française de gestion de stocks multi-magasins pour les interventions techniques : catalogue commun, entrées, consommations, retours, transferts, inventaires, alertes, statistiques et audit. Trois rôles : administrateur, gestionnaire et utilisateur. Quantités entières, unité unique « unité ».
 
-Le MVP est en recette/revue ; aucune mise en production n’est déclarée. La réinitialisation autonome du mot de passe (AUTH-04, [issue #8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8)) reste à développer avant de déclarer le MVP complet. [État des lots et PR](suivi.md) · [Historique](CHANGELOG.md). **Code propriétaire, tous droits réservés** : [LICENSE](LICENSE).
+Le MVP est en recette/revue ; aucune mise en production n’est déclarée. La [réinitialisation sécurisée du mot de passe](docs/reinitialisation-mot-de-passe.md) utilise un lien temporaire envoyé par courriel. [État des lots et PR](suivi.md) · [Historique](CHANGELOG.md). **Code propriétaire, tous droits réservés** : [LICENSE](LICENSE).
 
 ## Documentation
 

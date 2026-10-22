@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mot de passe oublié · Gestion de stock{% endblock %}
+{% block content %}
+<section class="auth-card card" aria-labelledby="reset-title">
+    <h1 id="reset-title">Mot de passe oublié</h1>
+    {% if error %}<p role="alert" class="notice error">{{ error }}</p>{% endif %}
+    {% if accepted %}<p role="status">{{ message }}</p><p>Vérifiez votre boîte de réception et vos courriels indésirables. Vous pourrez demander un nouveau lien dans une minute.</p>
+    {% else %}
+    <p>Saisissez l’adresse de votre compte pour recevoir un lien valable 30 minutes.</p>
+    <form method="post" action="{{ path('password_reset_request') }}">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('password_reset_request') }}">
+        <div class="field"><label for="email">Courriel</label><input id="email" name="email" type="email" maxlength="254" autocomplete="email" required autofocus></div>
+        <button class="button primary" type="submit">Demander un lien</button>
+    </form>
+    {% endif %}
+    <p><a href="{{ path('login') }}">Revenir à la connexion</a></p>
+</section>
+{% endblock %}

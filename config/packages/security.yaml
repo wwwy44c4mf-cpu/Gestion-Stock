@@ -18,5 +18,5 @@ security:
     # Test fixtures bypass authentication only in the test container.
     - { request_matcher: App\Security\TestFixtureRequestMatcher, roles: PUBLIC_ACCESS }
     - { path: '^/api/v1', roles: IS_AUTHENTICATED_FULLY }
-    - { path: '^/(connexion$|assets/|health/)', roles: PUBLIC_ACCESS }
+    - { path: '^/(connexion$|mot-de-passe/(oublie|reinitialiser)$|assets/|health/)', roles: PUBLIC_ACCESS }
     - { path: '^/', roles: IS_AUTHENTICATED_FULLY }

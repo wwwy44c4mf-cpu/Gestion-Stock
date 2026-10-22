@@ -109,6 +109,34 @@ final class NativeAuthenticationTest extends TestCase
         }
     }
 
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
+    public function testPasswordResetRevokesAllNativeSessionsWithoutAutomaticLogin(): void
+    {
+        putenv('APP_LOG_LEVEL=emergency');$_ENV['APP_LOG_LEVEL']=$_SERVER['APP_LOG_LEVEL']='emergency';
+        $schema='reset_native_'.bin2hex(random_bytes(6));$setup=new Kernel('prod',false);$setup->boot();
+        $db=$setup->getContainer()->get('doctrine')->getConnection();$db->executeStatement('CREATE SCHEMA '.$schema);$db->executeStatement('SET search_path TO '.$schema);
+        try {
+            foreach(explode('-- migrate:statement',file_get_contents(dirname(__DIR__).'/migrations/sql/001_schema.sql')) as $sql) {if(trim($sql)!=='') {$db->executeStatement($sql);}}
+            $db->executeStatement('ALTER TABLE users ADD development_only boolean NOT NULL DEFAULT false');
+            foreach(['20261018140000','20261018200000','20261018223000','20261020220000','20261020230000','20261021000000','20261021010000','20261021020000','20261021030000'] as $version) {
+                require_once dirname(__DIR__).'/migrations/Version'.$version.'.php';$class='DoctrineMigrations\\Version'.$version;$migration=new $class($db,new \Psr\Log\NullLogger());$migration->up(new \Doctrine\DBAL\Schema\Schema());foreach($migration->getSql() as $sql) {$db->executeStatement($sql->getStatement());}
+            }
+            $id=$db->fetchOne("INSERT INTO users(email,name,password_hash,role_id) VALUES ('native@example.test','Fictif',?,3) RETURNING id",[password_hash('Old-native-password-2026!',PASSWORD_ARGON2ID)]);
+            [$oldCookie]=$this->nativeLogin($schema,'native@example.test','Old-native-password-2026!');
+            [$untouchedCookie]=$this->nativeLogin($schema,'native@example.test','Old-native-password-2026!');
+            $seed=$this->request($schema,'GET','/api/v1/auth/csrf');$cookie=$seed->headers->getCookies()[0]->getValue();$csrf=json_decode($seed->getContent(),true)['token'];
+            $response=$this->request($schema,'POST','/api/v1/auth/password-reset/request',$cookie,$csrf,'{"email":"native@example.test"}');self::assertSame(202,$response->getStatusCode(),$response->getContent());
+            $hasher=new \Symfony\Component\PasswordHasher\Hasher\UserPasswordHasher(new \Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactory([\App\Security\StockUser::class=>['algorithm'=>'argon2id']]));
+            $reset=new \App\Security\PasswordReset($db,new \App\Notification\NotificationOutbox($db,new \App\Notification\NotificationPayload()),$hasher,trim(file_get_contents(getenv('APP_SECRET_FILE'))),'prod');
+            parse_str(parse_url($reset->deliveryPath($db->fetchOne('SELECT id FROM password_reset_tokens'),$id,'native@example.test'),PHP_URL_QUERY),$query);
+            $response=$this->request($schema,'POST','/api/v1/auth/password-reset/confirm',$cookie,$csrf,json_encode(['token'=>$query['token'],'password'=>'New-native-password-2026!']));self::assertSame(204,$response->getStatusCode(),$response->getContent());
+            foreach([$cookie,$oldCookie,$untouchedCookie] as $session) {self::assertSame(401,$this->request($schema,'GET','/api/v1/auth/me',$session)->getStatusCode());}
+            $response=$this->request($schema,'POST','/api/v1/auth/password-reset/confirm',$cookie,$csrf,json_encode(['token'=>$query['token'],'password'=>'Another-native-password!']));self::assertSame(422,$response->getStatusCode());
+            [$newCookie]=$this->nativeLogin($schema,'native@example.test','New-native-password-2026!');self::assertSame(200,$this->request($schema,'GET','/api/v1/auth/me',$newCookie)->getStatusCode());
+        } finally {$db->executeStatement('SET search_path TO public');$db->executeStatement('DROP SCHEMA '.$schema.' CASCADE');$setup->shutdown();}
+    }
+
     private function request(string $schema, string $method, string $path, ?string $cookie = null, ?string $csrf = null, ?string $body = null, string $environment = 'prod'): Response
     {
         // Fresh production kernel per request, actual PHP session files and cookies.

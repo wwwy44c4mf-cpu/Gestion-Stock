@@ -74,7 +74,7 @@ Statuts autorisés : À faire, En cours, Bloqué (avec raison), En revue, Termin
 | AUTH-01 | 1 | Connexion, sessions et profil | AUTH-01,02,03,07; §10.1 | SOC-02, SOC-03, SOC-04 | Terminé | [#5](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5) |
 | AUTH-02 | 1 | Administration des comptes et désactivation | AUTH-04,09 | AUTH-01 | Terminé | [#6](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/6) |
 | AUTH-03 | 1 | Rôles, affectations et contrôle des accès | AUTH-05; MAG-03; §2,4 | AUTH-02 | Terminé | [#7](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/7) |
-| AUTH-04 | 1 | Réinitialisation sécurisée du mot de passe | AUTH-06; MAIL-02 | AUTH-01, MAIL-01 | À faire | [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) |
+| AUTH-04 | 1 | Réinitialisation sécurisée du mot de passe | AUTH-06; MAIL-02 | AUTH-01, MAIL-01 | En cours | [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) |
 | MAG-01 | 1 | Création, modification et archivage des magasins | MAG-01,02,05 | AUTH-03 | Terminé | [#9](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/9) |
 | ART-01 | 1 | Catalogue global, catégories et archivage | ART-01,02,03; §4 | MAG-01 | Terminé | [#10](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/10) |
 | ART-02 | 1 | Propositions d’articles et validation administrative | ART-01,02; décision utilisateur | ART-01 | Terminé | [#11](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/11) |
@@ -222,7 +222,7 @@ Livraison pour revue : [PR #58](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/
 
 ### AUTH-04 — Réinitialisation sécurisée du mot de passe
 
-Issue : [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) · À faire · Dépendances : [AUTH-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
+Issue : [#8](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/8) · En cours · Dépendances : [AUTH-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/5), [MAIL-01](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/27).
 
 Sources : AUTH-06; MAIL-02.
 
@@ -231,6 +231,8 @@ Sources : AUTH-06; MAIL-02.
 - [ ] Envoyer le lien par file durable
 
 Critères d’acceptation : Jeton expiré ou déjà utilisé refusé ; mot de passe remplacé par un hash.
+
+Développement : parcours interface/API et envoi durable, liens de 30 minutes, contrôle du compte courant et révocation des sessions ; [guide](docs/reinitialisation-mot-de-passe.md). Recette en cours.
 
 ### MAG-01 — Création, modification et archivage des magasins
 
@@ -700,7 +702,7 @@ Sources : §12,16.
 
 Critères d’acceptation : Installation Docker suivie sur environnement vierge et documentation cohérente. Licence et responsabilités à définir avant diffusion.
 
-Développement : [PR #88](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/88), [fiche de livraison](docs/livraison.md) et [validation](docs/validation-doc01.md). Guides et régime propriétaire livrés ; installation vierge réussie, 7 tests PHP / 92 assertions et 4 contrôles OpenAPI. Installation Linux CI réussie sur le code corrigé ; consulter la PR pour les contrôles du dernier commit. Le propriétaire assurera serveur, sauvegardes et incidents (confirmation du 22 octobre 2026) ; AUTH-04 reste à développer avant déclaration du MVP complet. Aucune ouverture de production réalisée.
+Développement : [PR #88](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/88), [fiche de livraison](docs/livraison.md) et [validation](docs/validation-doc01.md). Guides et régime propriétaire livrés ; installation vierge réussie, 7 tests PHP / 92 assertions et 4 contrôles OpenAPI. Installation Linux CI réussie sur le code corrigé ; consulter la PR pour les contrôles du dernier commit. Le propriétaire assurera serveur, sauvegardes et incidents (confirmation du 22 octobre 2026) ; AUTH-04 est développé dans le lot suivant, en cours de validation. Aucune ouverture de production réalisée.
 
 ### V2-01 — MFA et authentification SSO OIDC
 

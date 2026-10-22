@@ -11,10 +11,14 @@ final class NotificationRenderer
     public function __construct(private readonly Environment $twig,private readonly NotificationPayload $payloads,
         #[Autowire('%env(MAIL_FROM_ADDRESS)%')] private readonly string $from,
         #[Autowire('%env(APP_PUBLIC_URL)%')] private readonly string $baseUrl,
-        #[Autowire('%kernel.environment%')] private readonly string $environment) {}
+        #[Autowire('%kernel.environment%')] private readonly string $environment, private readonly ?\App\Security\PasswordReset $passwordReset=null) {}
     public function render(array $event,string $recipient): Email
     {
         $payload=json_decode($event['payload'],true,flags:JSON_THROW_ON_ERROR);$this->payloads->validate($event['type'],$payload);
+        if($event['type']==='password_reset') {
+            if($this->passwordReset===null) {throw new \LogicException('password_reset_renderer_unavailable');}
+            $payload=['path'=>$this->passwordReset->deliveryPath($payload['reset_id'],$event['recipient_id'],$recipient)];
+        }
         $url=parse_url($this->baseUrl);
         if(!$url||!isset($url['host'])||isset($url['user'])||isset($url['pass'])||isset($url['query'])||isset($url['fragment'])||!in_array($url['scheme']??'',$this->environment==='prod'?['https']:['https','http'],true)) {throw new \InvalidArgumentException('notification_base_url_invalid');}
         $subject=match($event['type']) {'stock_low'=>'Stock bas : '.$payload['article'],'stock_critical'=>'Stock critique : '.$payload['article'],'password_reset'=>'Réinitialiser votre mot de passe','information'=>$payload['subject'],'daily_summary'=>'Votre récapitulatif des alertes de stock'};

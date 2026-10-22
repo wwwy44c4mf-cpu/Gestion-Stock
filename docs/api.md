@@ -1,6 +1,6 @@
 # Contrats et socle API — SOC-03
 
-Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décrit 61 opérations et 97 schémas de données pour le MVP. Aucun appel à un service externe n’est nécessaire pour le lire ou pour le valider. **59 opérations sont marquées `available` ; les deux opérations de réinitialisation du mot de passe sont encore `planned` (AUTH-04, issue #8)**. Un contrat présent ne crée pas une route : ne pas appeler ces deux opérations comme un service livré.
+Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décrit 61 opérations et 97 schémas de données pour le MVP. Aucun appel à un service externe n’est nécessaire pour le lire ou pour le valider. **Les 61 opérations sont marquées `available`**, dont les deux opérations de [réinitialisation sécurisée du mot de passe](reinitialisation-mot-de-passe.md).
 
 ## Ce qui fonctionne déjà
 

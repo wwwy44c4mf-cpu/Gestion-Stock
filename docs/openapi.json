@@ -593,7 +593,7 @@
       "post": {
         "operationId": "requestPasswordReset",
         "summary": "Demander un lien temporaire",
-        "description": "Toujours la même réponse 202, que le compte existe ou non. Mise en file asynchrone.",
+        "description": "Réponse générique 202 pour adresse connue, inconnue ou compte inactif. Lien valable 30 minutes, au plus une demande par compte par minute, mis en file sans jeton utilisable. Une nouvelle demande invalide les anciens liens.",
         "tags": [
           "auth"
         ],
@@ -604,7 +604,7 @@
         ],
         "x-roles": [],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [],
         "responses": {
           "202": {
@@ -679,7 +679,7 @@
       "post": {
         "operationId": "confirmPasswordReset",
         "summary": "Réinitialiser le mot de passe",
-        "description": "Jeton temporaire à usage unique ; erreur générique 422 si invalide ou expiré.",
+        "description": "Jeton à usage unique valable 30 minutes. Erreur générique 422 si invalide, expiré, consommé ou état du compte modifié ; mise à jour Argon2id et révocation des sessions atomiques. Aucune connexion automatique.",
         "tags": [
           "auth"
         ],
@@ -690,7 +690,7 @@
         ],
         "x-roles": [],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
-        "x-implementation": "planned",
+        "x-implementation": "available",
         "parameters": [],
         "responses": {
           "204": {

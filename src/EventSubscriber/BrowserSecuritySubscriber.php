@@ -37,7 +37,7 @@ final class BrowserSecuritySubscriber implements EventSubscriberInterface
         $response->headers->set('Content-Security-Policy', self::POLICY);
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('X-Frame-Options', 'DENY');
-        $response->headers->set('Referrer-Policy', 'same-origin');
+        $response->headers->set('Referrer-Policy', str_starts_with($event->getRequest()->getPathInfo(), '/mot-de-passe/') ? 'no-referrer' : 'same-origin');
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
         if ($this->requireHttps) {
             $response->headers->set('Cache-Control', 'no-store, private');
