@@ -1,13 +1,13 @@
 # Fiche de livraison du MVP
 
-Cette fiche prépare la livraison ; elle n’atteste pas d’une installation en production. Le code est en revue. Aucun tag de version stable ni déploiement n’est créé par DOC-01.
+Cette fiche prépare la livraison ; elle n’atteste pas d’une installation en production. Le MVP est intégré à main et sa recette finale est réussie : voir le [bilan de finalisation](finalisation-mvp.md). Aucun tag de version stable ni déploiement n’est créé par DOC-01. La variante [Portainer / Home Assistant](installation-portainer.md) fait l’objet du lot complémentaire OPS-04.
 
 ## Livrables
 
 | Livrable du CDC §12 | Emplacement |
 | --- | --- |
 | Code et historique | Dépôt GitHub, PR liées dans [suivi](../suivi.md) |
-| Régime de licence | [LICENSE](../LICENSE), propriétaire et privé, tous droits réservés |
+| Régime de licence | [LICENSE](../LICENSE), propriétaire, tous droits réservés ; dépôt public |
 | Installation et dépannage | [README](../README.md) |
 | Docker et configuration | `Dockerfile`, `compose*.yaml`, `.env.example`, `.env.production.example`, `bin/` |
 | Migrations et données fictives | `migrations/`, commande `app:dev:load-demo`, [démo](demonstration.md) |
@@ -20,7 +20,7 @@ Cette fiche prépare la livraison ; elle n’atteste pas d’une installation en
 
 ## Réinitialisation du mot de passe
 
-AUTH-04 fournit désormais demande, courriel temporaire et confirmation avec révocation des sessions ; [guide](reinitialisation-mot-de-passe.md). Le parcours doit être testé sur des boîtes de réception autorisées après configuration du SMTP réel. L’intégration et la recette du commit final restent nécessaires avant déclaration de livraison du MVP.
+AUTH-04 fournit désormais demande, courriel temporaire et confirmation avec révocation des sessions ; [guide](reinitialisation-mot-de-passe.md). L’intégration et la recette du code sont terminées. Le parcours doit encore être testé sur des boîtes de réception autorisées après configuration du SMTP réel.
 
 ## Décisions et configuration avant ouverture
 

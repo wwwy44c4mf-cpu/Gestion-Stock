@@ -5,6 +5,14 @@ Source : [cdc.md](cdc.md), version 1.0 du 17 octobre 2026, et arbitrages utilisa
 État de cette livraison sur main : les 39 lots MVP sont terminés, après autorisation explicite de fusion des PR #86 à #89. Les corrections de revue et de sécurité sont reprises dans [le bilan de finalisation](docs/finalisation-mvp.md). Aucune ouverture de production n’est déclarée.
 Les décisions ci-dessous précisent ou remplacent les options correspondantes du CDC ; le CDC original est conservé.
 
+## Complément de déploiement après le MVP
+
+| Lot | Besoin | Statut | Issue |
+| --- | --- | --- | --- |
+| OPS-04 | Stack Portainer Standalone sur Home Assistant OS, raccordée au module Cloudflared existant ; secrets persistants, initialisation et recette isolée | En cours | [#90](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/90) |
+
+Le mini-PC annoncé possède quatre cœurs et 8,1 Go de mémoire totale ; la charge domotique et la capacité disponible restent à vérifier sur le serveur. La préparation ne vaut pas ouverture en production. Voir [le guide Portainer](docs/installation-portainer.md), notamment les conditions de copie hors serveur et de planification de la conservation. Ce lot s’ajoute aux 39 lots MVP déjà terminés.
+
 ## Décisions validées
 
 | Sujet | Décision |

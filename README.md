@@ -2,7 +2,7 @@
 
 Application française de gestion de stocks multi-magasins pour les interventions techniques : catalogue commun, entrées, consommations, retours, transferts, inventaires, alertes, statistiques et audit. Trois rôles : administrateur, gestionnaire et utilisateur. Quantités entières, unité unique « unité ».
 
-Le MVP est en recette/revue ; aucune mise en production n’est déclarée. La [réinitialisation sécurisée du mot de passe](docs/reinitialisation-mot-de-passe.md) utilise un lien temporaire envoyé par courriel. [État des lots et PR](suivi.md) · [Historique](CHANGELOG.md). **Code propriétaire, tous droits réservés** : [LICENSE](LICENSE).
+Le MVP est intégré à main et sa recette finale est réussie ; aucune mise en production n’est déclarée. La [réinitialisation sécurisée du mot de passe](docs/reinitialisation-mot-de-passe.md) utilise un lien temporaire envoyé par courriel. [État des lots et PR](suivi.md) · [Historique](CHANGELOG.md). **Code propriétaire, tous droits réservés** : [LICENSE](LICENSE).
 
 ## Documentation
 
@@ -13,6 +13,7 @@ Le MVP est en recette/revue ; aucune mise en production n’est déclarée. La [
 | Présenter avec des données fictives | [Démonstration](docs/demonstration.md) |
 | Comprendre et intégrer | [Architecture](docs/architecture.md), [modèle](docs/modele-donnees.md), [API](docs/api.md), [OpenAPI](docs/openapi.json) |
 | Déployer, maintenir, restaurer | [Fiche de livraison](docs/livraison.md), [bilan de finalisation](docs/finalisation-mvp.md) et [production HTTPS](docs/deploiement-production.md) |
+| Installer avec Portainer et Cloudflared | [Home Assistant OS / Portainer](docs/installation-portainer.md) |
 | Développer, tester, signaler un problème | [Contribution](CONTRIBUTING.md), [recette](docs/recette-qa01.md), [sécurité](SECURITY.md) |
 
 ## Prérequis
