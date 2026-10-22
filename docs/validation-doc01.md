@@ -18,4 +18,4 @@ Le contrôle `python3 docker/documentation/check.py` vérifie l’existence des 
 
 ## Décisions
 
-Licence propriétaire, tous droits réservés, confirmée par le propriétaire. Le dépôt GitHub est actuellement public ; ce choix de licence n’a pas modifié sa visibilité. Responsabilité d’exploitation laissée explicitement à désigner avant production, la question ayant été transmise au propriétaire. AUTH-04 reste absent et son issue #8 ouverte : ce constat est signalé dans les guides et la fiche, sans prétendre livrer cette fonctionnalité dans DOC-01. Les autres paramètres d’ouverture sont listés dans [la fiche de livraison](livraison.md).
+Licence propriétaire, tous droits réservés, confirmée par le propriétaire. Le dépôt GitHub est actuellement public ; ce choix de licence n’a pas modifié sa visibilité. Le propriétaire a confirmé le 22 octobre 2026 prendre lui-même la responsabilité du serveur, des sauvegardes et des incidents. AUTH-04 reste absent et son issue #8 ouverte : ce constat est signalé dans les guides et la fiche, sans prétendre livrer cette fonctionnalité dans DOC-01. Les autres paramètres d’ouverture sont listés dans [la fiche de livraison](livraison.md).

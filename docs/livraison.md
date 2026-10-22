@@ -27,7 +27,7 @@ Cette fiche prépare la livraison ; elle n’atteste pas d’une installation en
 | Élément | État |
 | --- | --- |
 | Licence | Utilisation privée, tous droits réservés ; dépôt GitHub actuellement public, sa visibilité n’a pas été modifiée |
-| Exploitant serveur/sauvegardes/incidents | À désigner avant production ; demande transmise au propriétaire |
+| Exploitant serveur/sauvegardes/incidents | Propriétaire du projet (confirmation : « Moi-même », 22 octobre 2026) |
 | Responsable fonctionnel et habilitations | À désigner par l’organisation |
 | Responsable du traitement et validation des durées | À désigner/valider par l’organisation |
 | Serveur, ressources, domaine et DNS | À renseigner |

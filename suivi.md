@@ -700,7 +700,7 @@ Sources : §12,16.
 
 Critères d’acceptation : Installation Docker suivie sur environnement vierge et documentation cohérente. Licence et responsabilités à définir avant diffusion.
 
-Développement : [PR #88](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/88), [fiche de livraison](docs/livraison.md) et [validation](docs/validation-doc01.md). Guides et régime propriétaire livrés ; installation vierge réussie, 7 tests PHP / 92 assertions et 4 contrôles OpenAPI. Installation Linux CI réussie sur le code corrigé ; consulter la PR pour les contrôles du dernier commit. Exploitant à désigner avant production ; AUTH-04 reste à développer avant déclaration du MVP complet. Aucune ouverture de production réalisée.
+Développement : [PR #88](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/pull/88), [fiche de livraison](docs/livraison.md) et [validation](docs/validation-doc01.md). Guides et régime propriétaire livrés ; installation vierge réussie, 7 tests PHP / 92 assertions et 4 contrôles OpenAPI. Installation Linux CI réussie sur le code corrigé ; consulter la PR pour les contrôles du dernier commit. Le propriétaire assurera serveur, sauvegardes et incidents (confirmation du 22 octobre 2026) ; AUTH-04 reste à développer avant déclaration du MVP complet. Aucune ouverture de production réalisée.
 
 ### V2-01 — MFA et authentification SSO OIDC
 
