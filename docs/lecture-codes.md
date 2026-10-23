@@ -30,4 +30,6 @@ Pour l’installation Portainer en cours : conserver le même nom de stack et to
 
 Les tests couvrent codes multiples, unicité et archivage, propositions et permissions, absence d’écriture au scan, filtre de retour personnel, contrôle de version et contraintes SQL ; les tests JavaScript couvrent les promesses tardives, les lectures répétées, le refus de caméra et les recherches concurrentes. Les tests automatisés n’utilisent aucune caméra réelle ni donnée de l’installation Home Assistant.
 
+Sur smartphone, la liste des consommations retournables présente une fiche par consommation, avec son article, son magasin, son bénéficiaire, le reste à rendre et un bouton « Rendre des articles » visible sans défilement horizontal. Sur grand écran, ces informations restent présentées en tableau.
+
 La recette locale du lecteur se lance avec `node --test tests/scan_camera_test.mjs tests/scanner_controller_test.mjs tests/scanner_decode_fixture_test.mjs`. Les dépendances et licences sont décrites dans [frontend](../frontend/README.md).

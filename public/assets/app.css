@@ -53,3 +53,16 @@
 .scanner-dialog { width: min(92vw, 640px); max-height: 90dvh; overflow-y: auto; border: 0; border-radius: 12px; padding: 1.25rem; }
 .scanner-dialog::backdrop { background: rgb(0 0 0 / .65); }
 .scanner-dialog video { display: block; width: 100%; max-height: 55dvh; background: #111; object-fit: contain; }
+
+/* Keep each return action beside its consumption on narrow screens. */
+@media (max-width: 760px) {
+    .returnable-scroll { overflow: visible; }
+    .returnable-table, .returnable-table caption, .returnable-table tbody { display: block; }
+    .returnable-table thead { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .returnable-table tbody { display: grid; gap: 1rem; }
+    .returnable-table tbody tr { display: block; min-width: 0; border: 1px solid #dce5df; border-radius: 8px; padding: .75rem; }
+    .returnable-table td { display: block; border: 0; padding: .35rem 0; overflow-wrap: anywhere; }
+    .returnable-table td[data-label]::before { content: attr(data-label) " : "; font-weight: 650; color: #42574f; }
+    .returnable-table .returnable-action { padding-top: .75rem; }
+    .returnable-action .button { display: block; width: 100%; text-align: center; }
+}
