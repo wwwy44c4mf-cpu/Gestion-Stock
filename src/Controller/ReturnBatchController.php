@@ -25,13 +25,13 @@ final class ReturnBatchController extends AbstractController
     }
 
     #[Route('/consommations/retours/nouveau',name:'consumptions_return_batch_new',priority:40,methods:['GET','POST'],defaults:['_camera_scan'=>true])]
-    public function form(Request $request,CsrfTokenManagerInterface $csrf): Response
+    public function form(Request $request,CsrfTokenManagerInterface $csrf,\App\Ui\StoreContext $context): Response
     {
         $actor=$this->actor();$stores=$this->directory->storeOptions($actor,Permission::RETURN_CREATE);
         $articles=$this->db->fetchAllAssociative('SELECT id,sku,name,active FROM articles ORDER BY name,id');
         $canChoose=in_array($actor->role,['ADMIN','MANAGER'],true);
         $beneficiaries=$canChoose && $stores!==[]?$this->directory->beneficiaryOptions($actor):[];
-        $favorite=$actor->favoriteStoreId;
+        $favorite=$context->preferred($request,$actor,$stores);
         $data=['article_id'=>'','store_id'=>in_array($favorite,array_column($stores,'id'),true)?$favorite:'','consumer_id'=>$actor->id,'quantity'=>'','comment'=>''];
         $key=bin2hex(random_bytes(16));$error=null;$status=200;
         if($request->isMethod('GET')) {

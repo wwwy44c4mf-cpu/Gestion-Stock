@@ -41,6 +41,29 @@ final class ReturnBatchTest extends WebTestCase
         $this->client->request('POST','/api/v1/movements/return-batches',server:['CONTENT_TYPE'=>'application/json','HTTP_X_CSRF_TOKEN'=>$this->csrf,'HTTP_IDEMPOTENCY_KEY'=>$key??bin2hex(random_bytes(16))],content:json_encode(array_replace(['article_id'=>$this->article,'store_id'=>$this->stores['C'],'quantity'=>5],$extra)));
         return json_decode($this->client->getResponse()->getContent(),true)??[];
     }
+    public function testFavoriteIsGlobalAndManualContextOverridesOperationDefaults(): void
+    {
+        $this->db->executeStatement('UPDATE users SET favorite_store_id=? WHERE id=?',[$this->stores['A'],$this->users['admin']]);
+        $this->login('admin');
+        foreach(['/stocks','/articles','/profil'] as $url) {
+            $this->client->request('GET',$url);self::assertResponseIsSuccessful();
+            self::assertSelectorExists('#magasin option[value="'.$this->stores['A'].'"][selected]');
+        }
+        $context=static::getContainer()->get(\App\Ui\StoreContext::class);
+        $request=$this->client->getRequest();
+        $context->select($request,$this->actor('admin'),$this->stores['B']);$request->getSession()->save();
+        foreach(['/stocks/entree','/consommations/nouvelle','/consommations/retours/nouveau'] as $url) {
+            $this->client->request('GET',$url);self::assertResponseIsSuccessful();
+            self::assertSelectorExists('#magasin option[value="'.$this->stores['B'].'"][selected]');
+            self::assertSelectorExists('main select[name="store_id"] option[value="'.$this->stores['B'].'"][selected]');
+        }
+        self::assertSame($this->stores['A'],$this->actor('admin')->favoriteStoreId);
+        $request=$this->client->getRequest();$context->select($request,$this->actor('admin'),'');$request->getSession()->save();
+        $this->client->request('GET','/articles');self::assertSelectorNotExists('#magasin option[selected]');
+        $this->db->executeStatement('UPDATE users SET favorite_store_id=? WHERE id=?',[$this->stores['C'],$this->users['admin']]);
+        $this->client->request('GET','/profil');self::assertSelectorExists('#magasin option[value="'.$this->stores['C'].'"][selected]');
+        $this->login('admin');$this->client->request('GET','/stocks');self::assertSelectorExists('#magasin option[value="'.$this->stores['C'].'"][selected]');
+    }
     private function balances(): array { return $this->db->fetchAllAssociative('SELECT store_id,quantity,version FROM stock_levels ORDER BY store_id'); }
     private function seedConsumptions(): array { return [$this->move('user','consumption','A',3),$this->move('user','consumption','B',4)]; }
     public function testCrossStoreFifoDepositAndReplayAreAtomic(): void

@@ -6,6 +6,8 @@ Aucune version stable ni mise en production n’est déclarée. Les PR ouvertes 
 
 ### Fonctionnalités
 
+- Le magasin favori initialise le bandeau commun et les formulaires. Un autre magasin choisi manuellement reste sélectionné pendant la navigation sans modifier la préférence personnelle.
+
 - Retours par article et quantité dans le magasin de dépôt choisi, répartition automatique sur les consommations encore retournables, droits de retrait/dépôt des techniciens dans tout magasin actif et magasin favori personnel. Migration additive et anonymisation des liens de regroupement.
 
 - Sur smartphone, les consommations encore retournables s’affichent en fiches avec un bouton « Rendre des articles » directement visible, sans défilement horizontal.

@@ -19,7 +19,7 @@ Le lien « Consulter les consommations retournables ou choisir une consommation 
 
 ## Magasin favori et droits
 
-Dans **Mon profil**, choisir un **Magasin favori**, puis enregistrer. Cette préférence appartient au compte et se retrouve après reconnexion, y compris sur un autre appareil. Elle est proposée pour les entrées autorisées, les consommations et les dépôts. Changer le magasin d’un formulaire ne change pas le favori. Une erreur de formulaire conserve la sélection saisie.
+Dans **Mon profil**, choisir un **Magasin favori**, puis enregistrer. Cette préférence appartient au compte et se retrouve après reconnexion, y compris sur un autre appareil. Elle sélectionne par défaut le magasin dans le bandeau commun à toutes les pages autorisées, ainsi que pour les entrées, consommations et dépôts. Le choix manuel d’un autre magasin dans le bandeau reste actif pendant la navigation et prend priorité dans les formulaires. « Tous mes magasins » reste également sélectionnable. Modifier le favori réapplique la nouvelle préférence ; une nouvelle session reprend le favori. Changer le magasin d’un formulaire ne change pas le favori. Une erreur de formulaire conserve la sélection saisie.
 
 Les techniciens peuvent retirer et déposer du matériel dans tous les magasins actifs, même sans affectation. Leur favori peut donc être tout magasin actif. Cela ne donne pas accès aux stocks courants, journaux ou consommations d’autrui en dehors des périmètres de consultation existants. Les gestionnaires conservent leur périmètre de magasins pour les opérations réalisées au nom d’un autre bénéficiaire. Les administrateurs disposent du périmètre global.
 

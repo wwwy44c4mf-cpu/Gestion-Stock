@@ -42,11 +42,11 @@ final class StockReturnController extends AbstractController
         return $this->render('returns/list.html.twig',['result'=>$this->returns->eligible($actor,$page,$articleId),'article_filter'=>$articleId]);
     }
     #[Route('/consommations/{id}/retour',name:'consumptions_return_new',methods:['GET','POST'])]
-    public function form(string $id,Request $request,CsrfTokenManagerInterface $csrf): Response
+    public function form(string $id,Request $request,CsrfTokenManagerInterface $csrf,\App\Ui\StoreContext $context): Response
     {
         $actor=$this->actor();$origin=$this->consumptions->get($actor,$id);$this->policy->assert($actor,Permission::CONSUMPTION_READ,AccessTarget::consumption($id));
         $stores=$this->directory->storeOptions($actor,Permission::RETURN_CREATE);
-        $favorite=$actor->favoriteStoreId;
+        $favorite=$context->preferred($request,$actor,$stores);
         $selected=in_array($favorite,array_column($stores,'id'),true)?$favorite:(in_array($origin['store_id'],array_column($stores,'id'),true)?$origin['store_id']:'');
         $data=['quantity'=>'','comment'=>'','store_id'=>$selected];$key=bin2hex(random_bytes(16));$error=null;$status=200;
         if($request->isMethod('GET') && $request->query->count()>0) { throw new ApiProblem(422,'invalid_query','Ce formulaire n’accepte pas de paramètres supplémentaires.'); }
