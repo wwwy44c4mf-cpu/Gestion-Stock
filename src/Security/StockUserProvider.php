@@ -34,7 +34,7 @@ final class StockUserProvider implements UserProviderInterface, PasswordUpgrader
         $row = $this->db->fetchAssociative('SELECT u.*, r.code AS role FROM users u JOIN roles r ON r.id = u.role_id WHERE '.$where." AND u.anonymized_at IS NULL AND (NOT u.development_only OR ? = 'dev')", [$value, $this->environment]);
         if (!$row) { throw new UserNotFoundException(); }
         $stores = $this->db->fetchFirstColumn('SELECT s.id FROM stores s JOIN user_stores us ON us.store_id = s.id WHERE us.user_id = ? AND s.active ORDER BY s.id', [$row['id']]);
-        return new StockUser($row['id'], $row['email'], $row['name'], $row['role'], (bool) $row['active'], $row['password_hash'], (string) $row['auth_version'], $row['timezone'], (new \DateTimeImmutable($row['created_at']))->format(DATE_RFC3339), $stores);
+        return new StockUser($row['id'], $row['email'], $row['name'], $row['role'], (bool) $row['active'], $row['password_hash'], (string) $row['auth_version'], $row['timezone'], (new \DateTimeImmutable($row['created_at']))->format(DATE_RFC3339), $stores, $row['favorite_store_id']??null);
     }
 
     public function supportsClass(string $class): bool { return $class === StockUser::class; }

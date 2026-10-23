@@ -77,7 +77,38 @@ dc exec -T app php bin/console doctrine:migrations:up-to-date --no-interaction
 # Exercise the operator console on a disposable, empty installation: a simple
 # redeploy must refuse pending migrations, while maintenance can apply them.
 dc stop web app worker scheduler backup > "$portainer_report/maintenance-stop.log" 2>&1
-dc exec -T maintenance php bin/console doctrine:migrations:migrate 'DoctrineMigrations\Version20261022130000' --no-interaction > "$portainer_report/schema-previous.log" 2>&1
+dc exec -T maintenance php bin/console doctrine:migrations:migrate 'DoctrineMigrations\Version20261023010000' --no-interaction > "$portainer_report/schema-previous.log" 2>&1
+# Recreate the same PostgreSQL 18 volume first with the old operator script,
+# then with the candidate script. Binaries share the exact same image ancestry.
+python3 - <<'LEGACY_DB'
+import os,re
+from pathlib import Path
+root=Path(os.environ['PORTAINER_ROOT']);target=root/'legacy-db';target.mkdir()
+sql=(root/'docker/privacy/retention.sql').read_text()
+sql=re.sub(r'CREATE TEMP TABLE privacy_consumer_edges[\s\S]*?(?=CREATE TEMP TABLE privacy_consumers)', '', sql, count=1)
+sql=sql.replace('SELECT a,b FROM privacy_consumer_edges', 'SELECT original_id,replacement_id FROM movement_corrections UNION ALL SELECT replacement_id,original_id FROM movement_corrections')
+(target/'retention.sql').write_text(sql)
+(target/'Dockerfile').write_text('FROM '+os.environ['COMPOSE_PROJECT_NAME']+'-db:ops04-test\nCOPY retention.sql /opt/gestion-stock/retention.sql\n')
+LEGACY_DB
+docker build -t "$portainer_project-db:ops04-previous" "$portainer_root/legacy-db" > "$portainer_report/previous-db-image.log" 2>&1
+export DATABASE_RELEASE_ID=ops04-previous
+dc up -d --no-deps --force-recreate --wait --wait-timeout 120 db > "$portainer_report/previous-db-start.log" 2>&1
+dc exec -T db psql -X -q -U postgres -d gestion_stock --set ON_ERROR_STOP=1 <<'UPGRADE_FIXTURE'
+INSERT INTO users(id,active,anonymized_at,role_id) VALUES('00000000-0000-4000-8000-000000000001',false,clock_timestamp(),3);
+INSERT INTO stores(code,name) VALUES('UPGRADE','Upgrade fixture');
+INSERT INTO articles(sku,name) VALUES('UPGRADE','Upgrade fixture');
+INSERT INTO stock_movements(type,article_id,destination_store_id,quantity,author_id,reason,idempotency_key)
+ SELECT 'entry',a.id,s.id,5,'00000000-0000-4000-8000-000000000001','Fixture','upgrade-preservation' FROM articles a CROSS JOIN stores s WHERE a.sku='UPGRADE' AND s.code='UPGRADE';
+INSERT INTO stock_levels(article_id,store_id,quantity) SELECT a.id,s.id,5 FROM articles a CROSS JOIN stores s WHERE a.sku='UPGRADE' AND s.code='UPGRADE';
+UPGRADE_FIXTURE
+dc exec -T db psql -X -q -U postgres -d gestion_stock -tAc "SELECT id,article_id,destination_store_id,quantity FROM stock_movements WHERE idempotency_key='upgrade-preservation'" > "$portainer_report/upgrade-before.txt"
+export DATABASE_RELEASE_ID=ops04-test
+dc run --rm --no-deps setup > "$portainer_report/setup-db-upgrade.log" 2>&1
+dc up -d --no-deps --force-recreate --wait --wait-timeout 120 db > "$portainer_report/candidate-db-start.log" 2>&1
+dc exec -T db sh -c 'grep -q privacy_consumer_edges /opt/gestion-stock/retention.sql'
+dc exec -T db psql -X -q -U postgres -d gestion_stock -tAc "SELECT id,article_id,destination_store_id,quantity FROM stock_movements WHERE idempotency_key='upgrade-preservation'" > "$portainer_report/upgrade-after.txt"
+cmp "$portainer_report/upgrade-before.txt" "$portainer_report/upgrade-after.txt"
+echo 'Image PostgreSQL 18 remplacee, donnees conservees, script anonymisation actualise.'
 if dc run --rm --no-deps initialize > "$portainer_report/pending-migration-refused.log" 2>&1; then
  echo 'Pending migration unexpectedly accepted by redeploy' >&2; exit 1
 fi
@@ -86,6 +117,7 @@ dc run --rm --no-deps initialize > "$portainer_report/initialize-after-migration
 dc up -d --wait --wait-timeout 120 > "$portainer_report/maintenance-restart.log" 2>&1
 docker run --rm --network "$CLOUDFLARED_NETWORK" --ip "$CLOUDFLARED_ADDRESS" --read-only --cap-drop ALL --entrypoint python3 "$portainer_project-backup:$RELEASE_ID" /source/tests/portainer_http_test.py trusted
 docker run --rm --network "$CLOUDFLARED_NETWORK" --ip "$portainer_untrusted" --read-only --cap-drop ALL --entrypoint python3 "$portainer_project-backup:$RELEASE_ID" /source/tests/portainer_http_test.py untrusted
+dc exec -T backup python3 /opt/backup.py once
 dc exec -T backup python3 /opt/backup.py health
 dc exec -T backup python3 -c 'from pathlib import Path; assert list(Path("/backups").glob("*.backup.age")); assert not Path("/run/secrets/backup_identity").exists(); assert not Path("/recovery-key").exists(); print("Sauvegarde chiffrée présente ; clé privée absente du service sauvegarde.")'
 portainer_archive=$(dc exec -T backup python3 -c 'import json; print(json.load(open("/backups/status.json"))["archive"])')

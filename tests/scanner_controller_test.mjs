@@ -9,7 +9,7 @@ function fixture(mode = 'select') {
         codes: { value: 'EXISTING', dispatchEvent() {}, focus() {} },
     };
     const instance = new Scanner({ scope: { element: { isConnected: true } } });
-    Object.assign(instance, { sequence: 0, modeValue: mode, selectValue: 'article', hasSelectValue: mode === 'select', quantityValue: 'quantity', textareaValue: 'codes',
+    Object.assign(instance, { sequence: 0, modeValue: mode, selectValue: 'article', hasSelectValue: ['select','deposit'].includes(mode), quantityValue: 'quantity', textareaValue: 'codes',
         csrfValue: 'fixture-csrf', statusTarget: { textContent: '' }, codeTarget: { value: '' }, returnUrlValue: '/consommations/retours' });
     globalThis.document = { getElementById: id => nodes[id] };
     globalThis.window = { location: { origin: 'https://stock.example.test', assign(url) { instance.redirect = url; } } };
@@ -56,4 +56,12 @@ test('late lookup response cannot overwrite a more recent scan', async () => {
     await f.instance.accept('SECOND');
     resolveFirst({ ok: true, json: async () => ({ data: { id: 'new-id', active: true } }) }); await first;
     assert.equal(f.nodes.article.value, ''); assert.equal(f.instance.statusTarget.textContent, 'Second inconnu');
+});
+
+test('deposit scan accepts an archived article without submitting a return', async () => {
+    const f = fixture('deposit');
+    globalThis.fetch = async () => ({ ok: true, json: async () => ({ data: { id: 'new-id', active: false, sku: 'ARCHIVED', name: 'Old equipment' } }) });
+    await f.instance.accept('ARCHIVED-CODE');
+    assert.equal(f.nodes.article.value, 'new-id'); assert.equal(f.nodes.quantity.value, '');
+    assert.equal(f.instance.redirect, undefined);
 });

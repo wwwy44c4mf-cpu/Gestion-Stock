@@ -16,7 +16,7 @@ final class AuditContext
         }
         if (str_starts_with($action,'stock.')) {
             if(isset($context['type'])&&in_array($context['type'],['entry','consumption','transfer','adjustment','return','reversal'],true)) {$out['type']=$context['type'];}
-            foreach(['original_id','consumption_id','inventory_id'] as $key) {if(isset($context[$key])&&$this->uuid($context[$key])) {$out[$key]=$context[$key];}}
+            foreach(['original_id','consumption_id','inventory_id','return_group_id'] as $key) {if(isset($context[$key])&&$this->uuid($context[$key])) {$out[$key]=$context[$key];}}
             if(isset($context['delta'])&&is_int($context['delta'])&&abs($context['delta'])<=9007199254740991) {$out['delta']=$context['delta'];}
             if($action==='stock.thresholds_updated') {foreach(['before','after'] as $key) {if(isset($context[$key])&&is_array($context[$key])) {$out[$key]=(object)$this->quantities($context[$key],['low_threshold','critical_threshold']);}}}
         }

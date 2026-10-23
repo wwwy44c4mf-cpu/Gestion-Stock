@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+{% block title %}Déposer du matériel · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">RETOUR AU MAGASIN</p><h1>Rendre des articles</h1><p class="subtitle">Scannez l’article, choisissez le magasin où vous le déposez et saisissez la quantité.</p></div><a href="{{ path('consumptions_list') }}">Historique des consommations</a></div>
+<section class="card account-form">
+{% if error %}{% include 'components/notice.html.twig' with {kind:'error',message:error} only %}{% endif %}
+<form method="post" action="{{ path('consumptions_return_batch_new') }}">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token('stock_return_batch') }}"><input type="hidden" name="_movement_key" value="{{ movement_key }}">
+<div class="field"><label for="deposit-store">Magasin de dépôt (obligatoire)</label><select id="deposit-store" name="store_id" required><option value="">Choisir un magasin</option>{% for store in stores %}<option value="{{ store.id }}" {% if item.store_id == store.id %}selected{% endif %}>{{ store.code }} · {{ store.name }}</option>{% endfor %}</select><p class="muted">Le stock de ce magasin sera augmenté. Votre magasin favori est proposé lorsqu’il est disponible.</p></div>
+<div class="field"><label for="deposit-article">Article (obligatoire)</label><select id="deposit-article" name="article_id" required><option value="">Scanner ou choisir un article</option>{% for article in articles %}<option value="{{ article.id }}" {% if item.article_id == article.id %}selected{% endif %}>{{ article.sku }} · {{ article.name }}{{ article.active ? '' : ' (désactivé)' }}</option>{% endfor %}</select></div>
+{% include 'components/scanner.html.twig' with {mode:'deposit',select_id:'deposit-article',quantity_id:'deposit-quantity'} only %}
+{% if can_choose_beneficiary %}<div class="field"><label for="deposit-beneficiary">Bénéficiaire des consommations (obligatoire)</label><select id="deposit-beneficiary" name="consumer_id" required>{% for person in beneficiaries %}<option value="{{ person.id }}" {% if person.id == item.consumer_id %}selected{% endif %}>{{ person.name }}</option>{% endfor %}</select></div>{% endif %}
+<div class="field"><label for="deposit-quantity">Quantité rendue (obligatoire)</label><input id="deposit-quantity" name="quantity" inputmode="numeric" pattern="[1-9][0-9]*" maxlength="16" value="{{ item.quantity }}" required></div>
+<div class="field"><label for="deposit-comment">Commentaire (facultatif)</label><textarea id="deposit-comment" name="comment" rows="3" maxlength="2000">{{ item.comment }}</textarea></div>
+<p>Le retour est rattaché automatiquement aux consommations les plus anciennes encore retournables de ce bénéficiaire, même si elles proviennent d’autres magasins. Aucun retour ne peut dépasser les quantités encore à rendre.</p>
+<button class="button" type="submit" {% if stores is empty %}disabled{% endif %}>Enregistrer le retour</button>
+</form></section>
+<p><a href="{{ path('consumptions_return_list') }}">Consulter les consommations retournables ou choisir une consommation précise</a></p>
+{% endblock %}

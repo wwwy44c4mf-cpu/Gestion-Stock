@@ -29,13 +29,14 @@ final class AccessPolicy
             return;
         }
         if ($target === null || !$this->uuid($target->id)) { $this->missing(); }
-        $storePermissions = [Permission::STOCK_READ, Permission::ENTRY_CREATE, Permission::CONSUMPTION_CREATE,
+        $storePermissions = [Permission::STOCK_READ, Permission::ENTRY_CREATE, Permission::CONSUMPTION_CREATE, Permission::RETURN_CREATE,
             Permission::CONSUMPTION_OTHER, Permission::ADJUSTMENT_CREATE, Permission::INVENTORY_READ,
             Permission::INVENTORY_WRITE, Permission::THRESHOLD_WRITE, Permission::ALERT_READ,
             Permission::ALERT_RECIPIENTS, Permission::AUDIT_READ, Permission::STATISTICS_READ,
             Permission::DASHBOARD_READ, Permission::MOVEMENT_READ, Permission::BENEFICIARIES_READ];
         if ($target->kind === 'store' && in_array($permission, $storePermissions, true)) {
-            $this->store($identity, $target->id, $permission->writesStock());
+            if ($identity['role']==='USER' && in_array($permission,[Permission::CONSUMPTION_CREATE,Permission::RETURN_CREATE],true)) { $this->activeStore($target->id); }
+            else { $this->store($identity, $target->id, $permission->writesStock()); }
             return;
         }
         if ($target->kind === 'transfer' && $permission === Permission::TRANSFER_CREATE && $target->otherId !== null && $this->uuid($target->otherId)) {
@@ -97,6 +98,7 @@ final class AccessPolicy
     {
         $identity = $this->identity->requireRole($actor, $permission);
         $this->alias($alias);
+        if ($identity['role']==='USER' && in_array($permission,[Permission::CONSUMPTION_CREATE,Permission::RETURN_CREATE],true)) { return new SqlScope($alias.'.active'); }
         return $this->stores($identity, $alias.'.id', $permission->writesStock());
     }
 

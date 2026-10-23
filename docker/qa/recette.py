@@ -96,9 +96,21 @@ def smoke(fixture, clients):
     Client().expect('GET', '/api/v1/stocks', expected=(401,))
     passed('REC-01')
     before = stock(admin, b, article)
-    technician_a.expect('POST', '/api/v1/movements/consumptions', {'store_id': b, 'article_id': article, 'quantity': 1}, expected=(403, 404))
+    manager_a.expect('POST', '/api/v1/movements/consumptions', {'store_id': b, 'article_id': article, 'quantity': 1}, expected=(403, 404))
     assert stock(admin, b, article) == before
     passed('REC-02')
+    # Technicians may use any active store for their own withdrawal/deposit;
+    # their read perimeter and the managers' assignments remain enforced.
+    outside, _ = technician_a.expect('POST', '/api/v1/movements/consumptions', {'store_id': b, 'article_id': article, 'quantity': 1}, expected=(201,))
+    assert outside['data']['consumer_id'] == technician_a.user['id']
+    assert stock(admin, b, article) == before - 1
+    deposit_body = {'store_id': b, 'article_id': article, 'quantity': 1}
+    deposit, _ = technician_a.expect('POST', '/api/v1/movements/return-batches', deposit_body, expected=(201,), key='qa-deposit-replay')
+    replay, _ = technician_a.expect('POST', '/api/v1/movements/return-batches', deposit_body, expected=(201,), key='qa-deposit-replay')
+    assert deposit == replay and stock(admin, b, article) == before
+    profile, _ = technician_a.expect('PATCH', '/api/v1/auth/me', {'timezone': 'Europe/Paris', 'favorite_store_id': b})
+    assert profile['data']['favorite_store_id'] == b
+    passed('EXTRA-deposit-and-favorite')
     assert stock(admin, a, article) == 5
     entry, _ = admin.expect('POST', '/api/v1/movements/entries', {'store_id': a, 'article_id': article, 'quantity': 10, 'reason': 'Réception QA fictive'}, expected=(201,))
     assert stock(admin, a, article) == 15

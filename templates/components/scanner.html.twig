@@ -1,7 +1,7 @@
 <div class="scanner" data-controller="scanner" data-scanner-mode-value="{{ mode }}"
 {% if select_id is defined %}data-scanner-select-value="{{ select_id }}" data-scanner-quantity-value="{{ quantity_id }}"{% endif %}
 {% if textarea_id is defined %}data-scanner-textarea-value="{{ textarea_id }}"{% endif %}
-{% if mode == 'return' %}data-scanner-return-url-value="{{ path('consumptions_return_list') }}"{% endif %}
+{% if mode == 'return' %}data-scanner-return-url-value="{{ path('consumptions_return_batch_new') }}"{% endif %}
 data-scanner-csrf-value="{{ csrf_token('api') }}">
     <button class="button" type="button" data-scanner-target="start" data-action="scanner#open">Scanner un code-barres ou QR code</button>
     <details><summary>Saisir le code manuellement</summary><label>Code de l’article<input type="text" maxlength="512" autocomplete="off" data-scanner-target="code" data-action="keydown->scanner#manual"></label><button class="button" type="button" data-action="scanner#manual">{{ mode == 'register' ? 'Ajouter ce code' : 'Rechercher ce code' }}</button></details>

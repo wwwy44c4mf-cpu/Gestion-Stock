@@ -29,7 +29,7 @@
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('magasin') }}">
                 <label for="magasin">Magasin</label>
                 <select id="magasin" name="store_id" aria-describedby="magasin-aide" {% if store_options is empty %}disabled{% endif %}>
-                    <option value="">{{ store_options is empty ? 'Aucun magasin accessible' : 'Tous mes magasins' }}</option>
+                    <option value="">{{ store_options is empty ? 'Aucun magasin en consultation' : 'Tous mes magasins' }}</option>
                     {% for store in store_options %}<option value="{{ store.id }}" {% if selected_store == store.id %}selected{% endif %}>{{ store.name }}{{ store.active ? '' : ' (désactivé)' }}</option>{% endfor %}
                 </select>
                 {% if store_options is not empty %}<button class="button" type="submit">Choisir</button>{% endif %}

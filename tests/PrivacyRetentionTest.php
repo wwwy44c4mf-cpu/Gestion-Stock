@@ -51,6 +51,25 @@ final class PrivacyRetentionTest extends KernelTestCase
         $this->db->executeStatement("INSERT INTO runtime_restore_gate VALUES (true,true) ON CONFLICT(singleton) DO UPDATE SET privacy_required=true");
         return compact('u','s','a','e','c','r','n');
     }
+    public function testGroupedReturnsAnonymizeTheEntireConnectedBeneficiaryChain(): void
+    {
+        $f=$this->fixtures();
+        $second=$this->db->fetchOne("INSERT INTO stock_movements(type,article_id,source_store_id,quantity,author_id,consumer_id,reference,idempotency_key) VALUES('consumption',?,?,2,?,?,'Recent private-reference','group-recent-consumption') RETURNING id",[$f['a'],$f['s'],$f['u'],$f['u']]);
+        $this->db->beginTransaction();
+        $group=$this->db->fetchOne('INSERT INTO stock_return_groups(article_id,store_id,quantity) VALUES(?,?,2) RETURNING id',[$f['a'],$f['s']]);
+        foreach([$f['n'],$second] as $index=>$origin) {
+            $this->db->executeStatement("INSERT INTO stock_movements(type,article_id,destination_store_id,quantity,author_id,related_movement_id,reference,comment,idempotency_key,return_group_id) VALUES('return',?,?,1,?,?,'Private reference','Private name',?,?)",[$f['a'],$f['s'],$f['u'],$origin,'group-return-'.$index,$group]);
+        }
+        $this->db->commit();
+        $this->db->executeStatement('UPDATE users SET favorite_store_id=? WHERE id=?',[$f['s'],$f['u']]);
+        $before=$this->db->fetchAllAssociative('SELECT * FROM stock_ledger ORDER BY movement_id,store_id');
+        $this->runRetention();
+        self::assertSame(AnonymousIdentity::ID,$this->db->fetchOne('SELECT consumer_id FROM stock_movements WHERE id=?',[$second]));
+        self::assertNull($this->db->fetchOne('SELECT reference FROM stock_movements WHERE id=?',[$second]));
+        self::assertSame(0,(int)$this->db->fetchOne('SELECT count(*) FROM stock_movements WHERE return_group_id=? AND (reference IS NOT NULL OR comment IS NOT NULL)',[$group]));
+        self::assertSame($before,$this->db->fetchAllAssociative('SELECT * FROM stock_ledger ORDER BY movement_id,store_id'));
+        self::assertSame($f['s'],$this->db->fetchOne('SELECT favorite_store_id FROM users WHERE id=?',[$f['u']]));
+    }
     public function testAtomicErasureChainIntegrityActiveIdentityAndRepeatRun(): void
     {
         $f=$this->fixtures();$ledger=$this->db->fetchAllAssociative('SELECT * FROM stock_ledger ORDER BY movement_id,store_id');$levels=$this->db->fetchAllAssociative('SELECT * FROM stock_levels');
@@ -75,7 +94,7 @@ final class PrivacyRetentionTest extends KernelTestCase
     public function testClosingRecentProposalReleasesDueAccountImmediately(): void { $this->closeRecentCase('proposal'); }
     private function closeRecentCase(string $kind): void
     {
-        $f=$this->fixtures();$reviewer=$this->db->fetchOne("INSERT INTO users(email,name,password_hash,role_id) VALUES ('reviewer@example.test','Reviewer','hash',1) RETURNING id");
+        $f=$this->fixtures();$this->db->executeStatement('UPDATE users SET favorite_store_id=? WHERE id=?',[$f['s'],$f['u']]);$reviewer=$this->db->fetchOne("INSERT INTO users(email,name,password_hash,role_id) VALUES ('reviewer@example.test','Reviewer','hash',1) RETURNING id");
         $this->db->executeStatement('UPDATE users SET active=false WHERE id=?',[$f['u']]);
         $this->admin->executeStatement('ALTER TABLE users DISABLE TRIGGER users_deactivation_clock');
         $this->admin->executeStatement("UPDATE users SET deactivated_at=clock_timestamp()-interval '2 years' WHERE id=?",[$f['u']]);
@@ -86,7 +105,7 @@ final class PrivacyRetentionTest extends KernelTestCase
         if($kind==='inventory') {$this->db->executeStatement("UPDATE inventories SET status='cancelled',cancelled_at=clock_timestamp() WHERE id=?",[$case]);}
         else {$this->db->executeStatement("UPDATE article_proposals SET status='rejected',reviewed_by=?,reviewed_at=clock_timestamp(),review_comment='Recent comment' WHERE id=?",[$reviewer,$case]);}
         $account=$this->db->fetchAssociative('SELECT name,email,password_hash,anonymized_at FROM users WHERE id=?',[$f['u']]);
-        foreach(['name','email','password_hash'] as $field) {self::assertNull($account[$field]);}self::assertNotNull($account['anonymized_at']);
+        foreach(['name','email','password_hash'] as $field) {self::assertNull($account[$field]);}self::assertNotNull($account['anonymized_at']);self::assertNull($this->db->fetchOne('SELECT favorite_store_id FROM users WHERE id=?',[$f['u']]));
         if($kind==='inventory') {self::assertSame($f['u'],$this->db->fetchOne('SELECT created_by FROM inventories WHERE id=?',[$case]));}
         else {self::assertStringContainsString('Recent personal text',$this->db->fetchOne('SELECT payload::text FROM article_proposals WHERE id=?',[$case]));self::assertSame('Recent comment',$this->db->fetchOne('SELECT review_comment FROM article_proposals WHERE id=?',[$case]));}
     }

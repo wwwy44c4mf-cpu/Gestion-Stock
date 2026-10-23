@@ -31,10 +31,24 @@ CREATE TEMP TABLE privacy_due ON COMMIT DROP AS
  AND (author_id<>'00000000-0000-4000-8000-000000000001'::uuid OR reference IS NOT NULL OR comment IS NOT NULL OR request_fingerprint IS NOT NULL);
 -- Complete connected correction chains, never retain a recent beneficiary that
 -- could reattribute an old original. The quantitative relation is retained.
+CREATE TEMP TABLE privacy_consumer_edges(a uuid,b uuid) ON COMMIT DROP;
+INSERT INTO privacy_consumer_edges SELECT original_id,replacement_id FROM movement_corrections
+ UNION ALL SELECT replacement_id,original_id FROM movement_corrections;
+-- Automatic deposits link several consumptions for the same beneficiary. Their
+-- connected component must lose that beneficiary together, including recent rows.
+-- The dynamic query also supports restoring a pre-group backup before migration.
+DO $$ BEGIN
+ IF EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema=current_schema() AND table_name='stock_movements' AND column_name='return_group_id') THEN
+  EXECUTE $edges$
+   WITH roots AS (SELECT DISTINCT ON(return_group_id) return_group_id,related_movement_id origin FROM stock_movements WHERE return_group_id IS NOT NULL ORDER BY return_group_id,id),
+   pairs AS (SELECT roots.origin a,m.related_movement_id b FROM roots JOIN stock_movements m USING(return_group_id))
+   INSERT INTO privacy_consumer_edges SELECT a,b FROM pairs UNION SELECT b,a FROM pairs
+  $edges$;
+ END IF;
+END $$;
 CREATE TEMP TABLE privacy_consumers ON COMMIT DROP AS
  WITH RECURSIVE edges(a,b) AS (
-  SELECT original_id,replacement_id FROM movement_corrections
-  UNION ALL SELECT replacement_id,original_id FROM movement_corrections
+  SELECT a,b FROM privacy_consumer_edges
  ), chain(id) AS (
   SELECT id FROM stock_movements WHERE type='consumption' AND created_at + interval '1 year' <= (SELECT at FROM privacy_clock)
   UNION SELECT e.b FROM edges e JOIN chain c ON e.a=c.id

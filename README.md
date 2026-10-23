@@ -108,3 +108,5 @@ docker compose up -d --wait
 Serveur unique Docker Compose avec Caddy intégré et HTTPS. Sauvegardes quotidiennes chiffrées, rétention 90 jours, copie hors serveur à choisir/configurer ; risque de perte jusqu’à environ 24 h accepté, cible de remise en service un jour ouvré. Conservation nominative à un an, avec retraitement obligatoire après restauration. [Sauvegardes](docs/sauvegardes-restauration.md) · [Conservation](docs/conservation-donnees.md).
 
 Avant ouverture : renseigner serveur/domaine, SMTP, destination extérieure, responsables et surveillance ; relire la sécurité, valider la recette du commit livré puis suivre [la fiche de livraison](docs/livraison.md). Aucune de ces actions n’est réalisée automatiquement par une PR.
+
+Le [retour par article dans le magasin de dépôt et le magasin favori](docs/retours-depot-magasin-favori.md) simplifie les retours sans rechercher une date de consommation.

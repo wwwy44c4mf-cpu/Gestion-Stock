@@ -3,6 +3,7 @@
 {% block content %}
 <div class="page-heading"><div><p class="eyebrow">RETOURS AU MAGASIN</p><h1>Rendre des articles</h1><p class="subtitle">Choisissez la consommation concernée. Les articles reviennent dans leur magasin d’origine.</p></div><a href="{{ path('consumptions_new') }}">Enregistrer une consommation</a></div>
 <p><a href="{{ path('consumptions_list') }}">Historique des consommations</a></p>
+<p><a class="button" href="{{ path('consumptions_return_batch_new') }}">Enregistrer un retour par article et quantité</a></p>
 <section class="card">{% include 'components/scanner.html.twig' with {mode:'return'} only %}{% if article_filter %}<p>Consommations filtrées sur l’article scanné. <a href="{{ path('consumptions_return_list') }}">Afficher tous les articles</a></p>{% endif %}</section>
 <section class="card"><h2>Consommations avec des unités à rendre</h2><p>{{ result.meta.total }} consommation{{ result.meta.total > 1 ? 's' : '' }}</p>
 <div class="table-scroll returnable-scroll"><table class="returnable-table" role="table"><caption>Consommations autorisées avec un reste à rendre</caption><thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Date</th><th scope="col" role="columnheader">Article</th><th scope="col" role="columnheader">Magasin</th><th scope="col" role="columnheader">Bénéficiaire</th><th scope="col" role="columnheader">Unités à rendre</th><th scope="col" role="columnheader">Retour</th></tr></thead><tbody role="rowgroup">

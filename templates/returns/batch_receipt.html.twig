@@ -1,0 +1,8 @@
+{% extends 'base.html.twig' %}
+{% block title %}Retour enregistré · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">DÉPÔT DE MATÉRIEL</p><h1>Retour enregistré</h1></div><a href="{{ path('consumptions_return_batch_new') }}">Enregistrer un autre retour</a></div>
+<section class="card"><h2>{{ deposit.sku }} · {{ deposit.article_name }}</h2><p><strong>Magasin de dépôt :</strong> {{ deposit.store_code }} · {{ deposit.store_name }}</p><p><strong>Bénéficiaire :</strong> {{ deposit.consumer_name }}</p><p><strong>Retour enregistré par :</strong> {{ deposit.author_name }}</p><p><strong>Quantité déposée :</strong> {{ deposit.quantity }} unité(s).</p><p><strong>Quantité actuelle après corrections :</strong> {{ deposit.effective_quantity }} unité(s).</p><p><strong>Date :</strong> {{ deposit.created_at|date('d/m/Y H:i',app.user.timezone) }}</p><p>La quantité a été rattachée automatiquement à {{ movements|length }} consommation(s) d’origine.</p>
+{% if can_read_origins %}<ul>{% for movement in movements %}<li><a href="{{ path('consumptions_return_receipt',{id:movement.id}) }}">Consulter l’allocation de {{ movement.quantity }} unité(s)</a></li>{% endfor %}</ul>{% endif %}
+</section>
+{% endblock %}

@@ -21,6 +21,7 @@ final class StockUser implements UserInterface, PasswordAuthenticatedUserInterfa
         public readonly string $timezone,
         public readonly string $createdAt,
         public readonly array $storeIds = [],
+        public readonly ?string $favoriteStoreId = null,
     ) {}
 
     public function getUserIdentifier(): string { return $this->email; }
@@ -59,6 +60,6 @@ final class StockUser implements UserInterface, PasswordAuthenticatedUserInterfa
     {
         return ['data' => ['id' => $this->id, 'email' => $this->email, 'name' => $this->name,
             'role' => $this->role, 'active' => $this->active, 'store_ids' => $this->storeIds,
-            'timezone' => $this->timezone, 'created_at' => $this->createdAt]];
+            'timezone' => $this->timezone, 'favorite_store_id' => $this->favoriteStoreId, 'created_at' => $this->createdAt]];
     }
 }

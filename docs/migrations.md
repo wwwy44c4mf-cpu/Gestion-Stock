@@ -87,3 +87,7 @@ STK-05 ajoute `Version20261018223000` (huitième migration) pour `movement_corre
 ## Finalisation des comptes lors d’une clôture récente
 
 `Version20261022130000`, dix-huitième migration, corrige la libération immédiate des comptes désactivés depuis un an lorsque leur dernier dossier ouvert est récent. Les champs du dossier récent sont conservés jusqu’à leur propre échéance. La migration ne déclenche pas de traitement de conservation ; elle protège son retour arrière après toute exécution journalisée.
+
+## Retour dans le magasin de dépôt et favori personnel
+
+`Version20261023220000` ajoute les préférences personnelles et les regroupements de retours, avec contrôles de cohérence différés. Elle lève la contrainte imposant un retour au magasin de sortie. Le retour arrière refuse les nouvelles données correspondantes. La livraison inclut aussi le script opérateur d’anonymisation des composantes de consommations liées ; voir le [guide de déploiement de cette évolution](retours-depot-magasin-favori.md).

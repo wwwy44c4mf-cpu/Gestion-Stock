@@ -3,7 +3,7 @@
 {% block content %}
 <p class="muted">Les consommations anonymisées après un an ne figurent plus dans les vues personnelles. Une correction liée peut également en sortir avant un an. Les quantités restent dans les statistiques globales autorisées ; pour un retour ancien, contactez un gestionnaire du magasin d’origine.</p>
 <div class="page-heading"><div><p class="eyebrow">CONSOMMATIONS</p><h1>{{ app.user.role == 'USER' ? 'Mes consommations' : 'Historique des consommations' }}</h1><p class="subtitle">{{ app.user.role == 'USER' ? 'Vos consommations, y compris celles enregistrées pour vous par un gestionnaire.' : 'Les consommations des magasins que vous pouvez consulter.' }}</p></div><a class="button" href="{{ path('consumptions_new') }}">Nouvelle consommation</a></div>
-<p><a href="{{ path('consumptions_return_list') }}">Rendre des articles</a></p>
+<p><a href="{{ path('consumptions_return_batch_new') }}">Rendre des articles</a></p>
 <section class="card"><form method="get" class="account-filters" aria-label="Filtrer les consommations">
 {% for key,label in {'date_from':'Du','date_to':'Au'} %}<div class="field"><label for="history-{{ key }}">{{ label }} ({{ app.user.timezone }})</label><input type="date" name="{{ key }}" id="history-{{ key }}" value="{{ filters[key]|default('') }}"></div>{% endfor %}
 <div class="field"><label for="history-store">Magasin</label><select id="history-store" name="store_id"><option value="">Tous les magasins de mon périmètre</option>{% for store in options.stores %}<option value="{{ store.id }}" {{ filters.store_id|default('') == store.id ? 'selected' : '' }}>{{ store.code }} · {{ store.name }}{{ store.active ? '' : ' (désactivé)' }}</option>{% endfor %}</select></div>
