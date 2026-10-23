@@ -10,6 +10,7 @@ Les décisions ci-dessous précisent ou remplacent les options correspondantes d
 | Lot | Besoin | Statut | Issue |
 | --- | --- | --- | --- |
 | OPS-04 | Stack Portainer Standalone sur Home Assistant OS, raccordée au module Cloudflared existant ; secrets persistants, initialisation et recette isolée | En cours | [#90](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/90) |
+| SCAN-01 | Caméra arrière des smartphones pour les codes-barres et QR codes : codes multiples par article, quantité saisie manuellement, entrées/consommations et retours liés | En cours | [#92](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/92) |
 
 Le mini-PC annoncé possède quatre cœurs et 8,1 Go de mémoire totale ; la charge domotique et la capacité disponible restent à vérifier sur le serveur. La préparation ne vaut pas ouverture en production. Voir [le guide Portainer](docs/installation-portainer.md), notamment les conditions de copie hors serveur et de planification de la conservation. Ce lot s’ajoute aux 39 lots MVP déjà terminés.
 

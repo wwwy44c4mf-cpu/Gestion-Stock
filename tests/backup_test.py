@@ -55,7 +55,7 @@ class RecoveryTest(unittest.TestCase):
         self.assertEqual(0o700,ARCHIVES.stat().st_mode&0o777);self.assertEqual(0o600,self.archive.stat().st_mode&0o777)
         self.assertTrue(self.archive.read_bytes().startswith(b'age-encryption.org/v1'))
         with backup.unpack(self.archive,IDENTITY) as (stage,manifest):
-            self.assertEqual(18,manifest['tables']['public.doctrine_migration_versions']['rows'])
+            self.assertEqual(19,manifest['tables']['public.doctrine_migration_versions']['rows'])
             self.assertEqual(3,manifest['tables']['public.stock_movements']['rows'])
             self.assertNotIn('source/.secrets/backup_identity',manifest['files']);self.assertNotIn('source/.git/HEAD',manifest['files'])
             self.assertEqual((FIX/'secrets/app_secret').read_bytes(),(stage/'source/.secrets/app_secret').read_bytes())

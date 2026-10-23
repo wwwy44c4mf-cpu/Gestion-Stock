@@ -31,14 +31,15 @@ final class StockReturnController extends AbstractController
         $actor=$this->actor();$result=$this->engine->record($actor,$json->read($request,'ReturnCreate'),$key->read($request));
         return $this->json($result,201,['Location'=>$this->generateUrl('consumptions_return_receipt',['id'=>$result['data']['id']])]);
     }
-    #[Route('/consommations/retours',name:'consumptions_return_list',priority:20,methods:['GET'])]
+    #[Route('/consommations/retours',name:'consumptions_return_list',priority:20,methods:['GET'], defaults: ['_camera_scan'=>true])]
     public function listing(Request $request): Response
     {
-        $actor=$this->actor();$page=1;
+        $actor=$this->actor();$page=1;$articleId=null;
         foreach($request->query->all() as $name=>$value) {
-            if($name!=='page' || !is_string($value) || !preg_match('/^[1-9][0-9]{0,4}$/D',$value)) { throw new ApiProblem(422,'invalid_query','Pagination invalide.'); }$page=(int)$value;
+            if($name==='article_id' && is_string($value) && preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/iD',$value)) { $articleId=strtolower($value);continue; }
+            if($name!=='page' || !is_string($value) || !preg_match('/^[1-9][0-9]{0,4}$/D',$value)) { throw new ApiProblem(422,'invalid_query','Filtre ou pagination invalide.'); }$page=(int)$value;
         }
-        return $this->render('returns/list.html.twig',['result'=>$this->returns->eligible($actor,$page)]);
+        return $this->render('returns/list.html.twig',['result'=>$this->returns->eligible($actor,$page,$articleId),'article_filter'=>$articleId]);
     }
     #[Route('/consommations/{id}/retour',name:'consumptions_return_new',methods:['GET','POST'])]
     public function form(string $id,Request $request,CsrfTokenManagerInterface $csrf): Response

@@ -37,7 +37,7 @@ final class ConsumptionController extends AbstractController
         return $this->json($result, 201, ['Location'=>$this->generateUrl('consumptions_receipt',['id'=>$result['data']['id']])]);
     }
 
-    #[Route('/consommations/nouvelle', name: 'consumptions_new', priority: 10, methods: ['GET', 'POST'])]
+    #[Route('/consommations/nouvelle', name: 'consumptions_new', priority: 10, methods: ['GET', 'POST'], defaults: ['_camera_scan'=>true])]
     public function form(Request $request, CsrfTokenManagerInterface $csrf, StoreContext $context): Response
     {
         $actor = $this->actor();

@@ -67,4 +67,15 @@ final class BrowserSecurityTest extends TestCase
         $response=new Response();$event=new ResponseEvent($this->createStub(HttpKernelInterface::class),Request::create('http://localhost'),HttpKernelInterface::MAIN_REQUEST,$response);
         (new BrowserSecuritySubscriber(false))->headers($event);self::assertFalse($response->headers->has('Strict-Transport-Security'));
     }
+
+    public function testCameraIsEnabledOnlyOnSuccessfulScannerResponses(): void
+    {
+        foreach ([200,403,500] as $status) {
+            $request=Request::create('https://stock.example.test/consommations/nouvelle');$request->attributes->set('_camera_scan',true);
+            $response=new Response('', $status);
+            (new BrowserSecuritySubscriber(true))->headers(new ResponseEvent($this->createStub(HttpKernelInterface::class),$request,HttpKernelInterface::MAIN_REQUEST,$response));
+            self::assertStringContainsString($status===200?'camera=(self)':'camera=()',$response->headers->get('Permissions-Policy'));
+            self::assertStringContainsString('microphone=()',$response->headers->get('Permissions-Policy'));
+        }
+    }
 }

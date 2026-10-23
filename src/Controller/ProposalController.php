@@ -43,15 +43,15 @@ final class ProposalController extends AbstractController
         $filtered=$request->duplicate();if($filtered->query->get('status')==='') { $filtered->query->remove('status'); }
         $filters=$query->read($filtered,'listProposals');return $this->render('proposals/list.html.twig',['result'=>$this->proposals->listing($this->actor(),$filters),'filters'=>$filters]);
     }
-    #[Route('/propositions/nouvelle',name:'proposals_new',methods:['GET','POST'],priority:10)]
+    #[Route('/propositions/nouvelle',name:'proposals_new',methods:['GET','POST'],priority:10, defaults: ['_camera_scan'=>true])]
     #[IsGranted('APP_CATALOG_PROPOSE')]
     public function form(Request $request,CsrfTokenManagerInterface $csrf): Response
     {
         $actor=$this->actor();$error=null;$status=200;$article=null;$key=bin2hex(random_bytes(16));
-        $draft=['operation'=>'create','article_id'=>null,'base_version'=>null,'payload'=>['sku'=>'','name'=>'','description'=>'','category_id'=>null,'active'=>true]];
+        $draft=['operation'=>'create','article_id'=>null,'base_version'=>null,'payload'=>['sku'=>'','name'=>'','description'=>'','category_id'=>null,'active'=>true,'scan_codes'=>[]]];
         if(!$request->isMethod('POST') && $request->query->has('article_id')) {
             $article=$this->catalog->get($actor,'article',$request->query->getString('article_id'))['data'];
-            $draft=['operation'=>'update','article_id'=>$article['id'],'base_version'=>$article['version'],'payload'=>array_intersect_key($article,array_flip(['name','description','category_id','active']))];
+            $draft=['operation'=>'update','article_id'=>$article['id'],'base_version'=>$article['version'],'payload'=>array_intersect_key($article,array_flip(['name','description','category_id','active','scan_codes']))];
         }
         if($request->isMethod('POST')) {
             try {
@@ -59,6 +59,7 @@ final class ProposalController extends AbstractController
                 if(strlen($request->getContent())>65536) { throw new ApiProblem(413,'payload_too_large','Le formulaire est trop volumineux.'); }
                 $key=$request->request->getString('_creation_key');$operation=$request->request->getString('operation');
                 $payload=(object)['name'=>$request->request->getString('name'),'description'=>$request->request->getString('description'),'category_id'=>$request->request->getString('category_id')?:null,'active'=>$request->request->getBoolean('active')];
+                $payload->scan_codes=\App\Access\ArticleCodes::lines($request->request->getString('scan_codes'));
                 $body=(object)['operation'=>$operation,'payload'=>$payload];
                 if($operation==='update') { $body->article_id=$request->request->getString('article_id');$version=$request->request->getString('base_version');if(!preg_match('/^[1-9][0-9]{0,15}$/D',$version)) { throw new ApiProblem(422,'invalid_version','Rechargez l’article avant de proposer une modification.'); }$body->base_version=(int)$version; }
                 else { $payload->sku=$request->request->getString('sku');$payload->unit_code='unit'; }
@@ -67,7 +68,7 @@ final class ProposalController extends AbstractController
             } catch(ApiProblem $problem) { $error=$problem->getMessage();$status=$problem->status; }
         }
         if($article===null&&$draft['article_id']!==null) { try { $article=$this->catalog->get($actor,'article',$draft['article_id'])['data']; }catch(ApiProblem) {} }
-        return $this->render('proposals/form.html.twig',['draft'=>$draft,'article'=>$article,'categories'=>$this->catalog->categoryOptions($actor),'creation_key'=>$key,'error'=>$error],new Response(status:$status));
+        return $this->render('proposals/form.html.twig',['draft'=>$draft,'article'=>$article,'categories'=>$this->catalog->categoryOptions($actor),'creation_key'=>$key,'scan_codes_text'=>$request->isMethod('POST')?$request->request->getString('scan_codes'):implode("\n",$draft['payload']['scan_codes']??[]),'error'=>$error],new Response(status:$status));
     }
     #[Route('/propositions/{id}',name:'proposals_detail',methods:['GET'])]
     public function detail(string $id): Response { return $this->renderDetail($id); }

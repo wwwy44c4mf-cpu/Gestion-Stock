@@ -6,7 +6,7 @@ Cette variante prépare une installation neuve sur Docker Standalone géré par 
 
 ## Préparation dans Portainer
 
-Vérifier l’espace disque et la mémoire disponibles pendant le fonctionnement normal de Home Assistant. Les six services permanents ont des plafonds de mémoire d’environ 2,1 Gio cumulés ; ces plafonds ne comprennent pas la construction des images. Surveiller la première construction et les services domotiques. Les quatre images sont construites sur l’architecture native du serveur depuis le dépôt public ; aucun registre privé ni jeton GitHub n’est nécessaire.
+Vérifier l’espace disque et la mémoire disponibles pendant le fonctionnement normal de Home Assistant. Les sept services permanents, console de maintenance comprise, ont des plafonds de mémoire d’environ 2,4 Gio cumulés ; ces plafonds ne comprennent pas la construction des images. Surveiller la première construction et les services domotiques. Les quatre images sont construites sur l’architecture native du serveur depuis le dépôt public ; aucun registre privé ni jeton GitHub n’est nécessaire.
 
 Dans l’environnement local **primary**, créer une stack **gestion-stock** depuis **Git Repository**, avec le dépôt `https://github.com/wwwy44c4mf-cpu/Gestion-Stock`, une référence figée correspondant à une version validée et **Compose path : `compose.portainer.yaml`**. Aucun fichier Compose supplémentaire. Désactiver les mises à jour Git automatiques : une mise à jour avec migration exige sauvegarde et maintenance explicites.
 
@@ -23,7 +23,7 @@ Renseigner les variables suivantes dans Portainer. Les exemples sont fictifs ; r
 | `CLOUDFLARED_ADDRESS` | Une seule adresse IP du conteneur Cloudflared sur ce réseau, jamais un sous-réseau entier |
 | `MAIL_DELIVERY_ENABLED` | `0` pendant l’installation |
 
-La stack crée ses propres volumes de base, secrets, état et sauvegarde. `setup` et `initialize` se terminent avec le code 0 ; les six services `db`, `app`, `web`, `worker`, `scheduler`, `backup` restent actifs. Le premier démarrage applique les migrations à la base neuve, sans données fictives ni compte administrateur prédéfini. Un redéploiement conserve les identifiants et les données. Un secret manquant sur une installation initialisée fait échouer le démarrage : restaurer les volumes, ne pas les remplacer par des secrets neufs.
+La stack crée ses propres volumes de base, secrets, état et sauvegarde. `setup` et `initialize` se terminent avec le code 0 ; les services `db`, `app`, `web`, `worker`, `scheduler`, `backup` restent actifs et sains ; `maintenance` reste simplement en cours d’exécution pour les commandes opérateur. Le premier démarrage applique les migrations à la base neuve, sans données fictives ni compte administrateur prédéfini. Un redéploiement conserve les identifiants et les données. Un secret manquant sur une installation initialisée fait échouer le démarrage : restaurer les volumes, ne pas les remplacer par des secrets neufs.
 
 Ne jamais supprimer les volumes pour résoudre un échec de déploiement. Une perte partielle pendant la création initiale demande un diagnostic avant toute remise à zéro. Les services applicatifs ne possèdent ni mot de passe superutilisateur PostgreSQL ni clé privée de sauvegarde.
 
@@ -64,7 +64,7 @@ SMTP reste désactivé jusqu’à configuration de son secret dans les volumes a
 
 ## Mises à jour
 
-Cette variante refuse une nouvelle migration sur un simple redéploiement après sa première initialisation. Arrêter les écritures, sauvegarder l’ancienne version et sa configuration, conserver ses images, puis construire la nouvelle version. Appliquer les migrations explicitement dans la console opérateur avec l’image applicative candidate, avant le redémarrage. Vérifier réconciliation, santé et reprise ; suivre les [principes OPS-02](deploiement-production.md). Ne jamais remplacer l’image PostgreSQL en même temps qu’une mise à jour applicative sans recette dédiée.
+Cette variante refuse une nouvelle migration sur un simple redéploiement après sa première initialisation. Arrêter les écritures, sauvegarder l’ancienne version et sa configuration, conserver ses images, puis construire la nouvelle version. Le conteneur `maintenance`, sans port ni mot de passe superutilisateur, démarre avec la base même si `initialize` refuse une migration en attente. Dans sa console, exécuter `php bin/console doctrine:migrations:migrate --no-interaction` avec l’image candidate ; redéployer ensuite la stack pour relancer `initialize` et les services. Ne pas rouvrir le tunnel pendant cette maintenance. Vérifier réconciliation, santé et reprise ; suivre les [principes OPS-02](deploiement-production.md). Ne jamais remplacer l’image PostgreSQL en même temps qu’une mise à jour applicative sans recette dédiée.
 
 ## Preuves et références
 

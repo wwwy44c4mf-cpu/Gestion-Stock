@@ -45,6 +45,14 @@ final class CatalogDirectory
         if (!$row) { throw new ApiProblem(404, 'catalog_resource_not_found', 'Ressource du catalogue introuvable.'); }
         return ['data' => $this->resource($kind, $row)];
     }
+    public function resolveCode(StockUser $actor, string $code): array
+    {
+        $this->identity->requireRole($actor, Permission::CATALOG_READ);
+        $code = ArticleCodes::one($code);
+        $id = $this->db->fetchOne('SELECT article_id FROM article_scan_codes WHERE code = ?', [$code]);
+        if (!$id) { throw new ApiProblem(404, 'unknown_scan_code', 'Code inconnu. Sélectionnez l’article manuellement, puis faites associer ce code au catalogue.'); }
+        return $this->get($actor, 'article', $id);
+    }
     public function categoryOptions(StockUser $actor): array
     {
         $this->identity->requireRole($actor, Permission::CATALOG_READ);
@@ -66,7 +74,7 @@ final class CatalogDirectory
     private function resource(string $kind, array $row): array
     {
         if ($kind === 'category') { return ['id'=>$row['id'],'name'=>$row['name'],'parent_id'=>$row['parent_id'],'active'=>(bool)$row['active']]; }
-        return ['id'=>$row['id'],'sku'=>$row['sku'],'name'=>$row['name'],'description'=>$row['description'],'category_id'=>$row['category_id'],'unit_code'=>$row['unit_code'],'active'=>(bool)$row['active'],'version'=>(int)$row['version'],'created_at'=>(new \DateTimeImmutable($row['created_at']))->format(DATE_RFC3339)];
+        return ['scan_codes'=>json_decode($row['scan_codes'] ?? '[]',true,flags:JSON_THROW_ON_ERROR),'id'=>$row['id'],'sku'=>$row['sku'],'name'=>$row['name'],'description'=>$row['description'],'category_id'=>$row['category_id'],'unit_code'=>$row['unit_code'],'active'=>(bool)$row['active'],'version'=>(int)$row['version'],'created_at'=>(new \DateTimeImmutable($row['created_at']))->format(DATE_RFC3339)];
     }
     private function uuid(string $id): void { if (!preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/iD', $id)) { throw new ApiProblem(404, 'catalog_resource_not_found', 'Ressource du catalogue introuvable.'); } }
     private function invalid(): never { throw new ApiProblem(422, 'invalid_query', 'Paramètre de recherche invalide.'); }

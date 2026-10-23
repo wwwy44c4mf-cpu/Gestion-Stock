@@ -6,6 +6,10 @@ Aucune version stable ni mise en production n’est déclarée. Les PR ouvertes 
 
 ### Fonctionnalités
 
+- Sur smartphone, les consommations encore retournables s’affichent en fiches avec un bouton « Rendre des articles » directement visible, sans défilement horizontal.
+
+- Lecture des codes-barres et QR codes avec caméra arrière sur les entrées, consommations et retours ; plusieurs codes par article, validation du catalogue conservée et quantité saisie manuellement. Migration additive des associations, sans modification automatique du stock au scan.
+
 - Variante Portainer Standalone / Home Assistant OS : volumes de secrets, initialisation neuve, raccordement au module Cloudflared, limites de ressources et recette de restauration isolée. Les prérequis d’exploitation restent à configurer sur le serveur réel.
 
 - Socle Docker, PostgreSQL, Symfony/Twig/Stimulus, API OpenAPI et interface française.

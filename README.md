@@ -14,6 +14,7 @@ Le MVP est intégré à main et sa recette finale est réussie ; aucune mise en 
 | Comprendre et intégrer | [Architecture](docs/architecture.md), [modèle](docs/modele-donnees.md), [API](docs/api.md), [OpenAPI](docs/openapi.json) |
 | Déployer, maintenir, restaurer | [Fiche de livraison](docs/livraison.md), [bilan de finalisation](docs/finalisation-mvp.md) et [production HTTPS](docs/deploiement-production.md) |
 | Installer avec Portainer et Cloudflared | [Home Assistant OS / Portainer](docs/installation-portainer.md) |
+| Scanner des articles avec un smartphone | [Codes-barres et QR codes](docs/lecture-codes.md) |
 | Développer, tester, signaler un problème | [Contribution](CONTRIBUTING.md), [recette](docs/recette-qa01.md), [sécurité](SECURITY.md) |
 
 ## Prérequis

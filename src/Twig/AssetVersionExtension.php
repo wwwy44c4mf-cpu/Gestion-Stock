@@ -12,6 +12,6 @@ final class AssetVersionExtension extends AbstractExtension implements GlobalsIn
     {
         $hash=hash_file('sha256',$this->projectDir.'/public/assets/app.css');
         if($hash===false) {throw new \LogicException('Application stylesheet missing.');}
-        return ['app_stylesheet_version'=>substr($hash,0,16)];
+        return ['app_stylesheet_version'=>substr($hash,0,16),'app_script_version'=>substr(hash_file('sha256',$this->projectDir.'/public/assets/app.js'),0,16)];
     }
 }

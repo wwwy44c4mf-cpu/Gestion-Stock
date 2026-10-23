@@ -1,5 +1,7 @@
 import { Application, Controller } from './vendor/stimulus.js';
+import ScannerController from './scanner-controller.js';
 const application = Application.start();
+application.register('scanner', ScannerController);
 application.register('navigation', class extends Controller {
     static targets = ['menu', 'toggle'];
     connect() {

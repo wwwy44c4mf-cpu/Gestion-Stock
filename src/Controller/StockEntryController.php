@@ -36,7 +36,7 @@ final class StockEntryController extends AbstractController
         return $this->json($this->engine->record($actor, 'entry', $json->read($request, 'EntryCreate'), $key->read($request)), 201);
     }
 
-    #[Route('/stocks/entree', name: 'stocks_entry_new', priority: 10, methods: ['GET', 'POST'])]
+    #[Route('/stocks/entree', name: 'stocks_entry_new', priority: 10, methods: ['GET', 'POST'], defaults: ['_camera_scan'=>true])]
     public function form(Request $request, CsrfTokenManagerInterface $csrf, StoreContext $context): Response
     {
         $actor = $this->actor();
