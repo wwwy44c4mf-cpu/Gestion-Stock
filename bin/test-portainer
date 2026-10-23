@@ -96,7 +96,7 @@ dc up -d --no-deps --force-recreate --wait --wait-timeout 120 db > "$portainer_r
 dc exec -T db psql -X -q -U postgres -d gestion_stock --set ON_ERROR_STOP=1 <<'UPGRADE_FIXTURE'
 INSERT INTO users(id,active,anonymized_at,role_id) VALUES('00000000-0000-4000-8000-000000000001',false,clock_timestamp(),3);
 INSERT INTO stores(code,name) VALUES('UPGRADE','Upgrade fixture');
-INSERT INTO articles(sku,name) VALUES('UPGRADE','Upgrade fixture');
+INSERT INTO articles(sku,name,scan_codes) VALUES('UPGRADE','Upgrade fixture','["UPGRADE-CODE"]'::jsonb);
 INSERT INTO stock_movements(type,article_id,destination_store_id,quantity,author_id,reason,idempotency_key)
  SELECT 'entry',a.id,s.id,5,'00000000-0000-4000-8000-000000000001','Fixture','upgrade-preservation' FROM articles a CROSS JOIN stores s WHERE a.sku='UPGRADE' AND s.code='UPGRADE';
 INSERT INTO stock_levels(article_id,store_id,quantity) SELECT a.id,s.id,5 FROM articles a CROSS JOIN stores s WHERE a.sku='UPGRADE' AND s.code='UPGRADE';
@@ -117,6 +117,21 @@ dc run --rm --no-deps initialize > "$portainer_report/initialize-after-migration
 dc up -d --wait --wait-timeout 120 > "$portainer_report/maintenance-restart.log" 2>&1
 docker run --rm --network "$CLOUDFLARED_NETWORK" --ip "$CLOUDFLARED_ADDRESS" --read-only --cap-drop ALL --entrypoint python3 "$portainer_project-backup:$RELEASE_ID" /source/tests/portainer_http_test.py trusted
 docker run --rm --network "$CLOUDFLARED_NETWORK" --ip "$portainer_untrusted" --read-only --cap-drop ALL --entrypoint python3 "$portainer_project-backup:$RELEASE_ID" /source/tests/portainer_http_test.py untrusted
+# Include non-empty new relations in the archive: a grouped return and a
+# personal favorite, not just an empty freshly migrated schema.
+dc exec -T db psql -X -q -U postgres -d gestion_stock --set ON_ERROR_STOP=1 <<'GROUPED_BACKUP_FIXTURE'
+BEGIN;
+INSERT INTO stores(id,code,name) VALUES('00000000-0000-4000-8000-000000000300','DEPOT','Deposit fixture');
+INSERT INTO users(id,email,name,password_hash,role_id,favorite_store_id) VALUES('00000000-0000-4000-8000-000000000040','restore@example.test','Favorite fixture','not-a-login-hash',3,'00000000-0000-4000-8000-000000000300');
+INSERT INTO stock_movements(id,type,article_id,source_store_id,quantity,author_id,consumer_id,idempotency_key)
+ SELECT '00000000-0000-4000-8000-000000000010','consumption',a.id,s.id,2,'00000000-0000-4000-8000-000000000001','00000000-0000-4000-8000-000000000001','upgrade-consumption' FROM articles a CROSS JOIN stores s WHERE a.sku='UPGRADE' AND s.code='UPGRADE';
+UPDATE stock_levels SET quantity=3,version=version+1 WHERE article_id=(SELECT id FROM articles WHERE sku='UPGRADE') AND store_id=(SELECT id FROM stores WHERE code='UPGRADE');
+INSERT INTO stock_return_groups(id,article_id,store_id,quantity) SELECT '00000000-0000-4000-8000-000000000020',id,'00000000-0000-4000-8000-000000000300',1 FROM articles WHERE sku='UPGRADE';
+INSERT INTO stock_movements(id,type,article_id,destination_store_id,quantity,author_id,related_movement_id,idempotency_key,return_group_id)
+ SELECT '00000000-0000-4000-8000-000000000030','return',id,'00000000-0000-4000-8000-000000000300',1,'00000000-0000-4000-8000-000000000001','00000000-0000-4000-8000-000000000010','upgrade-return','00000000-0000-4000-8000-000000000020' FROM articles WHERE sku='UPGRADE';
+INSERT INTO stock_levels(article_id,store_id,quantity) SELECT id,'00000000-0000-4000-8000-000000000300',1 FROM articles WHERE sku='UPGRADE';
+COMMIT;
+GROUPED_BACKUP_FIXTURE
 dc exec -T backup python3 /opt/backup.py once
 dc exec -T backup python3 /opt/backup.py health
 dc exec -T backup python3 -c 'from pathlib import Path; assert list(Path("/backups").glob("*.backup.age")); assert not Path("/run/secrets/backup_identity").exists(); assert not Path("/recovery-key").exists(); print("Sauvegarde chiffrée présente ; clé privée absente du service sauvegarde.")'
@@ -130,6 +145,10 @@ while ! docker exec "$portainer_project-restore-db" pg_isready -h 127.0.0.1 -U p
 done
 docker run --rm --network "${portainer_project}_backend" --read-only --cap-drop ALL --cap-add DAC_OVERRIDE --user 0:0 --tmpfs /work:mode=0700,size=256m --mount "type=volume,source=${portainer_project}_backup_secrets,target=/run/secrets,readonly" --mount "type=volume,source=${portainer_project}_recovery_key,target=/recovery-key,readonly" --mount "type=volume,source=${portainer_project}_backup_data,target=/backups,readonly" -e TMPDIR=/work -e DATABASE_HOST=portainer-restore-db -e DATABASE_NAME=gestion_stock_restore -e DATABASE_USER=gestion_stock -e RESTORE_CONFIRM_DATABASE=gestion_stock_restore "$portainer_project-backup:$RELEASE_ID" restore-db "/backups/$portainer_archive" --identity /recovery-key/backup_identity
 test "$(docker exec "$portainer_project-restore-db" psql -X -q -U postgres -d gestion_stock_restore -tAc 'SELECT privacy_required FROM runtime_restore_gate WHERE singleton')" = t
+test "$(docker exec "$portainer_project-restore-db" psql -X -q -U postgres -d gestion_stock_restore -tAc 'SELECT count(*) FROM stock_return_groups')" = 1
+test "$(docker exec "$portainer_project-restore-db" psql -X -q -U postgres -d gestion_stock_restore -tAc 'SELECT count(*) FROM stock_movements WHERE return_group_id IS NOT NULL')" = 1
+test "$(docker exec "$portainer_project-restore-db" psql -X -q -U postgres -d gestion_stock_restore -tAc "SELECT favorite_store_id FROM users WHERE email='restore@example.test'")" = 00000000-0000-4000-8000-000000000300
+test "$(docker exec "$portainer_project-restore-db" psql -X -q -U postgres -d gestion_stock_restore -tAc "SELECT count(*) FROM article_scan_codes WHERE code='UPGRADE-CODE'")" = 1
 docker exec "$portainer_project-restore-db" psql -X -q -U postgres -d gestion_stock_restore --set ON_ERROR_STOP=1 -f /opt/gestion-stock/retention.sql > "$portainer_report/recovery-retention.log" 2>&1
 test "$(docker exec "$portainer_project-restore-db" psql -X -q -U postgres -d gestion_stock_restore -tAc 'SELECT privacy_required FROM runtime_restore_gate WHERE singleton')" = f
 printf '%s\n' 'Restauration vérifiée par empreintes ; retraitement obligatoire avant réouverture.'
