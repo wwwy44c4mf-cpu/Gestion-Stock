@@ -31,7 +31,7 @@ final class ReturnDirectory
     {
         $this->identity->requireRole($actor,Permission::RETURN_CREATE);
         if(!preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/iD',$id)) { $this->missing(); }
-        $scope=$this->policy->consumptionScope($actor);
+        $scope=$actor->role==='USER' ? new \App\Security\SqlScope("m.consumer_id=? AND s.active",[$actor->id]) : $this->policy->storeScope($actor,Permission::STOCK_READ,'s');
         $row=$this->db->fetchAssociative("SELECT r.id,r.quantity,r.comment,r.created_at,r.related_movement_id consumption_id,r.article_id,r.destination_store_id store_id,
             a.sku,a.name article_name,s.code store_code,s.name store_name,
             CASE WHEN author.anonymized_at IS NULL THEN author.name ELSE 'Compte anonymisé' END author_name,

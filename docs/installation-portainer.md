@@ -75,3 +75,7 @@ La recette comprend sept tests du provisionnement et une restauration sur une se
 - [Portainer : stack depuis Git et variables](https://docs.portainer.io/user/docker/stacks/add)
 - [Module Cloudflared : hôtes supplémentaires](https://github.com/homeassistant-apps/app-cloudflared/blob/main/cloudflared/DOCS.md)
 - [État final du MVP](finalisation-mvp.md)
+
+## Livraison RET-02 / USR-02
+
+La livraison introduisant `Version20261023220000` met également à jour le script d’anonymisation embarqué dans l’image db. Elle demande donc une mise à jour préparée et testée de cette image sur PostgreSQL 18, avec le même volume, en plus de la migration applicative. Les versions antérieures purement applicatives conservaient `DATABASE_RELEASE_ID`. Voir [la procédure et ses prérequis](retours-depot-magasin-favori.md#déploiement-et-api). La recette `bin/test-portainer` simule le passage du schéma précédent, le remplacement du script dans deux images PostgreSQL de même ascendance, la conservation des mouvements sur le même volume, puis la sauvegarde/restauration/reprise.

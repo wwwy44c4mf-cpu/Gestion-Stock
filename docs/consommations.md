@@ -33,3 +33,7 @@ Remplacer ces UUID d’exemple par les identifiants réels autorisés. Sans `con
 Quantités nulles, négatives, décimales, exposants, chaînes JSON numériques, champs inconnus et auteur/date fournis sont refusés (422). Référence : 255 caractères maximum ; commentaire : 2 000. Un magasin inaccessible donne 404 ; stock insuffisant, article inactif, inventaire bloquant et contenu différent avec la même clé donnent 409. CSRF absent ou invalide : 403 ; session absente avec CSRF valide : 401.
 
 Aucune migration supplémentaire après STK-02 (`Version20261018200000`). [Moteur](moteur-stock.md) · [Validation](validation-stk04.md).
+
+## Magasins actifs et préférence personnelle
+
+L’évolution RET-02 / USR-02 permet aux techniciens de retirer leurs propres articles dans tout magasin actif, même sans affectation. Elle ne leur donne pas accès aux stocks ou historiques d’autrui hors périmètre. Le magasin favori du profil est proposé par défaut lorsqu’il est autorisé pour l’opération ; la sélection ponctuelle ne modifie pas ce favori. Voir [le parcours de dépôt et les droits actuels](retours-depot-magasin-favori.md).

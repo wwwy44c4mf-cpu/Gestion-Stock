@@ -1,6 +1,6 @@
 # Contrats et socle API — SOC-03
 
-Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décrit 61 opérations et 97 schémas de données pour le MVP. Aucun appel à un service externe n’est nécessaire pour le lire ou pour le valider. **Les 61 opérations sont marquées `available`**, dont les deux opérations de [réinitialisation sécurisée du mot de passe](reinitialisation-mot-de-passe.md).
+Contrat autonome : [openapi.json](openapi.json), OpenAPI 3.1. Le document décrit 63 opérations et 102 schémas de données pour le MVP et ses évolutions de recette. Aucun appel à un service externe n’est nécessaire pour le lire ou pour le valider. **Les 63 opérations sont marquées `available`**, dont les deux opérations de [réinitialisation sécurisée du mot de passe](reinitialisation-mot-de-passe.md).
 
 ## Ce qui fonctionne déjà
 
@@ -183,3 +183,9 @@ STAT-01 : `GET /statistics/consumptions` est disponible. Quantités exactes sous
 ## Journal d’audit (ADM-01)
 
 `GET /api/v1/audit-logs` est disponible : vue administrative globale, vue gestionnaire limitée aux magasins actifs affectés, utilisateur refusé. Dates inclusives dans le fuseau du compte, filtres exacts par action/acteur/magasin et pagination stable. Le contexte est projeté selon une liste positive typée ; les secrets et contenus libres sont omis. Aucun endpoint d’écriture. Voir [le guide](journal-audit.md).
+
+## Dépôt par article et magasin favori
+
+RET-02 : `POST /movements/return-batches` reçoit `article_id`, `store_id`, `quantity` et éventuellement `consumer_id`/`comment`. Il répartit la quantité sur les consommations les plus anciennes encore retournables du bénéficiaire et crédite uniquement le magasin de dépôt. `ReturnBatchResource` identifie le dépôt regroupé. Les techniciens peuvent retirer et déposer dans tout magasin actif pour eux-mêmes ; les autres droits de consultation restent conservés. Le parcours détaillé `POST /movements/returns` accepte aussi un `store_id` optionnel, avec magasin de sortie par défaut pour compatibilité.
+
+USR-02 : `UserResource` expose le `favorite_store_id` personnel, nullable. `ProfilePatch` accepte cette préférence optionnelle avec le fuseau horaire ; un identifiant actif autorisé la définit et `null` l’efface. Voir [les règles et la migration](retours-depot-magasin-favori.md).

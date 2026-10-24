@@ -6,6 +6,12 @@ Aucune version stable ni mise en production n’est déclarée. Les PR ouvertes 
 
 ### Fonctionnalités
 
+- Thème orange #FF7900 et actions Sortie / Retour identiques côte à côte dans Consommations, y compris sur smartphone. Filtres adaptés aux petits écrans. Rendu approuvé localement ; recette sur les quatre navigateurs mobiles suivie dans #97.
+
+- Le magasin favori initialise le bandeau commun et les formulaires. Un autre magasin choisi manuellement reste sélectionné pendant la navigation sans modifier la préférence personnelle.
+
+- Retours par article et quantité dans le magasin de dépôt choisi, répartition automatique sur les consommations encore retournables, droits de retrait/dépôt des techniciens dans tout magasin actif et magasin favori personnel. Migration additive et anonymisation des liens de regroupement.
+
 - Sur smartphone, les consommations encore retournables s’affichent en fiches avec un bouton « Rendre des articles » directement visible, sans défilement horizontal.
 
 - Lecture des codes-barres et QR codes avec caméra arrière sur les entrées, consommations et retours ; plusieurs codes par article, validation du catalogue conservée et quantité saisie manuellement. Migration additive des associations, sans modification automatique du stock au scan.

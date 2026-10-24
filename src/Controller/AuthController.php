@@ -34,7 +34,7 @@ final class AuthController extends AbstractController
     }
 
     #[Route('/profil', name: 'profile', methods: ['GET', 'POST'])]
-    public function profile(Request $request, Connection $db, CsrfTokenManagerInterface $csrf): Response
+    public function profile(Request $request, Connection $db, CsrfTokenManagerInterface $csrf, \App\Access\AccessDirectory $directory): Response
     {
         $user = $this->current();
         $error = null;
@@ -49,30 +49,51 @@ final class AuthController extends AbstractController
                     $status = 422;
                     $error = 'Sélectionnez un fuseau horaire valide.';
                 } else {
-                    $this->updateTimezone($db, $user, $zone);
-                    $this->addFlash('success', 'Votre fuseau horaire a été enregistré.');
+                    try {
+                        $favorite = $request->request->has('favorite_store_id') ? $this->validateFavorite($db,$request->request->getString('favorite_store_id'),$directory->storeOptions($user,\App\Security\Permission::CONSUMPTION_CREATE)) : $user->favoriteStoreId;
+                    } catch(ApiProblem $problem) { $error=$problem->getMessage(); $status=$problem->status; $favorite=$user->favoriteStoreId; }
+                    if ($error===null) {
+                    $db->transactional(function() use($db,$user,$zone,$favorite,$request) {
+                        $this->updateTimezone($db, $user, $zone);
+                        if($request->request->has('favorite_store_id')) { $db->executeStatement('UPDATE users SET favorite_store_id=? WHERE id=?',[$favorite,$user->id]); }
+                    });
+                    $this->addFlash('success', 'Vos préférences ont été enregistrées.');
                     return $this->redirectToRoute('profile', status: 303);
+                    }
                 }
             }
         }
-        return $this->render('security/profile.html.twig', ['profile' => $user, 'timezones' => \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC), 'error' => $error], new Response(status: $status));
+        return $this->render('security/profile.html.twig', ['profile' => $user, 'timezones' => \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC), 'error' => $error, 'favorite_stores'=>$directory->storeOptions($user,\App\Security\Permission::CONSUMPTION_CREATE)], new Response(status: $status));
     }
 
     #[Route('/api/v1/auth/me', name: 'api_me', methods: ['GET'])]
     public function me(): JsonResponse { return new JsonResponse($this->current()->resource()); }
 
     #[Route('/api/v1/auth/me', name: 'api_profile_update', methods: ['PATCH'])]
-    public function patch(Request $request, JsonBody $json, Connection $db): JsonResponse
+    public function patch(Request $request, JsonBody $json, Connection $db, \App\Access\AccessDirectory $directory): JsonResponse
     {
         $body = $json->read($request, 'ProfilePatch');
         if (!in_array($body->timezone, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC), true)) {
             throw new ApiProblem(422, 'invalid_timezone', 'Le fuseau horaire doit être un identifiant IANA valide.');
         }
         $user = $this->current();
-        $this->updateTimezone($db, $user, $body->timezone);
+        $favorite=property_exists($body,'favorite_store_id') ? $this->validateFavorite($db,$body->favorite_store_id,$directory->storeOptions($user,\App\Security\Permission::CONSUMPTION_CREATE)) : $user->favoriteStoreId;
+        $db->transactional(function() use($db,$user,$body,$favorite) {
+            $this->updateTimezone($db, $user, $body->timezone);
+            if(property_exists($body,'favorite_store_id')) { $db->executeStatement('UPDATE users SET favorite_store_id=? WHERE id=?',[$favorite,$user->id]); }
+        });
         $resource = $user->resource();
         $resource['data']['timezone'] = $body->timezone;
+        $resource['data']['favorite_store_id'] = $favorite;
         return new JsonResponse($resource);
+    }
+
+    private function validateFavorite(Connection $db, ?string $id, array $stores): ?string
+    {
+        if($id===null || $id==='') { return null; }
+        $id=strtolower($id);
+        if(!in_array($id,array_column($stores,'id'),true) || !$db->fetchOne('SELECT 1 FROM stores WHERE id=? AND active',[$id])) { throw new ApiProblem(422,'invalid_favorite_store','Choisissez un magasin actif autorisé.'); }
+        return $id;
     }
 
     private function updateTimezone(Connection $db, StockUser $user, string $timezone): void

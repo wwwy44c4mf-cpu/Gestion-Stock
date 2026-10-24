@@ -45,7 +45,7 @@ final class StockEntryController extends AbstractController
         $data = ['store_id'=>'', 'article_id'=>'', 'quantity'=>'', 'reason'=>'', 'reference'=>''];
         $key = bin2hex(random_bytes(16)); $error = null; $status = 200;
         if ($request->isMethod('GET')) {
-            $selected = $context->read($request, $actor)['selected'];
+            $selected = $context->preferred($request, $actor, $stores);
             if ($selected !== null && in_array($selected, array_column($stores,'id'), true)) { $data['store_id'] = $selected; }
             foreach ($request->query->all() as $name => $value) {
                 if (!in_array($name, ['store_id','article_id'], true) || !is_string($value) || !preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/iD', $value)) {

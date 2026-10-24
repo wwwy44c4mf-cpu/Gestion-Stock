@@ -3451,7 +3451,7 @@
       "post": {
         "operationId": "createReturn",
         "summary": "Retourner des articles non utilisés",
-        "description": "Même magasin et article que la consommation d’origine. Utilisateur : ses consommations uniquement ; gestionnaire : périmètre magasin. Le cumul ne dépasse pas la sortie, y compris sous concurrence. Date serveur exclusivement ; si inventaire actif : 409. Rejeu identique sans nouveau mouvement, clé réutilisée pour un autre contenu : 409.",
+        "description": "Retour lié à une consommation précise, avec magasin de dépôt actif autorisé optionnel via store_id (magasin d’origine par défaut). Ce parcours permet notamment aux administrateurs/gestionnaires autorisés de traiter une consommation anonymisée. Utilisateur : ses propres consommations visibles. Plafond, inventaire du dépôt et idempotence contrôlés. Le parcours /movements/return-batches évite de choisir une consommation.",
         "tags": [
           "movements"
         ],
@@ -6366,6 +6366,106 @@
         "x-max-body-bytes": 65536,
         "x-integer-encoding": "Nombres JSON en base 10 sans décimale ni exposant."
       }
+    },
+    "/movements/return-batches": {
+      "post": {
+        "operationId": "createReturnBatch",
+        "summary": "Déposer un article dans le magasin choisi, avec rattachement automatique",
+        "description": "Quantité rattachée aux consommations les plus anciennes encore retournables du bénéficiaire, tous magasins de sortie confondus. Crédit du magasin de dépôt seulement. Utilisateur : lui-même, tout magasin actif ; administrateur/gestionnaire : bénéficiaire actif, dépôt autorisé. Quantité excessive ou inventaire du dépôt : 409, opération atomique, concurrence et rejeu idempotent contrôlés.",
+        "tags": [
+          "movements"
+        ],
+        "security": [
+          {
+            "SessionCookie": [],
+            "CsrfToken": []
+          }
+        ],
+        "x-roles": [
+          "ADMIN",
+          "MANAGER",
+          "USER"
+        ],
+        "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
+        "x-implementation": "available",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReturnBatchResource"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string",
+                  "maxLength": 32
+                }
+              },
+              "Location": {
+                "schema": {
+                  "type": "string",
+                  "maxLength": 500
+                },
+                "description": "URI relative de la confirmation HTML /consommations/retours/depot/{id}."
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnBatchCreate"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-integer-encoding": "Nombres JSON en base 10 sans décimale ni exposant."
+      }
     }
   },
   "components": {
@@ -6922,6 +7022,13 @@
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "favorite_store_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
           }
         },
         "additionalProperties": false,
@@ -7028,6 +7135,14 @@
             "type": "string",
             "maxLength": 64,
             "minLength": 1
+          },
+          "favorite_store_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid",
+            "description": "Magasin favori personnel actif et autorisé ; null pour effacer la préférence."
           }
         },
         "additionalProperties": false,
@@ -7963,6 +8078,11 @@
           "comment": {
             "type": "string",
             "maxLength": 2000
+          },
+          "store_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Magasin de dépôt actif autorisé ; à défaut, magasin d’origine pour compatibilité."
           }
         },
         "additionalProperties": false,
@@ -9791,6 +9911,106 @@
             "maxLength": 512
           }
         }
+      },
+      "ReturnBatchCreate": {
+        "type": "object",
+        "properties": {
+          "article_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "store_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "consumer_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "$ref": "#/components/schemas/PositiveQuantity"
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "article_id",
+          "store_id",
+          "quantity"
+        ],
+        "additionalProperties": false
+      },
+      "ReturnBatch": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "article_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "store_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "$ref": "#/components/schemas/PositiveQuantity"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "article_id",
+          "store_id",
+          "quantity",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
+      "ReturnBatchResource": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ReturnBatch"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "ReturnAllocationCreate": {
+        "type": "object",
+        "properties": {
+          "consumption_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantity": {
+            "$ref": "#/components/schemas/PositiveQuantity"
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "store_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "consumption_id",
+          "quantity",
+          "store_id"
+        ],
+        "additionalProperties": false
       }
     }
   }

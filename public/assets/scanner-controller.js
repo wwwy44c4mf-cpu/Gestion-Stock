@@ -96,7 +96,7 @@ export default class extends Controller {
                 url.searchParams.set('article_id', article.id);
                 window.location.assign(url.href); return;
             }
-            if (!article.active || !Array.from(select.options).some(option => option.value === article.id)) {
+            if ((this.modeValue !== 'deposit' && !article.active) || !Array.from(select.options).some(option => option.value === article.id)) {
                 this.message('Cet article est désactivé ou indisponible pour cette opération.'); return;
             }
             select.value = article.id;
