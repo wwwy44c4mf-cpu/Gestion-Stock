@@ -9,14 +9,14 @@ export class ScanCamera {
         const generation = this.generation;
         let stream;
         try {
-            const reader = await this.createReader();
-            if (generation !== this.generation) return;
             stream = await this.mediaDevices.getUserMedia({
                 audio: false,
                 video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
             });
             if (generation !== this.generation) { this.release(stream); return; }
             this.stream = stream;
+            const reader = await this.createReader();
+            if (generation !== this.generation) { this.release(stream); return; }
             const controls = await reader.decodeFromStream(stream, this.video, (result, error) => {
                 if (generation !== this.generation) return;
                 if (!result) {

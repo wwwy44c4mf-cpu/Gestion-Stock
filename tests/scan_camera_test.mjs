@@ -63,3 +63,18 @@ test('fatal decoder errors release the camera and inform the caller', async () =
     const f = fixture(); await f.camera.start(); f.error(new Error('Canvas unavailable'));
     assert.equal(f.errors.length, 1); assert.ok(f.stops > 0); assert.equal(f.video.srcObject, null);
 });
+
+test('camera permission is requested in the click stack before the decoder loads', async () => {
+    const f = fixture(), loaded = deferred();
+    f.camera.createReader = () => loaded.promise;
+    const pending = f.camera.start();
+    assert.equal(f.constraints.video.facingMode.ideal, 'environment');
+    await tick(); f.camera.stop();
+    let decodes = 0;
+    loaded.resolve({ decodeFromStream() { decodes++; } });
+    await pending; assert.equal(decodes, 0); assert.ok(f.stops > 0);
+});
+test('decoder loading failure releases the already granted camera', async () => {
+    const f = fixture(); f.camera.createReader = async () => { throw new Error('Decoder unavailable'); };
+    await f.camera.start(); assert.equal(f.errors.length, 1); assert.ok(f.stops > 0); assert.equal(f.video.srcObject, null);
+});

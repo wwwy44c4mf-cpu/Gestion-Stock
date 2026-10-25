@@ -8,7 +8,8 @@ data-scanner-csrf-value="{{ csrf_token('api') }}">
     <p class="muted scanner-status" role="status" aria-live="polite" data-scanner-target="status"></p>
     <dialog class="scanner-dialog" data-scanner-target="dialog" data-action="cancel->scanner#cancel" aria-label="Lecture du code avec la caméra">
         <h2>Scanner un article</h2>
-        <p data-scanner-target="previewStatus" role="status"></p>
+        <p data-scanner-target="previewStatus" role="status" aria-live="polite"></p>
+        <button class="button" type="button" hidden data-scanner-target="resume" data-action="scanner#resume">Reprendre la caméra</button>
         <video data-scanner-target="video" autoplay muted playsinline aria-label="Aperçu de la caméra arrière"></video>
         <p>Le scan ne modifie aucune quantité. La caméra s’arrête après la lecture.</p>
         <button class="button" type="button" data-action="scanner#close">Fermer la caméra</button>

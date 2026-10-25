@@ -65,3 +65,42 @@ test('deposit scan accepts an archived article without submitting a return', asy
     assert.equal(f.nodes.article.value, 'new-id'); assert.equal(f.nodes.quantity.value, '');
     assert.equal(f.instance.redirect, undefined);
 });
+
+function lifecycleFixture() {
+    const { instance } = fixture();
+    const listeners = new Map();
+    Object.assign(document, { hidden: false, addEventListener(name, fn) { listeners.set(name, fn); }, removeEventListener(name) { listeners.delete(name); } });
+    Object.assign(window, { isSecureContext: true, addEventListener() {}, removeEventListener() {} });
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { mediaDevices: { getUserMedia() {} } } });
+    Object.assign(instance, { videoTarget: {}, startTarget: {}, resumeTarget: { hidden: true }, previewStatusTarget: { textContent: '' }, dialogTarget: { open: false, showModal() { this.open = true; }, close() { this.open = false; } } });
+    instance.connect();
+    return { instance, listeners };
+}
+test('visibility interruption stops the camera but preserves a resumable dialog', () => {
+    const { instance, listeners } = lifecycleFixture();
+    let starts = 0, stops = 0;
+    instance.camera = { start() { starts++; }, stop() { stops++; } };
+    instance.open({ preventDefault() {}, currentTarget: { focus() {} } });
+    document.hidden = true; listeners.get('visibilitychange')();
+    assert.equal(instance.dialogTarget.open, true); assert.equal(stops, 1);
+    assert.equal(instance.resumeTarget.hidden, false); assert.match(instance.previewStatusTarget.textContent, /pause/);
+    instance.resume(); assert.equal(starts, 1);
+    document.hidden = false; instance.resume(); assert.equal(starts, 2);
+    assert.equal(instance.resumeTarget.hidden, true);
+    instance.close(); assert.equal(instance.dialogTarget.open, false);
+    instance.resume(); assert.equal(starts, 2);
+});
+test('permission errors stay visible inside the dialog and permit a retry', () => {
+    const { instance } = lifecycleFixture();
+    instance.dialogTarget.open = true;
+    instance.camera.onError({ name: 'NotAllowedError' });
+    assert.equal(instance.dialogTarget.open, true);
+    assert.match(instance.previewStatusTarget.textContent, /refusé/);
+    assert.equal(instance.previewStatusTarget.textContent, instance.statusTarget.textContent);
+    assert.equal(instance.resumeTarget.hidden, false);
+});
+test('leaving the page closes the dialog and stops capture', () => {
+    const { instance } = lifecycleFixture(); let stops = 0;
+    instance.dialogTarget.open = true; instance.camera = { stop() { stops++; } };
+    instance.leaving(); assert.equal(instance.dialogTarget.open, false); assert.equal(stops, 1);
+});

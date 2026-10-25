@@ -14,6 +14,7 @@ Les décisions ci-dessous précisent ou remplacent les options correspondantes d
 | RET-02 | Retour par article et quantité, rattachement automatique aux consommations encore retournables et crédit du magasin de dépôt réel | En revue | [#94](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/94) |
 | USR-02 | Magasin favori personnel appliqué au contexte général et aux opérations, sélection temporaire modifiable | En revue | [#95](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/95) |
 | UI-02 | Thème orange et boutons Sortie / Retour identiques côte à côte | Validé localement, installation à confirmer | [#97](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/97) |
+| SCAN-02 | Scanner interrompu : dialogue conservé, message et reprise manuelle ; validation Brave en attente | Correctif testé localement | [#98](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/98) |
 
 Le mini-PC annoncé possède quatre cœurs et 8,1 Go de mémoire totale ; la charge domotique et la capacité disponible restent à vérifier sur le serveur. La préparation ne vaut pas ouverture en production. Voir [le guide Portainer](docs/installation-portainer.md), notamment les conditions de copie hors serveur et de planification de la conservation. Ce lot s’ajoute aux 39 lots MVP déjà terminés.
 
