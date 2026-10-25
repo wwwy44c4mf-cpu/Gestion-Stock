@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: 24.19.0
       - name: Cycle de vie du lecteur camera
-        run: node --test tests/scan_camera_test.mjs tests/scanner_controller_test.mjs tests/scanner_decode_fixture_test.mjs
+        run: node --test tests/scan_camera_test.mjs tests/scanner_controller_test.mjs tests/scanner_decode_fixture_test.mjs tests/cloudflare_worker_test.mjs
       - name: Recette Docker isolee
         run: sh bin/test-qa core
       - name: Rapport de performance
