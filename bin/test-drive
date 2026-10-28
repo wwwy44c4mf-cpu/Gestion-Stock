@@ -1,0 +1,12 @@
+#!/bin/sh
+# No Google account, real backup volume or network access in the test container.
+set -eu
+cd "$(dirname "$0")/.."
+python3 tests/drive_mac_config_test.py
+image="gestion-stock-drive:ops05-test"
+docker build --target drive-backup -t "$image" .
+docker run --rm --network none --read-only --cap-drop ALL \
+  --security-opt no-new-privileges:true --tmpfs /tmp:uid=10001,gid=10001,mode=1770,size=64m \
+  --mount "type=bind,src=$(pwd)/tests/drive_backup_test.py,dst=/tests/drive_backup_test.py,readonly" \
+  --entrypoint python3 "$image" /tests/drive_backup_test.py
+python3 tests/drive_compose_test.py
