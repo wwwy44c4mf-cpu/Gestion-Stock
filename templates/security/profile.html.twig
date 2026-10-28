@@ -12,6 +12,7 @@
     <select id="timezone" name="timezone" {% if error %}aria-invalid="true" aria-describedby="timezone-error"{% endif %}>
         {% for zone in timezones %}<option value="{{ zone }}" {% if zone == profile.timezone %}selected{% endif %}>{{ zone }}</option>{% endfor %}
     </select>{% if error %}<p class="field-error" id="timezone-error" role="alert">{{ error }}</p>{% endif %}</div>
+    <div class="field"><label for="favorite-store">Magasin favori</label><select id="favorite-store" name="favorite_store_id"><option value="">Aucun magasin favori</option>{% for store in favorite_stores %}<option value="{{ store.id }}" {% if store.id == profile.favoriteStoreId %}selected{% endif %}>{{ store.code }} · {{ store.name }}</option>{% endfor %}</select><p class="muted">Proposé par défaut pour les opérations autorisées. Vous pouvez choisir un autre magasin sur chaque formulaire sans modifier ce favori.</p></div>
     <button type="submit" class="button primary">Enregistrer</button>
 </form>
 <p class="context-note">Votre session expire après 30 minutes d’inactivité ou 12 heures de connexion.</p>

@@ -70,3 +70,7 @@ Référence de conception : [Symfony Security et rafraîchissement des utilisate
 ## Compte de démonstration
 
 Un [administrateur de test](administrateur-test.md) peut être créé explicitement en mode `dev`. Son marqueur persistant interdit la connexion et le rafraîchissement des sessions dans tout autre environnement, même si la base est conservée.
+
+## Magasin favori personnel
+
+Le profil propose un magasin favori actif autorisé, prérempli sur les formulaires de stock concernés et modifiable ponctuellement. `PATCH /api/v1/auth/me` accepte `favorite_store_id` optionnel avec `timezone` ; `null` efface le favori. Les droits ne sont pas accordés par cette préférence. Voir [les règles de préférence et de dépôt](retours-depot-magasin-favori.md).

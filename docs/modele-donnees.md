@@ -91,3 +91,7 @@ La table `user_creation_requests` relie un administrateur et sa clé d’idempot
 La migration `Version20261018223000` ajoute `movement_corrections` : `original_id` unique, `reversal_id` unique et `replacement_id` unique, tous référencés au journal. Le remplacement conserve type, article, magasins et bénéficiaire ; le contre-mouvement compense exactement l’origine. Les liens sont immuables ; le retour arrière refuse leur destruction s’ils sont présents. Aucun ancien mouvement n’est réécrit.
 
 ALT-03 / migration 14 : `alert_recipient_configurations` conserve le mode default/custom et une version par magasin ; `effective_alert_recipients` applique la sélection, les rôles, l’activité et les affectations. Les lectures ne créent pas de configuration.
+
+## Dépôts répartis et préférence personnelle
+
+`users.favorite_store_id` est une préférence facultative, effacée lors de l’anonymisation du compte. `stock_return_groups` porte l’identifiant, l’article, le magasin de dépôt, la quantité initiale et la date du dépôt, sans identité supplémentaire. Les mouvements de retour sont rattachés au groupe par `return_group_id` et chacun à sa consommation d’origine par `related_movement_id`. Seuls les mouvements contribuent au journal de stock : le groupe ne crédite pas une seconde fois le stock. Des contrôles différés vérifient somme, article, destination, auteur et bénéficiaire communs. Les corrections compensées laissent le groupe initial immuable ; le reçu calcule la quantité effective. Voir [les règles de dépôt et de conservation](retours-depot-magasin-favori.md).

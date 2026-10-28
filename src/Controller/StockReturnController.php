@@ -24,7 +24,7 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 final class StockReturnController extends AbstractController
 {
     public function __construct(private readonly StockReturnEngine $engine,private readonly ConsumptionDirectory $consumptions,private readonly ReturnDirectory $returns,
-        private readonly AccessIdentity $identity,private readonly AccessPolicy $policy) {}
+        private readonly AccessIdentity $identity,private readonly AccessPolicy $policy,private readonly \App\Access\AccessDirectory $directory) {}
     #[Route('/api/v1/movements/returns',name:'api_stock_returns_create',methods:['POST'])]
     public function create(Request $request,JsonBody $json,IdempotencyKey $key): JsonResponse
     {
@@ -42,10 +42,13 @@ final class StockReturnController extends AbstractController
         return $this->render('returns/list.html.twig',['result'=>$this->returns->eligible($actor,$page,$articleId),'article_filter'=>$articleId]);
     }
     #[Route('/consommations/{id}/retour',name:'consumptions_return_new',methods:['GET','POST'])]
-    public function form(string $id,Request $request,CsrfTokenManagerInterface $csrf): Response
+    public function form(string $id,Request $request,CsrfTokenManagerInterface $csrf,\App\Ui\StoreContext $context): Response
     {
-        $actor=$this->actor();$origin=$this->consumptions->get($actor,$id);$this->policy->assert($actor,Permission::RETURN_CREATE,AccessTarget::consumption($id));
-        $data=['quantity'=>'','comment'=>''];$key=bin2hex(random_bytes(16));$error=null;$status=200;
+        $actor=$this->actor();$origin=$this->consumptions->get($actor,$id);$this->policy->assert($actor,Permission::CONSUMPTION_READ,AccessTarget::consumption($id));
+        $stores=$this->directory->storeOptions($actor,Permission::RETURN_CREATE);
+        $favorite=$context->preferred($request,$actor,$stores);
+        $selected=in_array($favorite,array_column($stores,'id'),true)?$favorite:(in_array($origin['store_id'],array_column($stores,'id'),true)?$origin['store_id']:'');
+        $data=['quantity'=>'','comment'=>'','store_id'=>$selected];$key=bin2hex(random_bytes(16));$error=null;$status=200;
         if($request->isMethod('GET') && $request->query->count()>0) { throw new ApiProblem(422,'invalid_query','Ce formulaire n’accepte pas de paramètres supplémentaires.'); }
         if($request->isMethod('POST')) {
             try {
@@ -53,15 +56,15 @@ final class StockReturnController extends AbstractController
                 $raw=$request->request->all();$token=$raw['_csrf_token']??'';
                 if(!is_string($token) || !$csrf->isTokenValid(new CsrfToken('stock_return_'.strtolower($id),$token))) { throw new ApiProblem(403,'invalid_csrf_token','Formulaire expiré. Rechargez la page.'); }
                 if($request->query->count()>0 || $request->files->count()>0) { throw new ApiProblem(422,'invalid_form','Aucun paramètre supplémentaire ni fichier n’est accepté.'); }
-                foreach($raw as $name=>$value) { if(!in_array($name,['_csrf_token','_movement_key','quantity','comment'],true) || !is_string($value)) { throw new ApiProblem(422,'invalid_form','Un champ du formulaire est invalide.'); } }
-                $key=$raw['_movement_key']??'';foreach($data as $name=>$_) { $data[$name]=$raw[$name]??''; }
+                foreach($raw as $name=>$value) { if(!in_array($name,['_csrf_token','_movement_key','quantity','comment','store_id'],true) || !is_string($value)) { throw new ApiProblem(422,'invalid_form','Un champ du formulaire est invalide.'); } }
+                $key=$raw['_movement_key']??'';foreach($data as $name=>$_) { $data[$name]=$raw[$name]??($name==='store_id'?$origin['store_id']:''); }
                 if(!preg_match('/^[1-9][0-9]{0,15}$/D',$data['quantity'])) { throw new ApiProblem(422,'invalid_quantity','Saisissez une quantité entière strictement positive.'); }
-                $body=(object)['consumption_id'=>$id,'quantity'=>(int)$data['quantity']];if($data['comment']!=='') { $body->comment=$data['comment']; }
+                $body=(object)['consumption_id'=>$id,'store_id'=>$data['store_id'],'quantity'=>(int)$data['quantity']];if($data['comment']!=='') { $body->comment=$data['comment']; }
                 $result=$this->engine->record($actor,$body,$key)['data'];$this->addFlash('success','Le retour de '.$result['quantity'].' unité'.($result['quantity']>1?'s':'').' a été enregistré dans le magasin d’origine.');
                 return $this->redirectToRoute('consumptions_return_receipt',['id'=>$result['id']],303);
             } catch(ApiProblem $problem) { $error=$problem->getMessage();$status=$problem->status; }
         }
-        return $this->render('returns/form.html.twig',['origin'=>$origin,'item'=>$data,'movement_key'=>$key,'error'=>$error],new Response(status:$status));
+        return $this->render('returns/form.html.twig',['origin'=>$origin,'stores'=>$stores,'item'=>$data,'movement_key'=>$key,'error'=>$error],new Response(status:$status));
     }
     #[Route('/consommations/retours/{id}',name:'consumptions_return_receipt',priority:10,methods:['GET'])]
     public function receipt(string $id): Response

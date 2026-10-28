@@ -33,3 +33,7 @@ Les tests couvrent codes multiples, unicité et archivage, propositions et permi
 Sur smartphone, la liste des consommations retournables présente une fiche par consommation, avec son article, son magasin, son bénéficiaire, le reste à rendre et un bouton « Rendre des articles » visible sans défilement horizontal. Sur grand écran, ces informations restent présentées en tableau.
 
 La recette locale du lecteur se lance avec `node --test tests/scan_camera_test.mjs tests/scanner_controller_test.mjs tests/scanner_decode_fixture_test.mjs`. Les dépendances et licences sont décrites dans [frontend](../frontend/README.md).
+
+## Évolution du parcours de retour
+
+Le [retour par article et quantité](retours-depot-magasin-favori.md) permet de scanner puis confirmer la quantité dans le magasin de dépôt choisi, sans sélectionner une consommation d’origine. Les paragraphes décrivant la sélection d’une consommation concernent le parcours détaillé conservé.

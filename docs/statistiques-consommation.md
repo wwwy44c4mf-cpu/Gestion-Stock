@@ -41,3 +41,7 @@ Décision confirmée le 21 octobre 2026 : les retours sont comptés à leur date
 ## Conservation des données — RGPD-01
 
 Après effacement des bénéficiaires, les volumes restent dans les statistiques globales autorisées, regroupés sous l’identité commune ; ils ne restent pas attribués à un technicien. Les corrections liées à une consommation ancienne suivent ce détachement même si elles sont récentes. Voir la [conservation des données](conservation-donnees.md).
+
+## Retours entre magasins
+
+Avec RET-02, une consommation est attribuée au magasin de sortie et un retour au magasin du dépôt réel. Un magasin peut donc avoir des retours sans consommation correspondante dans ce même magasin. Le filtre magasin et les distributions respectent cette distinction. Les droits sont vérifiés séparément pour les sorties et les dépôts ; les statistiques personnelles restent limitées au bénéficiaire encore identifiable. Les dates restent les dates réelles des événements.

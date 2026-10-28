@@ -2,7 +2,7 @@ import { Controller } from './vendor/stimulus.js';
 import { ScanCamera } from './scan-camera.js';
 
 export default class extends Controller {
-    static targets = ['dialog', 'video', 'status', 'previewStatus', 'code', 'start'];
+    static targets = ['dialog', 'video', 'status', 'previewStatus', 'code', 'start', 'resume'];
     static values = { mode: String, select: String, quantity: String, textarea: String, returnUrl: String, csrf: String };
     connect() {
         this.sequence = 0;
@@ -15,13 +15,21 @@ export default class extends Controller {
             },
             onResult: code => { this.close(); this.accept(code); },
             onError: error => {
-                this.close();
-                this.message(error?.name === 'NotAllowedError'
-                    ? 'Accès à la caméra refusé. Autorisez-le dans votre navigateur ou choisissez l’article manuellement.'
-                    : 'Caméra indisponible. Fermez les autres applications qui l’utilisent, ou choisissez l’article manuellement.');
+                const text = error?.name === 'NotAllowedError'
+                    ? 'Accès à la caméra refusé. Autorisez-le dans les réglages du navigateur ou de l’iPhone, puis réessayez.'
+                    : 'Caméra indisponible. Fermez les autres applications qui l’utilisent, puis réessayez ou choisissez l’article manuellement.';
+                this.message(text);
+                this.previewStatusTarget.textContent = text;
+                this.resumeTarget.hidden = false;
             },
         });
-        this.hidden = () => { if (document.hidden) this.close(); };
+        this.hidden = () => {
+            if (document.hidden && this.dialogTarget.open) {
+                this.camera.stop();
+                this.previewStatusTarget.textContent = 'La caméra a été mise en pause par le navigateur. Revenez sur cette page, puis touchez Reprendre la caméra.';
+                this.resumeTarget.hidden = false;
+            }
+        };
         this.leaving = () => this.close();
         document.addEventListener('visibilitychange', this.hidden);
         window.addEventListener('pagehide', this.leaving);
@@ -38,11 +46,18 @@ export default class extends Controller {
         window.removeEventListener('pagehide', this.leaving);
     }
     open(event) {
+        event.preventDefault();
         this.sequence++;
         this.request?.abort();
         this.trigger = event.currentTarget;
         this.previewStatusTarget.textContent = 'Autorisez la caméra, puis placez le code-barres ou QR code entièrement dans l’image.';
         this.dialogTarget.showModal();
+        this.resume();
+    }
+    resume() {
+        if (!this.dialogTarget.open || document.hidden) return;
+        this.resumeTarget.hidden = true;
+        this.previewStatusTarget.textContent = 'Autorisez la caméra, puis placez le code-barres ou QR code entièrement dans l’image.';
         this.camera.start();
     }
     close() {
@@ -96,7 +111,7 @@ export default class extends Controller {
                 url.searchParams.set('article_id', article.id);
                 window.location.assign(url.href); return;
             }
-            if (!article.active || !Array.from(select.options).some(option => option.value === article.id)) {
+            if ((this.modeValue !== 'deposit' && !article.active) || !Array.from(select.options).some(option => option.value === article.id)) {
                 this.message('Cet article est désactivé ou indisponible pour cette opération.'); return;
             }
             select.value = article.id;

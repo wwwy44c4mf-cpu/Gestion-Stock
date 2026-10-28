@@ -11,12 +11,12 @@ La sélection « Tous mes magasins » ou d’un magasin dans l’en-tête est un
 | Lecture catalogue | Oui | Oui | Oui |
 | Proposition catalogue | Oui | Oui | Non |
 | Stocks | Tous, désactivés compris | Actifs affectés | Actifs affectés |
-| Saisie de sa consommation | Magasin actif | Actif affecté | Actif affecté |
+| Saisie de sa consommation | Magasin actif | Actif affecté | Tout magasin actif, même sans affectation |
 | Consommation pour autrui | Magasin actif | Actif affecté | Non |
 | Entrées, ajustements, transferts et annulations | Magasins actifs | Actifs affectés | Non |
 | Inventaires, alertes, seuils | Tous en lecture ; actifs en écriture | Actifs affectés | Non |
 | Historique et statistiques de consommation | Tous | Actifs affectés | Ses consommations dans les magasins actifs, affectés ou non |
-| Retour lié à une consommation | Origine active | Origine active affectée | Ses consommations ; origine active, affectée ou non |
+| Retour / dépôt | Dépôt actif ; origine historique lisible | Dépôt actif affecté | Ses consommations ; tout dépôt actif, même sans affectation |
 | Audit | Tous, événements globaux compris | Événements de magasins actifs affectés | Non |
 | Messages d’information | Oui | Non | Non |
 
@@ -24,7 +24,7 @@ Les gestionnaires voient leurs propres propositions de catalogue ; l’administr
 
 La recherche des bénéficiaires est réservée aux administrateurs et aux gestionnaires affectés à au moins un magasin actif. Elle retourne uniquement `id` et `name` des comptes actifs, de tout rôle et tout magasin. Aucun courriel, rôle, affectation ou profil complet n’est exposé. Les comptes de développement restent invisibles hors de l’environnement `dev`.
 
-Les retours doivent référencer une consommation réelle ; son bénéficiaire et son magasin sont lus en base. Le magasin d’origine doit être actif. Un utilisateur peut rendre ses propres articles dans le magasin d’origine actif même après retrait de son affectation. La création et les limites quantitatives sont livrées par STK-07.
+Les retours restent liés à des consommations réelles, mais leur destination est le magasin de dépôt choisi. Le parcours par article répartit la quantité sur les consommations les plus anciennes encore retournables du bénéficiaire, sans donner accès à leurs magasins de sortie. Un utilisateur peut retirer et déposer dans tout magasin actif, uniquement pour lui-même ; les périmètres de lecture des stocks et des consommations d’autrui restent conservés. Les gestionnaires restent limités aux dépôts affectés pour leurs opérations. Le parcours détaillé exige aussi la lecture de l’origine ; un administrateur peut traiter une origine désactivée en déposant ailleurs. Voir [RET-02 et le magasin favori](retours-depot-magasin-favori.md).
 
 ## Intégration des services métier
 
@@ -33,7 +33,7 @@ Les retours doivent référencer une consommation réelle ; son bénéficiaire e
 - `PermissionVoter` raccorde les permissions `APP_*` à Symfony. Permission inconnue, cible manquante ou mauvais type : refus. Les contrôles des menus ne remplacent jamais ceux des services.
 - `assertConsumption()` contrôle le magasin puis le bénéficiaire actif ; l’affectation de ce dernier n’est pas requise. USER est limité à lui-même.
 - Les scopes SQL `stockScope`, `movementScope`, `consumptionScope`, `resourceScope` et `proposalScope` fournissent condition et paramètres liés. Ils doivent être appliqués dans `WHERE` **avant** compte, pagination, regroupement et somme. Les alias SQL sont validés ; aucun fragment client n’est interpolé.
-- Pour les statistiques de consommation, utiliser `consumptionScope(..., Permission::STATISTICS_READ)` ; le scope des stocks ne convient pas aux données personnelles. Pour le tableau de bord de gestion, vérifier aussi le rôle via `DASHBOARD_READ`.
+- Pour les statistiques de consommation, utiliser `consumptionScope(..., Permission::STATISTICS_READ)` ; le scope des stocks ne convient pas aux données personnelles. Les retours statistiques sont filtrés selon leur magasin de dépôt, avec propriété du bénéficiaire pour un utilisateur. Pour le tableau de bord de gestion, vérifier aussi le rôle via `DASHBOARD_READ`.
 - Dans les services de mutation, effectuer autorisation et écriture dans la même transaction, après les verrous métier, puis vérifier les autres règles : gel d’inventaire, stock disponible, idempotence, cumul des retours, etc. AUTH-03 ne remplace pas ces invariants du moteur STK-02.
 
 Les API disponibles dans ce lot sont `GET /api/v1/stores`, `GET /api/v1/stores/{id}` et `GET /api/v1/consumption-beneficiaries`. Le [guide API](api.md) décrit les endpoints métier livrés. Les écrans utilisent ces mêmes contrôles. Les données de démonstration restent un chargement explicite réservé au développement ([guide](demonstration.md)).

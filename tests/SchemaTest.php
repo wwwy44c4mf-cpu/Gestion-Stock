@@ -109,7 +109,7 @@ final class SchemaTest extends KernelTestCase
     public function testMigrationReexecutionIsANoop(): void
     {
         $this->migrate('latest');
-        self::assertSame(19, (int) $this->db->fetchOne('SELECT count(*) FROM doctrine_migration_versions'));
+        self::assertSame(20, (int) $this->db->fetchOne('SELECT count(*) FROM doctrine_migration_versions'));
     }
 
     public function testReferencesAndStockPairsAreUnique(): void
@@ -169,7 +169,8 @@ final class SchemaTest extends KernelTestCase
         $sql = "INSERT INTO stock_movements (type, article_id, destination_store_id, quantity, author_id, related_movement_id, idempotency_key) VALUES ('return', ?, ?, 1, ?, ?, ?)";
         $this->rejected($sql, [$f['article'], $f['a'], $f['user'], $entry, 'wrong-original-type']);
         $consumption = $this->movement($f, 'consumption', '2', $f['a'], null);
-        $this->rejected($sql, [$f['article'], $f['b'], $f['user'], $consumption, 'wrong-store']);
+        $this->db->executeStatement($sql, [$f['article'], $f['b'], $f['user'], $consumption, 'other-deposit-store']);
+        self::assertSame($f['b'],$this->db->fetchOne("SELECT destination_store_id FROM stock_movements WHERE idempotency_key='other-deposit-store'"));
         // Aucun lien user_stores n’existe pour ce bénéficiaire : choix utilisateur.
         self::assertSame($f['consumer'], $this->db->fetchOne('SELECT consumer_id FROM stock_movements WHERE id = ?', [$consumption]));
         $return = $this->movement($f, 'return', '1', null, $f['a'], $consumption);

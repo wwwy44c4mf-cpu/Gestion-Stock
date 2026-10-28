@@ -84,11 +84,11 @@ final class StockMovementEngineTest extends KernelTestCase
     }
     public function testReplayIsDurableAcrossSubsequentWritesAndMutableBusinessState(): void
     {
-        $first=$this->post('entry',['quantity'=>5],key:'durable-entry-key');$this->post('consumption',['quantity'=>1],'user','later-consumption');$this->db->executeStatement('UPDATE articles SET active = false WHERE id = ?',[$this->article]);
+        $first=$this->post('entry',['quantity'=>5],key:'durable-entry-key');$consumption=$this->post('consumption',['quantity'=>1],'user','later-consumption');$this->db->executeStatement('UPDATE articles SET active = false WHERE id = ?',[$this->article]);
         $this->db->executeStatement("INSERT INTO inventories (store_id,status,created_by,snapshot_at) VALUES (?,'in_progress',?,clock_timestamp())",[$this->stores['A'],$this->actors['admin']->id]);
         $snapshot=$this->snapshot();self::assertSame($first,$this->post('entry',['quantity'=>5],key:'durable-entry-key'));self::assertSame($snapshot,$this->snapshot());
         $this->denied(fn()=> $this->post('entry',['quantity'=>6],key:'durable-entry-key'),409,'idempotency_conflict');$this->denied(fn()=> $this->post('adjustment',['quantity'=>5],key:'durable-entry-key'),409,'idempotency_conflict');
-        $this->db->executeStatement('DELETE FROM user_stores WHERE user_id = ?',[$this->actors['user']->id]);$this->denied(fn()=> $this->post('consumption',['quantity'=>1],'user','later-consumption'),404,'resource_not_found');$this->consistent();
+        $this->db->executeStatement('DELETE FROM user_stores WHERE user_id = ?',[$this->actors['user']->id]);self::assertSame($consumption,$this->post('consumption',['quantity'=>1],'user','later-consumption'));self::assertSame($snapshot,$this->snapshot());$this->consistent();
     }
     public function testConsumptionReplaySurvivesBeneficiaryDeactivationWithoutNewWrites(): void
     {

@@ -13,15 +13,17 @@ final class ConsumptionStatistics
     public function read(StockUser $actor,array $filters=[]): array
     {
         $scope=$this->policy->consumptionScope($actor,Permission::STATISTICS_READ);
+        $returnScope=$actor->role==='USER' ? new \App\Security\SqlScope('m.consumer_id=? AND rs.active',[$actor->id]) : $this->policy->storeScope($actor,Permission::STOCK_READ,'rs');
         foreach(['store_id','category_id'] as $key) {if(isset($filters[$key])) {if(!is_string($filters[$key])||!preg_match('/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/Di',$filters[$key])) {throw new ApiProblem(422,'invalid_query','Filtre invalide.');}$filters[$key]=strtolower($filters[$key]);}}
         if(isset($filters['store_id'])) {
             $own=$actor->role==='USER'&&$this->db->fetchOne('SELECT 1 FROM stock_movements m WHERE m.source_store_id=? AND ('.$scope->condition.') LIMIT 1',[$filters['store_id'],...$scope->parameters]);
+            if(!$own && $actor->role==='USER') { $own=$this->db->fetchOne("SELECT 1 FROM stock_movements r JOIN stock_movements m ON m.id=r.related_movement_id JOIN stores s ON s.id=r.destination_store_id WHERE r.type='return' AND m.consumer_id=? AND s.id=? AND s.active LIMIT 1",[$actor->id,$filters['store_id']]); }
             if(!$own) {$this->policy->assert($actor,Permission::STOCK_READ,AccessTarget::store($filters['store_id']));}
         }
         $granularity=$filters['granularity']??'day';$top=$filters['top_limit']??10;
         if(!in_array($granularity,['day','week','month'],true)||!is_int($top)||$top<1||$top>100) {throw new ApiProblem(422,'invalid_query','Regroupement ou classement invalide.');}
         $bounds=$this->dates->bounds($filters,$actor->timezone);
-        $params=[$actor->timezone,$granularity,$filters['date_from']??null,$filters['date_to']??null,...$scope->parameters];$where=['TRUE'];
+        $params=[$actor->timezone,$granularity,$filters['date_from']??null,$filters['date_to']??null,...$scope->parameters,...$returnScope->parameters];$where=['TRUE'];
         foreach(['store_id','category_id'] as $key) {if(isset($filters[$key])) {$where[]=$key.'=?';$params[]=$filters[$key];}}
         foreach($bounds as $key=>$instant) {$where[]='occurred_at '.($key==='date_from'?'>=':'<').' to_timestamp(?)';$params[]=$instant;}
         $sql=<<<'SQL'
@@ -30,8 +32,8 @@ origins AS (SELECT m.* FROM stock_movements m WHERE %s AND NOT EXISTS(SELECT 1 F
 activity AS (
  SELECT m.article_id,m.source_store_id store_id,m.consumer_id,m.created_at occurred_at,m.quantity::numeric consumed,0::numeric returned,1::bigint movement_count,0::bigint return_count FROM origins m
  UNION ALL
- SELECT m.article_id,m.source_store_id,m.consumer_id,r.created_at,0::numeric,r.quantity::numeric,0::bigint,1::bigint
- FROM stock_movements r JOIN origins m ON m.id=r.related_movement_id WHERE r.type='return' AND NOT EXISTS(SELECT 1 FROM stock_movements u WHERE u.type='reversal' AND u.related_movement_id=r.id)
+ SELECT m.article_id,r.destination_store_id,m.consumer_id,r.created_at,0::numeric,r.quantity::numeric,0::bigint,1::bigint
+ FROM stock_movements r JOIN stock_movements m ON m.id=r.related_movement_id JOIN stores rs ON rs.id=r.destination_store_id WHERE r.type='return' AND m.type='consumption' AND (%s) AND NOT EXISTS(SELECT 1 FROM stock_movements u WHERE u.type='reversal' AND u.related_movement_id=m.id) AND NOT EXISTS(SELECT 1 FROM stock_movements u WHERE u.type='reversal' AND u.related_movement_id=r.id)
 ), enriched AS (
  SELECT e.*,a.sku article_sku,a.name article_name,a.category_id,coalesce(c.name,'Sans catégorie') category_name,s.name store_name,
  CASE WHEN u.anonymized_at IS NULL THEN u.name ELSE 'Compte anonymisé' END consumer_name
@@ -59,7 +61,7 @@ SQL;
         $articleJson="jsonb_build_object('article_id',article_id,'article_sku',article_sku,'article_name',article_name,'quantity',qty::text,'return_quantity',ret::text,'movement_count',movement_count,'unit_code','unit','_qs',_qs,'_cs',_cs)";
         $quantityOrder='qty DESC,movement_count DESC,article_sku,article_id';$countOrder='movement_count DESC,qty DESC,article_sku,article_id';
         $rank=fn(string $order): string=>"(SELECT coalesce(jsonb_agg($articleJson ORDER BY $order),'[]'::jsonb) FROM (SELECT * FROM ranked ORDER BY $order LIMIT $top) r)";
-        $row=$this->db->fetchAssociative(sprintf($sql,'('.$scope->condition.')',implode(' AND ',$where),$rank($quantityOrder),$rank($countOrder),$this->distribution('consumer_id','consumer_name'),$this->distribution('store_id','store_name'),$this->distribution('category_id','category_name')),$params);
+        $row=$this->db->fetchAssociative(sprintf($sql,'('.$scope->condition.')',$returnScope->condition,implode(' AND ',$where),$rank($quantityOrder),$rank($countOrder),$this->distribution('consumer_id','consumer_name'),$this->distribution('store_id','store_name'),$this->distribution('category_id','category_name')),$params);
         if((int)$row['bucket_count']>10000) {throw new ApiProblem(422,'statistics_range_too_large','Choisissez une période plus courte ou un regroupement par semaine ou mois.');}
         $data=[];$charts=['max_quantity'=>$row['chart_max']];
         foreach(['totals','top_articles','top_articles_by_count','buckets','by_user','by_store','by_category'] as $key) {$data[$key]=json_decode($row[$key],true,flags:JSON_THROW_ON_ERROR);if($key==='totals') {continue;}if(str_starts_with($key,'by_')&&count($data[$key])>1000) {throw new ApiProblem(422,'statistics_distribution_too_large','Précisez la période, le magasin ou la catégorie pour réduire le nombre de groupes.');}
