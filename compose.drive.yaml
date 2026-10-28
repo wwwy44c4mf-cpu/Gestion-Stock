@@ -1,0 +1,45 @@
+# Separate Portainer Standalone stack. No change to the main application stack.
+name: gestion-stock-drive
+services:
+  drive:
+    image: gestion-stock-drive:${DRIVE_RELEASE_ID:?Définir DRIVE_RELEASE_ID}
+    build:
+      context: .
+      target: drive-backup
+    environment:
+      DRIVE_BACKUP_ENABLED: ${DRIVE_BACKUP_ENABLED:-0}
+      DRIVE_FOLDER_ID: ${DRIVE_FOLDER_ID:?Définir le dossier Google Drive privé}
+      DRIVE_SYNC_INTERVAL_SECONDS: 3600
+      DRIVE_RETENTION_DAYS: 90
+      DRIVE_HEALTH_MAX_AGE_SECONDS: 129600
+      DRIVE_MAX_ARCHIVE_BYTES: 268435456
+    volumes:
+      - backup_data:/backups:ro
+      - drive_config:/drive-config
+      - drive_state:/drive-state
+    read_only: true
+    tmpfs:
+      - /tmp:uid=10001,gid=10001,mode=1770,size=16m
+      - /drive-work:uid=10001,gid=10001,mode=0700,size=320m
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 30s
+    mem_limit: 512m
+    cpus: 0.5
+    healthcheck:
+      test: [CMD, python3, /opt/drive-backup.py, health]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+      start_period: 5m
+    logging:
+      driver: local
+      options: {max-size: "5m", max-file: "2"}
+volumes:
+  backup_data:
+    external: true
+    name: ${BACKUP_VOLUME_NAME:-gestion-stock_backup_data}
+  drive_config:
+  drive_state:

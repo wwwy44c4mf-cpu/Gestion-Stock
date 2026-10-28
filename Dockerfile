@@ -116,3 +116,20 @@ RUN test -n "$OS_SECURITY_REVISION" && apk upgrade --no-cache && chown -R 10001:
 COPY --from=proxy-build /caddy /usr/bin/caddy
 COPY --from=proxy-build /dependencies.txt /usr/share/gestion-stock/proxy-dependencies.txt
 USER 10001:10001
+
+# Independent Drive copier: no application source, database client or recovery key.
+FROM rclone/rclone:1.75.2@sha256:2687085f718d3c628f7fdfb77c52a1d344332aed543110bb88088f2c70d43eb5 AS rclone-binary
+FROM python:3.13-alpine@sha256:2d9aefe2fef018a7eb2c13064c89c71929800fd2e5dccdbf52ea5da5bb8d929a AS drive-backup
+ARG OS_SECURITY_REVISION=20261028
+RUN test -n "$OS_SECURITY_REVISION" && apk upgrade --no-cache \
+    && addgroup -g 10001 drive && adduser -D -u 10001 -G drive drive \
+    && mkdir -p /drive-config /drive-state /drive-work /backups \
+    && chown drive:drive /drive-config /drive-state /drive-work /backups \
+    && chmod 700 /drive-config /drive-state /drive-work /backups
+COPY --from=rclone-binary /usr/local/bin/rclone /usr/local/bin/rclone
+COPY docker/drive/drive-backup.py /opt/drive-backup.py
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+USER 10001:10001
+WORKDIR /drive-work
+ENTRYPOINT ["python3", "/opt/drive-backup.py"]
+CMD ["schedule"]
