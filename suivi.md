@@ -15,7 +15,8 @@ Les décisions ci-dessous précisent ou remplacent les options correspondantes d
 | USR-02 | Magasin favori personnel appliqué au contexte général et aux opérations, sélection temporaire modifiable | En revue | [#95](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/95) |
 | UI-02 | Thème orange et boutons Sortie / Retour identiques côte à côte | Validé localement, installation à confirmer | [#97](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/97) |
 | SCAN-02 | Scanner interrompu : dialogue conservé, message et reprise manuelle ; validation Brave en attente | Correctif testé localement | [#98](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/98) |
-| OPS-05 | Copie des sauvegardes chiffrées vers Google Drive, conservation 90 jours et OAuth privé | Recette isolée réussie ; installation serveur et copie réelle en attente | [#101](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/101) |
+| OPS-05 | Copie des sauvegardes chiffrées vers Google Drive ; conservation 90 jours et OAuth privé | Installé ; transfert et SHA-256 du téléchargement validés ; restauration complète depuis Drive à tester | [#101](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/101) |
+| CAT-02 | Suppression du catalogue par administrateurs et gestionnaires ; stocks et historique conservés | Tests locaux et recette exploitant validés ; mise à jour serveur à effectuer | [#102](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/102) |
 
 Le mini-PC annoncé possède quatre cœurs et 8,1 Go de mémoire totale ; la charge domotique et la capacité disponible restent à vérifier sur le serveur. La préparation ne vaut pas ouverture en production. Voir [le guide Portainer](docs/installation-portainer.md), notamment les conditions de copie hors serveur et de planification de la conservation. Ce lot s’ajoute aux 39 lots MVP déjà terminés.
 
@@ -942,4 +943,4 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 
 ## Demande suivante
 
-- CAT-02 : ajouter la suppression des articles ; règles pour stock et historique à préciser après OPS-05 ([#102](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/102)).
+- CAT-02 : l’exploitant a validé la suppression dans l’aperçu local. Réservée aux administrateurs/gestionnaires, elle masque l’article même avec du stock et conserve les quantités et historiques ([#102](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/102)).

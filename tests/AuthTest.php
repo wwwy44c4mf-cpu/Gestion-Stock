@@ -32,6 +32,7 @@ final class AuthTest extends WebTestCase
         foreach (explode('-- migrate:statement', file_get_contents(dirname(__DIR__).'/migrations/sql/001_schema.sql')) as $sql) {
             if (trim($sql) !== '') { $this->db->executeStatement($sql); }
         }
+        \App\Tests\CatalogDeletionSchema::apply($this->db);
         $this->db->executeStatement('ALTER TABLE users ADD development_only boolean NOT NULL DEFAULT false, ADD favorite_store_id uuid REFERENCES stores(id)');
         $hash = static::getContainer()->get(UserPasswordHasherInterface::class)->hashPassword(new StockUser('unused', $this->email, 'Test', 'USER', true, '', '0', 'Europe/Paris', ''), $this->password);
         self::assertStringStartsWith('$argon2id$', $hash);

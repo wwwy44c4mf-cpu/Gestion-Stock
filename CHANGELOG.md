@@ -6,6 +6,8 @@ Aucune version stable ni mise en production n’est déclarée. Les PR ouvertes 
 
 ### Fonctionnalités
 
+- Suppression des articles du catalogue par les administrateurs et gestionnaires, même avec du stock : confirmation protégée, stocks et historique conservés, retours possibles et absence de réactivation par une catégorie. Migration additive CAT-02 ; recette locale validée (#102).
+
 - Le scanner conserve sa fenêtre et affiche une action de reprise lors d’une interruption de visibilité ou d’un refus caméra, au lieu de disparaître silencieusement. Demande caméra lancée avant le chargement du décodeur. Tests simulés réussis ; validation sur iPhone Brave encore nécessaire (#98).
 
 - Thème orange #FF7900 et actions Sortie / Retour identiques côte à côte dans Consommations, y compris sur smartphone. Filtres adaptés aux petits écrans. Rendu approuvé localement ; recette sur les quatre navigateurs mobiles suivie dans #97.

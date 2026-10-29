@@ -2260,6 +2260,102 @@
         },
         "x-max-body-bytes": 65536,
         "x-integer-encoding": "Nombres JSON en base 10 sans décimale ni exposant."
+      },
+      "delete": {
+        "operationId": "deleteArticle",
+        "summary": "Supprimer un article du catalogue sans effacer ses stocks ni son historique",
+        "description": "Administrateurs et gestionnaires uniquement. Version courante obligatoire. L’article disparaît des listes du catalogue, reste inactif même après réactivation de sa catégorie, et conserve ses codes, ses stocks et tous ses mouvements. Les retours restent autorisés selon les droits existants. Un rejeu sur un article déjà supprimé ne crée pas une seconde trace.",
+        "tags": [
+          "articles"
+        ],
+        "security": [
+          {
+            "SessionCookie": [],
+            "CsrfToken": []
+          }
+        ],
+        "x-roles": [
+          "ADMIN",
+          "MANAGER"
+        ],
+        "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
+        "x-implementation": "available",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleResource"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string",
+                  "maxLength": 32
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArticleDelete"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-integer-encoding": "Nombres JSON en base 10 sans décimale ni exposant."
       }
     },
     "/article-proposals": {
@@ -7389,6 +7485,14 @@
               "minLength": 1,
               "maxLength": 512
             }
+          },
+          "deleted_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Date de suppression du catalogue ; stocks et historique conservés."
           }
         },
         "additionalProperties": false,
@@ -10009,6 +10113,20 @@
           "consumption_id",
           "quantity",
           "store_id"
+        ],
+        "additionalProperties": false
+      },
+      "ArticleDelete": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "version"
         ],
         "additionalProperties": false
       }

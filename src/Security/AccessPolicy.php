@@ -17,7 +17,7 @@ final class AccessPolicy
     {
         $identity = $this->identity->requireRole($actor, $permission);
         $global = [Permission::ACCOUNTS_ADMIN, Permission::STORES_ADMIN, Permission::CATALOG_READ,
-            Permission::CATALOG_ADMIN, Permission::CATALOG_PROPOSE, Permission::INFORMATION_SEND];
+            Permission::CATALOG_ADMIN, Permission::CATALOG_DELETE, Permission::CATALOG_PROPOSE, Permission::INFORMATION_SEND];
         if (in_array($permission, $global, true)) {
             if ($target !== null) { $this->missing(); }
             return;

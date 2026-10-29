@@ -22,6 +22,7 @@ final class CatalogTest extends WebTestCase
         $this->db=static::getContainer()->get(Connection::class);$this->db->beginTransaction();
         $schema='art01_'.bin2hex(random_bytes(6));$this->db->executeStatement('CREATE SCHEMA '.$schema);$this->db->executeStatement('SET LOCAL search_path TO '.$schema);
         foreach (explode('-- migrate:statement',file_get_contents(dirname(__DIR__).'/migrations/sql/001_schema.sql')) as $sql) { if (trim($sql)!=='') { $this->db->executeStatement($sql); } }
+        \App\Tests\CatalogDeletionSchema::apply($this->db);
         $this->db->executeStatement('ALTER TABLE users ADD development_only boolean NOT NULL DEFAULT false');
         require_once dirname(__DIR__).'/migrations/Version20261018140000.php';
         $migration=new \DoctrineMigrations\Version20261018140000($this->db,new \Psr\Log\NullLogger());$migration->up(new \Doctrine\DBAL\Schema\Schema());foreach($migration->getSql() as $sql) { $this->db->executeStatement($sql->getStatement()); }
@@ -98,7 +99,7 @@ final class CatalogTest extends WebTestCase
         self::assertSame($before,$this->db->fetchAllAssociative('SELECT * FROM stock_movements'));self::assertSame($stocks,$this->db->fetchAllAssociative('SELECT * FROM stock_levels'));
         $sql="INSERT INTO stock_movements (type,article_id,source_store_id,quantity,author_id,consumer_id,idempotency_key) VALUES ('consumption',?,?,1,?,?,'new-consumption')";
         $this->rejectedSql($sql,[$id,$store,$this->ids['admin'],$this->ids['user']]);$this->rejectedSql('DELETE FROM articles WHERE id = ?',[$id]);
-        $this->send('DELETE','/api/v1/articles/'.$id);self::assertResponseStatusCodeSame(405);
+        $this->send('DELETE','/api/v1/articles/'.$id);self::assertResponseStatusCodeSame(400);
         // An unused item can still be returned to its original store after the article is archived.
         $this->db->executeStatement("INSERT INTO stock_movements (type,article_id,destination_store_id,quantity,author_id,related_movement_id,idempotency_key) VALUES ('return',?,?,1,?,?,'return-archived')",[$id,$store,$this->ids['admin'],$movement]);
         $this->send('PATCH','/api/v1/articles/'.$id,['version'=>2,'active'=>true]);self::assertResponseIsSuccessful();$this->db->executeStatement($sql,[$id,$store,$this->ids['admin'],$this->ids['user']]);self::assertSame(3,(int)$this->db->fetchOne('SELECT count(*) FROM stock_movements'));

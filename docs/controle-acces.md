@@ -9,6 +9,7 @@ La sélection « Tous mes magasins » ou d’un magasin dans l’en-tête est un
 | Comptes, rôles et affectations | Tous | Non | Non |
 | Administration magasins et catalogue | Oui | Non | Non |
 | Lecture catalogue | Oui | Oui | Oui |
+| Suppression du catalogue, stocks et historique conservés | Oui | Oui | Non |
 | Proposition catalogue | Oui | Oui | Non |
 | Stocks | Tous, désactivés compris | Actifs affectés | Actifs affectés |
 | Saisie de sa consommation | Magasin actif | Actif affecté | Tout magasin actif, même sans affectation |
@@ -41,3 +42,5 @@ Les API disponibles dans ce lot sont `GET /api/v1/stores`, `GET /api/v1/stores/{
 ## Vérification
 
 `AccessControlTest` utilise un schéma PostgreSQL transactionnel isolé : rôles, affectations multiples et révoquées, magasins désactivés, accès direct, stocks inchangés après refus, agrégats filtrés, historique personnel hors affectation, bénéficiaire tiers, inventaires, audit global, propositions, deux magasins d’un transfert, identité périmée ou falsifiée, formulaire de contexte et CSRF. Le schéma est annulé après chaque test.
+
+La permission globale `APP_CATALOG_DELETE` autorise uniquement le retrait d’un article du catalogue. Elle est revérifiée en base après verrouillage et ne donne pas accès aux créations ou modifications administratives. La suppression est possible même si un magasin possède encore du stock ; les règles habituelles de lecture, de retour et d’ajustement restent applicables. Voir [CAT-02](suppression-articles.md).

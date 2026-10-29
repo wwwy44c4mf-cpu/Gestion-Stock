@@ -24,7 +24,9 @@ final class CatalogAdministration
     public function get(StockUser $actor, string $kind, string $id): array
     {
         $this->identity->requireRole($actor, Permission::CATALOG_ADMIN);
-        return $this->directory->get($actor, $kind, $id);
+        $result = $this->directory->get($actor, $kind, $id);
+        if ($kind === 'article' && $result['data']['deleted_at'] !== null) { throw new ApiProblem(409,'deleted_article','Cet article a été supprimé du catalogue. Son historique et ses stocks sont conservés.'); }
+        return $result;
     }
     public function create(StockUser $actor, string $kind, \stdClass $body, string $key): array
     {
@@ -64,6 +66,7 @@ final class CatalogAdministration
         $this->identity->requireRole($actor, Permission::CATALOG_ADMIN); $this->validate($kind, $body, false);
         return $this->db->transactional(function () use ($actor,$kind,$id,$body): array {
             $this->lock($actor); $before = $this->directory->get($actor,$kind,$id)['data']; $id = $before['id'];
+            if ($kind === 'article' && $before['deleted_at'] !== null) { throw new ApiProblem(409,'deleted_article','Cet article a été supprimé du catalogue. Son historique et ses stocks sont conservés.'); }
             if ($kind === 'article' && isset($body->scan_codes)) { $this->checkCodes($body->scan_codes, $id); }
             if ($kind === 'article' && $body->version !== $before['version']) { throw new ApiProblem(409, 'stale_article', 'Cet article a été modifié. Rechargez sa fiche avant de réessayer.'); }
             $next = array_replace($before,get_object_vars($body)); $next['name'] = trim($next['name']);
@@ -95,6 +98,25 @@ final class CatalogAdministration
             return $this->directory->get($actor,$kind,$id);
         });
     }
+    /** Remove from the catalogue, preserving every stock balance and historical relation. */
+    public function removeArticle(StockUser $actor, string $id, int $version): array
+    {
+        $this->identity->requireRole($actor, Permission::CATALOG_DELETE);
+        if ($version < 1 || $version > 9007199254740991) { throw new ApiProblem(422,'invalid_version','Version de formulaire invalide. Rechargez la fiche.'); }
+        return $this->db->transactional(function () use ($actor, $id, $version): array {
+            // The same incompatible users/articles guards serialize removal with movements,
+            // category changes, proposals and revocation of the actor's live permissions.
+            $this->lock($actor, Permission::CATALOG_DELETE);
+            $before = $this->directory->get($actor, 'article', $id)['data'];
+            if ($before['deleted_at'] !== null) { return ['data' => $before]; }
+            if ($before['version'] !== $version) { throw new ApiProblem(409,'stale_article','Cet article a été modifié. Rechargez sa fiche avant de le supprimer.'); }
+            if ($version >= 9007199254740991) { throw new ApiProblem(409,'article_version_limit','La version de cet article ne peut plus être incrémentée.'); }
+            $this->db->executeStatement('UPDATE articles SET active=false,deleted_at=clock_timestamp(),version=version+1,updated_at=clock_timestamp() WHERE id=?', [$before['id']]);
+            $this->audit($actor, 'article', $before['id'], 'article.deleted', ['active','deleted_at']);
+            return $this->directory->get($actor, 'article', $before['id']);
+        });
+    }
+
     /** Read-only business validation, shared by submission and administrative publication. */
     public function checkArticleProposal(StockUser $actor,string $operation,\stdClass $payload,?string $articleId=null,?int $version=null): void
     {
@@ -109,6 +131,7 @@ final class CatalogAdministration
         }
         if ($articleId === null || $version === null) { throw new ApiProblem(422,'invalid_proposal','L’article et sa version sont obligatoires.'); }
         $before=$this->directory->get($actor,'article',$articleId)['data'];
+        if ($before['deleted_at'] !== null) { throw new ApiProblem(409,'deleted_article','Cet article a été supprimé du catalogue.'); }
         if (isset($payload->scan_codes)) { $this->checkCodes($payload->scan_codes, $articleId); }
         if ($version !== $before['version']) { throw new ApiProblem(409,'stale_article','L’article a changé. Rechargez sa fiche avant de proposer une modification.'); }
         $next=array_replace($before,get_object_vars($payload));
@@ -117,10 +140,10 @@ final class CatalogAdministration
         foreach (get_object_vars($payload) as $field=>$value) { if ($next[$field] !== $before[$field]) { return; } }
         throw new ApiProblem(422,'no_article_change','Aucune modification de l’article n’a été proposée.');
     }
-    private function lock(StockUser $actor): void
+    private function lock(StockUser $actor, Permission $permission = Permission::CATALOG_ADMIN): void
     {
         $this->db->executeStatement('LOCK TABLE users IN SHARE ROW EXCLUSIVE MODE');
-        $this->identity->requireRole($actor,Permission::CATALOG_ADMIN);
+        $this->identity->requireRole($actor,$permission);
         $this->db->executeStatement('LOCK TABLE categories IN SHARE ROW EXCLUSIVE MODE');
         $this->db->executeStatement('LOCK TABLE articles IN SHARE ROW EXCLUSIVE MODE');
     }
@@ -129,11 +152,11 @@ final class CatalogAdministration
         $branch = 'WITH RECURSIVE branch AS (SELECT id FROM categories WHERE id = ? UNION SELECT c.id FROM categories c JOIN branch b ON c.parent_id = b.id) ';
         $needsChange = $active ? 'NOT active' : 'active';
         $state = $active ? 'true' : 'false';
-        if ($this->db->fetchOne($branch.'SELECT 1 FROM articles WHERE category_id IN (SELECT id FROM branch) AND '.$needsChange.' AND version >= 9007199254740991 LIMIT 1',[$root])) {
+        if ($this->db->fetchOne($branch.'SELECT 1 FROM articles WHERE category_id IN (SELECT id FROM branch) AND deleted_at IS NULL AND '.$needsChange.' AND version >= 9007199254740991 LIMIT 1',[$root])) {
             throw new ApiProblem(409,'article_version_limit','Un article de cette branche ne peut plus changer de version. Aucun changement n’a été enregistré.');
         }
         $categories = $this->db->fetchFirstColumn($branch.'UPDATE categories SET active = '.$state.' WHERE id IN (SELECT id FROM branch) AND id <> ? AND '.$needsChange.' RETURNING id',[$root,$root]);
-        $articles = $this->db->fetchFirstColumn($branch.'UPDATE articles SET active = '.$state.',version = version + 1,updated_at = clock_timestamp() WHERE category_id IN (SELECT id FROM branch) AND '.$needsChange.' RETURNING id',[$root]);
+        $articles = $this->db->fetchFirstColumn($branch.'UPDATE articles SET active = '.$state.',version = version + 1,updated_at = clock_timestamp() WHERE category_id IN (SELECT id FROM branch) AND deleted_at IS NULL AND '.$needsChange.' RETURNING id',[$root]);
         $action = $active ? '.reactivated' : '.archived';
         foreach ($categories as $id) { $this->audit($actor,'category',$id,'category'.$action,['active'],$root); }
         foreach ($articles as $id) { $this->audit($actor,'article',$id,'article'.$action,['active'],$root); }

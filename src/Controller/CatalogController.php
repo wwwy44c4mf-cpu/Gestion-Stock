@@ -53,6 +53,37 @@ final class CatalogController extends AbstractController
     {
         return $this->json($this->administration->update($this->actor(),$kind,$id,$json->read($request,$kind==='article'?'ArticlePatch':'CategoryPatch')));
     }
+    #[Route('/api/v1/articles/{id}',name:'api_articles_delete',methods:['DELETE'])]
+    #[IsGranted('APP_CATALOG_DELETE')]
+    public function deleteArticle(string $id, Request $request, JsonBody $json): JsonResponse
+    {
+        $body = $json->read($request, 'ArticleDelete');
+        return $this->json($this->administration->removeArticle($this->actor(), $id, $body->version));
+    }
+    #[Route('/articles/{id}/supprimer',name:'catalog_article_delete',methods:['GET','POST'])]
+    #[IsGranted('APP_CATALOG_DELETE')]
+    public function deleteForm(string $id, Request $request, CsrfTokenManagerInterface $csrf): Response
+    {
+        $actor = $this->actor();
+        $article = $this->directory->get($actor, 'article', $id)['data'];
+        $tokenId = 'catalog_article_delete_'.$article['id'];
+        $error = null; $status = 200;
+        if ($request->isMethod('POST')) {
+            try {
+                if (strlen($request->getContent()) > 65536 || $request->files->count()) { throw new ApiProblem(413,'payload_too_large','Formulaire trop volumineux.'); }
+                foreach ($request->request->all() as $name => $value) {
+                    if (!in_array($name, ['_csrf_token','version'], true) || !is_string($value)) { throw new ApiProblem(422,'invalid_form','Formulaire invalide.'); }
+                }
+                if (!$csrf->isTokenValid(new CsrfToken($tokenId, $request->request->getString('_csrf_token')))) { throw new ApiProblem(403,'invalid_csrf_token','Formulaire expiré. Rechargez la page avant de réessayer.'); }
+                $version = $request->request->getString('version');
+                if (!preg_match('/^[1-9][0-9]{0,15}$/D', $version)) { throw new ApiProblem(422,'invalid_version','Version de formulaire invalide. Rechargez la fiche.'); }
+                $this->administration->removeArticle($actor, $id, (int)$version);
+                $this->addFlash('success', 'L’article a été supprimé du catalogue. Ses stocks et son historique sont conservés.');
+                return $this->redirectToRoute('catalog_list', [], 303);
+            } catch (ApiProblem $problem) { $error = $problem->getMessage(); $status = $problem->status; }
+        }
+        return $this->render('catalog/delete.html.twig', ['article'=>$article,'error'=>$error,'token_id'=>$tokenId], new Response(status:$status));
+    }
     #[Route('/articles',name:'catalog_list',methods:['GET'],defaults:['kind'=>'article'])]
     #[Route('/categories',name:'catalog_categories',methods:['GET'],defaults:['kind'=>'category'])]
     public function index(string $kind,Request $request,QueryParameters $query): Response

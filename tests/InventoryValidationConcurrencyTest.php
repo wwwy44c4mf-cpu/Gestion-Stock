@@ -18,6 +18,7 @@ final class InventoryValidationConcurrencyTest extends KernelTestCase
         try {
             $db->executeStatement('SET search_path TO '.$schema);
             foreach(explode('-- migrate:statement',file_get_contents(dirname(__DIR__).'/migrations/sql/001_schema.sql')) as $sql) {if(trim($sql)!=='') {$db->executeStatement($sql);}}
+            \App\Tests\CatalogDeletionSchema::apply($db);
             $db->executeStatement('ALTER TABLE users ADD development_only boolean NOT NULL DEFAULT false');
             foreach(['20261018140000','20261018200000','20261018223000','20261020220000','20261020230000','20261021000000'] as $version) {require_once dirname(__DIR__).'/migrations/Version'.$version.'.php';$class='DoctrineMigrations\\Version'.$version;$migration=new $class($db,new \Psr\Log\NullLogger());$migration->up(new \Doctrine\DBAL\Schema\Schema());foreach($migration->getSql() as $sql) {$db->executeStatement($sql->getStatement());}}
             $db->executeStatement('INSERT INTO users (email,name,password_hash,role_id) VALUES (?,?,?,1)',['admin@example.test','Admin',password_hash('Inventory-race-2026!',PASSWORD_ARGON2ID)]);
