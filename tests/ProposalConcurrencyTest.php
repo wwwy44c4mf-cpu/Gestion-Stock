@@ -17,6 +17,7 @@ final class ProposalConcurrencyTest extends KernelTestCase
         self::bootKernel();$db=static::getContainer()->get(Connection::class);$schema='art02_race_'.bin2hex(random_bytes(6));$lock=random_int(1000000,1000000000);$db->executeStatement('CREATE SCHEMA '.$schema);
         try {
             $db->executeStatement('SET search_path TO '.$schema);foreach(explode('-- migrate:statement',file_get_contents(dirname(__DIR__).'/migrations/sql/001_schema.sql')) as $sql) { if(trim($sql)!=='') { $db->executeStatement($sql); } }$db->executeStatement('ALTER TABLE users ADD development_only boolean NOT NULL DEFAULT false');
+            \App\Tests\CatalogDeletionSchema::apply($db);
             foreach(['20261018140000','20261018150000'] as $version) { require_once dirname(__DIR__).'/migrations/Version'.$version.'.php';$class='DoctrineMigrations\\Version'.$version;$migration=new $class($db,new \Psr\Log\NullLogger());$migration->up(new \Doctrine\DBAL\Schema\Schema());foreach($migration->getSql() as $sql) { $db->executeStatement($sql->getStatement()); } }
             $hash=password_hash('Proposal-race-2026!',PASSWORD_ARGON2ID);foreach(['admin'=>1,'admin2'=>1,'manager'=>2,'manager2'=>2] as $name=>$role) { $db->executeStatement('INSERT INTO users (email,name,password_hash,role_id) VALUES (?,?,?,?)',[$name.'@example.test',$name,$hash,$role]); }
             $job=['actor'=>'manager','mode'=>'submit','key'=>'concurrent-submit-key','body'=>['operation'=>'create','payload'=>['sku'=>'RACE-FIRST','name'=>'Premier article']]];

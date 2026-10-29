@@ -26,6 +26,7 @@ final class StockMovementEngineTest extends KernelTestCase
         self::bootKernel(); $this->db = static::getContainer()->get(Connection::class); $this->db->beginTransaction();
         $schema = 'stk02_'.bin2hex(random_bytes(6)); $this->db->executeStatement('CREATE SCHEMA '.$schema); $this->db->executeStatement('SET LOCAL search_path TO '.$schema);
         foreach (explode('-- migrate:statement', file_get_contents(dirname(__DIR__).'/migrations/sql/001_schema.sql')) as $sql) { if (trim($sql) !== '') { $this->db->executeStatement($sql); } }
+        \App\Tests\CatalogDeletionSchema::apply($this->db);
         $this->db->executeStatement('ALTER TABLE users ADD development_only boolean NOT NULL DEFAULT false');
         foreach (['20261018140000','20261018200000'] as $version) {
             require_once dirname(__DIR__).'/migrations/Version'.$version.'.php'; $class = 'DoctrineMigrations\\Version'.$version;

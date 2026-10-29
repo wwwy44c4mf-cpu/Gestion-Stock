@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% block title %}Supprimer un article · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">CATALOGUE COMMUN</p><h1>Supprimer l’article</h1></div><a href="{{ path('catalog_list') }}">Retour aux articles</a></div>
+<section class="card">
+<h2>{{ article.name }}</h2><p><strong>Référence :</strong> {{ article.sku }}</p>
+{% if error %}<p class="notice" role="alert">{{ error }}</p>{% endif %}
+{% if article.deleted_at %}
+<p>Cet article est déjà supprimé du catalogue. Ses stocks et son historique sont conservés.</p>
+{% else %}
+<p>L’article disparaîtra du catalogue, même s’il reste du stock dans un magasin. Les quantités en stock et l’historique seront conservés ; les retours resteront possibles.</p>
+<p>Les nouvelles entrées et sorties seront bloquées pour cet article.</p>
+<form method="post" action="{{ path('catalog_article_delete',{id:article.id}) }}">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token(token_id) }}">
+<input type="hidden" name="version" value="{{ article.version }}">
+<div class="dialog-actions"><button class="button" type="submit">Supprimer l’article</button><a href="{{ path('catalog_article',{id:article.id}) }}">Annuler</a></div>
+</form>
+{% endif %}
+</section>
+{% endblock %}

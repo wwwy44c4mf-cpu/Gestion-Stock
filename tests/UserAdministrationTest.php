@@ -31,6 +31,7 @@ final class UserAdministrationTest extends WebTestCase
         foreach (explode('-- migrate:statement', file_get_contents(dirname(__DIR__).'/migrations/sql/001_schema.sql')) as $sql) {
             if (trim($sql) !== '') { $this->db->executeStatement($sql); }
         }
+        \App\Tests\CatalogDeletionSchema::apply($this->db);
         $this->db->executeStatement('ALTER TABLE users ADD development_only boolean NOT NULL DEFAULT false');
         require_once dirname(__DIR__).'/migrations/Version20261018120000.php';
         $migration = new \DoctrineMigrations\Version20261018120000($this->db, new \Psr\Log\NullLogger());

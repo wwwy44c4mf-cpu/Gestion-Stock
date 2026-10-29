@@ -37,6 +37,7 @@ final class AccessControlTest extends WebTestCase
         foreach (explode('-- migrate:statement', file_get_contents(dirname(__DIR__).'/migrations/sql/001_schema.sql')) as $sql) {
             if (trim($sql) !== '') { $this->db->executeStatement($sql); }
         }
+        \App\Tests\CatalogDeletionSchema::apply($this->db);
         $this->db->executeStatement('ALTER TABLE users ADD development_only boolean NOT NULL DEFAULT false');
         $hash = password_hash('Test-access-2026!', PASSWORD_ARGON2ID);
         foreach (['admin' => 1, 'manager' => 2, 'user' => 3, 'outsider' => 3] as $name => $role) {

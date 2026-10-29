@@ -18,6 +18,7 @@ final class StoreConcurrencyTest extends KernelTestCase
         try {
             $db->executeStatement('SET search_path TO '.$schema);
             foreach (explode('-- migrate:statement',file_get_contents(dirname(__DIR__).'/migrations/sql/001_schema.sql')) as $sql) { if (trim($sql)!=='') { $db->executeStatement($sql); } }
+            \App\Tests\CatalogDeletionSchema::apply($db);
             $db->executeStatement('ALTER TABLE users ADD development_only boolean NOT NULL DEFAULT false');
             require_once dirname(__DIR__).'/migrations/Version20261018130000.php';
             $migration=new \DoctrineMigrations\Version20261018130000($db,new \Psr\Log\NullLogger());$migration->up(new \Doctrine\DBAL\Schema\Schema());
