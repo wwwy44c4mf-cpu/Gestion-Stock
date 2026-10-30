@@ -21,7 +21,7 @@ final class AccessDirectory
     public function stores(StockUser $actor, array $filters = []): array
     {
         $scope = $this->policy->storeScope($actor);
-        $where = $scope->condition; $parameters = $scope->parameters;
+        $where = '(' . $scope->condition . ') AND s.deleted_at IS NULL'; $parameters = $scope->parameters;
         if (isset($filters['status'])) {
             if (!in_array($filters['status'], ['active', 'inactive'], true)) { throw new ApiProblem(422, 'invalid_query', 'État invalide.'); }
             $where .= $filters['status'] === 'active' ? ' AND s.active' : ' AND NOT s.active';
@@ -48,7 +48,7 @@ final class AccessDirectory
     public function storeOptions(StockUser $actor, Permission $permission = Permission::STOCK_READ): array
     {
         $scope = $this->policy->storeScope($actor, $permission);
-        return $this->db->fetchAllAssociative('SELECT s.id, s.code, s.name, s.active FROM stores s WHERE '.$scope->condition.' ORDER BY s.name, s.id', $scope->parameters);
+        return $this->db->fetchAllAssociative('SELECT s.id, s.code, s.name, s.active FROM stores s WHERE ('.$scope->condition.') AND s.deleted_at IS NULL ORDER BY s.name, s.id', $scope->parameters);
     }
 
     public function beneficiaries(StockUser $actor, array $filters): array

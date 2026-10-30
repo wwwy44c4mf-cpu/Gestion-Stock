@@ -9,6 +9,7 @@ import re
 import secrets
 import subprocess
 import sys
+from urllib.parse import urlsplit
 
 ROOT = Path('/deployment')
 APP = Path('/app-secrets')
@@ -41,6 +42,12 @@ def configuration():
               'MAIL_DELIVERY_ENABLED': os.environ.get('MAIL_DELIVERY_ENABLED', '0'),
               'MAIL_FROM_ADDRESS': os.environ.get('MAIL_FROM_ADDRESS', 'noreply@example.invalid'),
               'BACKUP_INTERVAL_SECONDS': '86400', 'BACKUP_RETENTION_DAYS': '90'}
+    mail_url = os.environ.get('MAIL_PUBLIC_URL', '')
+    if mail_url:
+        parsed = urlsplit(mail_url)
+        if parsed.scheme != 'https' or not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment or parsed.path not in ('', '/'):
+            fail('invalid_mail_public_url')
+        values['MAIL_PUBLIC_URL'] = mail_url
     if values['POSTGRES_USER'] == 'postgres':
         fail('application_superuser_refused')
     for key in ('POSTGRES_DB', 'POSTGRES_USER'):

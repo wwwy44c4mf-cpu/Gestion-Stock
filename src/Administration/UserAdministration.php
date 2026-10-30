@@ -35,7 +35,7 @@ final class UserAdministration
     public function listing(StockUser $actor, array $filters): array
     {
         $this->authorize($actor);
-        $where = ["u.id <> '".\App\Privacy\AnonymousIdentity::ID."'", '(NOT u.development_only OR ? = \'dev\')'];
+        $where = ["u.deleted_at IS NULL", "u.id <> '".\App\Privacy\AnonymousIdentity::ID."'", '(NOT u.development_only OR ? = \'dev\')'];
         $parameters = [$this->environment];
         if (isset($filters['role'])) { $where[] = 'r.code = ?'; $parameters[] = $filters['role']; }
         if (isset($filters['status'])) { $where[] = $filters['status'] === 'active' ? 'u.active' : 'NOT u.active'; }
@@ -130,6 +130,26 @@ final class UserAdministration
                 return ['data' => $this->resource($this->row($id))];
             });
         } catch (UniqueConstraintViolationException) { throw new ApiProblem(409, 'email_already_used', 'Ce courriel est déjà utilisé par un compte.'); }
+    }
+
+    public function delete(StockUser $actor,string $id): void
+    {
+        $this->db->transactional(function() use($actor,$id): void {
+            $this->db->executeStatement('LOCK TABLE users IN SHARE ROW EXCLUSIVE MODE');
+            $this->authorize($actor);$row=$this->row($id);
+            if($id===$actor->id) {throw new ApiProblem(409,'self_deletion','Vous ne pouvez pas supprimer votre propre compte.');}
+            if($this->db->fetchOne('SELECT deleted_at FROM users WHERE id=?',[$id])!==null) {return;}
+            if($row['active'] && $row['role']==='ADMIN' && !(bool)$this->db->fetchOne('SELECT 1 FROM users WHERE id<>? AND active AND role_id=1 AND anonymized_at IS NULL AND NOT development_only LIMIT 1',[$id])) {throw new ApiProblem(409,'last_administrator','Conservez au moins un administrateur actif.');}
+            if($this->db->fetchOne("SELECT 1 FROM inventories i WHERE i.status NOT IN ('closed','cancelled') AND (i.created_by=? OR i.validated_by=? OR EXISTS(SELECT 1 FROM inventory_lines l WHERE l.inventory_id=i.id AND l.counted_by=?)) UNION ALL SELECT 1 FROM article_proposals WHERE status='pending' AND proposed_by=? LIMIT 1",[$id,$id,$id,$id])) {throw new ApiProblem(409,'open_user_cases','Terminez ou annulez les inventaires et traitez les propositions de cette personne avant de supprimer son compte.');}
+            $this->db->executeStatement('DELETE FROM password_reset_tokens WHERE user_id=?',[$id]);
+            $this->db->executeStatement("UPDATE account_requests SET first_name=NULL,last_name=NULL,email=NULL,user_id=NULL,reviewed_by=NULL,status=CASE WHEN status='pending' THEN 'expired' ELSE status END,reviewed_at=coalesce(reviewed_at,clock_timestamp()),anonymized_at=clock_timestamp() WHERE anonymized_at IS NULL AND (user_id=? OR lower(btrim(email))=lower(btrim(?)))",[$id,$row['email']]);
+            $this->db->executeStatement('DELETE FROM user_creation_requests WHERE user_id=? OR actor_id=?',[$id,$id]);
+            $this->db->executeStatement('DELETE FROM administration_reads WHERE user_id=?',[$id]);
+            $this->db->executeStatement('DELETE FROM user_stores WHERE user_id=?',[$id]);
+            $this->db->executeStatement('DELETE FROM alert_recipients WHERE user_id=?',[$id]);
+            $this->db->executeStatement('UPDATE users SET active=false,name=NULL,email=NULL,password_hash=NULL,favorite_store_id=NULL,anonymized_at=clock_timestamp(),deleted_at=clock_timestamp(),auth_version=auth_version+1,updated_at=clock_timestamp() WHERE id=?',[$id]);
+            $this->audit($actor,$id,'user.deleted',['name','email','password_hash','active','store_ids']);
+        });
     }
 
     private function validate(\stdClass $body, string $schema): void

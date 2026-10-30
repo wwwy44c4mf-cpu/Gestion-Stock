@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+{% block title %}Examiner une demande · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">ADMINISTRATION</p><h1>Demande de compte</h1></div><a href="{{ path('admin_users_requests') }}">Retour aux demandes</a></div>
+<section class="card account-form">
+{% if error %}{% include 'components/notice.html.twig' with {kind:'error',message:error} only %}{% endif %}
+<h2>{{ account_request.first_name }} {{ account_request.last_name }}</h2><p>{{ account_request.email }}</p><p>Demande du {{ account_request.created_at|date('d/m/Y à H:i','Europe/Paris') }}</p>
+{% if account_request.status == 'pending' %}
+<form method="post"><input type="hidden" name="_csrf_token" value="{{ csrf_token('account_request_review_' ~ account_request.id) }}">
+<div class="field"><label for="request-role">Rôle</label><select id="request-role" name="role">{% for value,label in {'USER':'Utilisateur','MANAGER':'Gestionnaire','ADMIN':'Administrateur'} %}<option value="{{ value }}" {% if choices.role == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+<fieldset><legend>Magasins affectés</legend>{% for store in stores %}<label class="checkbox-row"><input type="checkbox" name="store_ids[]" value="{{ store.id }}" {% if store.id in choices.store_ids %}checked{% endif %}> {{ store.name }}</label>{% else %}<p>Aucun magasin actif.</p>{% endfor %}</fieldset>
+<p>La personne recevra un lien valable 24 heures pour choisir son mot de passe. Son compte restera inactif jusqu’à cette étape.</p>
+<div class="dialog-actions"><button class="button primary" name="decision" value="approve" type="submit">Approuver et inviter</button><button class="button" name="decision" value="reject" type="submit">Refuser la demande</button></div>
+</form>
+{% elseif account_request.status == 'approved' %}
+{% if account_request.activated_at %}<p>Compte activé le {{ account_request.activated_at|date('d/m/Y à H:i','Europe/Paris') }}.</p>
+{% else %}<p>Demande approuvée. La personne doit encore créer son mot de passe.</p><form method="post"><input type="hidden" name="_csrf_token" value="{{ csrf_token('account_request_review_' ~ account_request.id) }}"><button class="button" name="decision" value="resend" type="submit">Renvoyer le lien de création du mot de passe</button><p class="muted">Le nouveau lien remplace le précédent. Les renvois sont espacés d’au moins une minute.</p></form>{% endif %}
+{% if account_request.user_id %}<p><a href="{{ path('admin_users_edit',{id:account_request.user_id}) }}">Consulter le compte</a></p>{% endif %}
+{% else %}<p>{{ account_request.status == 'rejected' ? 'Cette demande a été refusée.' : 'Cette demande a expiré.' }}</p>{% endif %}
+</section>
+{% endblock %}

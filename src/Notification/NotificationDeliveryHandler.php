@@ -22,8 +22,9 @@ final class NotificationDeliveryHandler
             if(!$event||$event['status']==='sent'||$event['status']==='pending') {return ['code'=>null];}
             if(!$this->enabled) {$this->db->executeStatement("UPDATE notification_events SET status='pending' WHERE id=?",[$message->id]);return ['code'=>null];}
             if((int)$event['attempts']>=4) {return ['code'=>'notification_attempts_exhausted','terminal'=>true];}
-            $recipient=$this->db->fetchAssociative('SELECT email,active,development_only FROM users WHERE id=?',[$event['recipient_id']]);
-            $allowed=$recipient&&$recipient['active']&&$recipient['email']!==null&&($this->environment!=='prod'||!$recipient['development_only']);
+            $recipient=$this->db->fetchAssociative('SELECT email,active,development_only,role_id FROM users WHERE id=?',[$event['recipient_id']]);
+            $allowed=$recipient&&($recipient['active']||$event['type']==='account_activation')&&$recipient['email']!==null&&($this->environment!=='prod'||!$recipient['development_only']);
+            if($allowed&&str_starts_with($event['event_key'],'account-request:')) {$allowed=(int)$recipient['role_id']===1;}
             if($allowed&&$event['store_id']!==null) {$allowed=(bool)$this->db->fetchOne('SELECT active FROM stores WHERE id=?',[$event['store_id']]);}
             if($allowed&&in_array($event['type'],['stock_low','stock_critical','daily_summary'],true)&&$event['store_id']!==null) {
                 $type=match($event['type']) {'stock_low'=>'low','stock_critical'=>'critical',default=>'daily_summary'};

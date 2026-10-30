@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% block title %}Demander un compte · Gestion de stock{% endblock %}
+{% block content %}
+<section class="auth-card card" aria-labelledby="request-title">
+<p class="eyebrow">REJOINDRE L’ÉQUIPE</p><h1 id="request-title">Demander un compte</h1>
+{% if error %}{% include 'components/notice.html.twig' with {kind:'error',message:error} only %}{% endif %}
+{% if accepted %}{% include 'components/notice.html.twig' with {kind:'success',message:message} only %}
+{% else %}
+<p>Un administrateur examinera votre demande. Après validation, vous recevrez un courriel pour créer votre mot de passe.</p>
+<form method="post">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token('account_request') }}">
+<div class="field"><label for="first-name">Prénom</label><input id="first-name" name="first_name" autocomplete="given-name" maxlength="80" required value="{{ data.first_name }}"></div>
+<div class="field"><label for="last-name">Nom</label><input id="last-name" name="last_name" autocomplete="family-name" maxlength="80" required value="{{ data.last_name }}"></div>
+<div class="field"><label for="request-email">Adresse mail</label><input id="request-email" name="email" type="email" autocomplete="email" maxlength="254" required value="{{ data.email }}"></div>
+<p class="muted">Ces informations servent à examiner votre demande et à vous donner accès à l’application. La demande est anonymisée après un an.</p>
+<button class="button primary" type="submit">Envoyer ma demande</button>
+</form>{% endif %}
+<p><a href="{{ path('login') }}">Retour à la connexion</a></p>
+</section>
+{% endblock %}

@@ -8,10 +8,12 @@
 {% if is_granted('APP_THRESHOLD_WRITE',threshold_target) %}<p><a class="button" href="{{ path('stocks_thresholds',{storeId:stock.store_id,articleId:stock.article_id}) }}">Configurer les seuils</a></p>{% endif %}
 {% if not article.active %}<p class="notice">Cet article est désactivé. Les nouvelles consommations sont interdites.</p>{% endif %}{% if not store.active %}<p class="notice">Ce magasin est désactivé. Aucun mouvement n’est autorisé.</p>{% endif %}
 <a href="{{ path('catalog_article',{id:stock.article_id}) }}">Consulter l’article et son total autorisé</a>
-{% if can_register_consumption %}<p><a class="button" href="{{ path('consumptions_new',{store_id:stock.store_id,article_id:stock.article_id}) }}">Enregistrer une consommation</a></p>{% endif %}
-{% if can_transfer %}<p><a class="button" href="{{ path('stocks_transfer_new',{source_store_id:stock.store_id,article_id:stock.article_id}) }}">Transférer du stock</a></p>{% endif %}
-{% if can_adjust %}<p><a class="button" href="{{ path('stocks_adjustment_new',{store_id:stock.store_id,article_id:stock.article_id}) }}">Ajuster le stock</a></p>{% endif %}
-{% if can_register_entry %}<p><a class="button" href="{{ path('stocks_entry_new',{store_id:stock.store_id,article_id:stock.article_id}) }}">Enregistrer une entrée</a></p>{% endif %}
+<nav class="stock-actions" aria-label="Actions de stock pour cet article">
+{% if can_register_consumption %}<a class="button" href="{{ path('consumptions_new',{store_id:stock.store_id,article_id:stock.article_id}) }}">Enregistrer une consommation</a>{% endif %}
+{% if can_transfer %}<a class="button" href="{{ path('stocks_transfer_new',{source_store_id:stock.store_id,article_id:stock.article_id}) }}">Transférer du stock</a>{% endif %}
+{% if can_adjust %}<a class="button" href="{{ path('stocks_adjustment_new',{store_id:stock.store_id,article_id:stock.article_id}) }}">Ajuster le stock</a>{% endif %}
+{% if can_register_entry %}<a class="button" href="{{ path('stocks_entry_new',{store_id:stock.store_id,article_id:stock.article_id}) }}">Enregistrer une entrée</a>{% endif %}
+</nav>
 </section>
 {% if history is not null %}<section class="card"><h2>Historique des variations dans ce magasin</h2><div class="table-scroll"><table><caption>Journal local de l’article</caption><thead><tr><th>Date</th><th>Mouvement</th><th>Variation en unités</th><th>Correction</th></tr></thead><tbody>
 {% set types = {'entry':'Entrée','consumption':'Consommation','transfer':'Transfert','return':'Retour','adjustment':'Ajustement','inventory_adjustment':'Inventaire','reversal':'Annulation'} %}

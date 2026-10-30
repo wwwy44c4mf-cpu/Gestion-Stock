@@ -14,5 +14,6 @@
 <div class="field"><label class="checkbox-row"><input type="checkbox" name="active" value="1" {% if store.active %}checked{% endif %}> Magasin actif</label><p class="muted">La désactivation conserve les données et l’historique. Seuls les administrateurs pourront consulter ce magasin. Terminez ou annulez tout inventaire en cours avant de le désactiver.</p></div>
 <button class="button" type="submit">{{ is_new ? 'Créer le magasin' : 'Enregistrer les modifications' }}</button>
 </form>
+{% if not is_new %}<p><a href="{{ path('stores_delete',{id:store.id}) }}">Supprimer ce magasin</a></p>{% endif %}
 </section>
 {% endblock %}

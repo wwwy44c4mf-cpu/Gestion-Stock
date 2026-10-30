@@ -11,6 +11,12 @@ Consulter le stock : {{ base_url ~ payload.path }}
 {{ payload.subject }}
 {{ payload.body }}
 Ouvrir l’application : {{ base_url ~ payload.path }}
+{% elseif type == 'account_activation' %}
+Votre demande de compte a été approuvée par un administrateur.
+Créez votre mot de passe avec ce lien personnel, valable 24 heures et utilisable une seule fois :
+{{ base_url ~ payload.path }}
+Si le lien a expiré, demandez à votre administrateur de renvoyer une invitation.
+Si vous n’êtes pas à l’origine de cette demande, ignorez ce courriel.
 {% elseif type == 'password_reset' %}
 Une réinitialisation de votre mot de passe a été demandée.
 Si vous n’êtes pas à l’origine de cette demande, ignorez ce courriel.

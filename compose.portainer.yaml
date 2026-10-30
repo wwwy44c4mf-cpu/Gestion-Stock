@@ -11,6 +11,7 @@ x-env: &env
   APP_DEBUG: 0
   APP_REQUIRE_HTTPS: 1
   APP_PUBLIC_URL: https://${APP_DOMAIN:?Définir APP_DOMAIN}
+  MAIL_PUBLIC_URL: ${MAIL_PUBLIC_URL:-}
   APP_TRUSTED_HOST_PATTERN: '${APP_TRUSTED_HOST_PATTERN:?Définir le motif exact du domaine}'
   APP_TRUSTED_PROXIES: ${CLOUDFLARED_ADDRESS:?Définir IP exacte Cloudflared}
   APP_SECRET_FILE: /run/secrets/app_secret
@@ -60,6 +61,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-gestion_stock}
       MAIL_DELIVERY_ENABLED: ${MAIL_DELIVERY_ENABLED:-0}
       MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-noreply@example.invalid}
+      MAIL_PUBLIC_URL: ${MAIL_PUBLIC_URL:-}
     volumes: ["app_secrets:/app-secrets", "db_secrets:/db-secrets", "backup_secrets:/backup-secrets", "deployment:/deployment", "recovery_key:/recovery-key", "schema_state:/schema-state"]
     network_mode: none
     read_only: true

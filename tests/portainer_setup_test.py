@@ -32,6 +32,14 @@ class SetupTest(unittest.TestCase):
         self.args.start()
         self.addCleanup(self.args.stop)
 
+    def test_neutral_mail_url_is_preserved_and_unsafe_urls_are_rejected(self):
+        os.environ['MAIL_PUBLIC_URL'] = 'https://stock.example.workers.dev'
+        self.assertEqual('https://stock.example.workers.dev', setup.configuration()['MAIL_PUBLIC_URL'])
+        for value in ('http://stock.example.test', 'https://user:secret@stock.example.test', 'https://stock.example.test/path', 'https://stock.example.test?token=x'):
+            os.environ['MAIL_PUBLIC_URL'] = value
+            with self.subTest(value=value), self.assertRaises(SystemExit):
+                setup.configuration()
+
     def test_redeploy_preserves_secrets_and_separates_identities(self):
         setup.main()
         before = (setup.APP / 'db_password').read_bytes()

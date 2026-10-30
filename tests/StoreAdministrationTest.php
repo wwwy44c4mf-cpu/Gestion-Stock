@@ -86,7 +86,7 @@ final class StoreAdministrationTest extends WebTestCase
         $this->send('PATCH','/api/v1/stores/'.$id,['name'=>'Dépôt renommé','description'=>'Texte <script>test</script>','address'=>' Adresse facultative ','active'=>false]);self::assertResponseIsSuccessful();
         foreach ($before as $table=>$rows) { self::assertSame($rows,$this->db->fetchAllAssociative('SELECT * FROM '.$table)); }
         self::assertSame('Adresse facultative',$this->db->fetchOne('SELECT address FROM stores'));self::assertSame('store.archived',$this->db->fetchOne("SELECT action FROM audit_logs WHERE action = 'store.archived'"));
-        $this->send('DELETE','/api/v1/stores/'.$id);self::assertResponseStatusCodeSame(405);
+        $this->send('DELETE','/api/v1/stores/'.$id);self::assertResponseStatusCodeSame(409);self::assertSame('store_not_empty',json_decode($this->client->getResponse()->getContent(),true)['code']);
         $this->login('user');$this->client->request('GET','/api/v1/stores/'.$id);self::assertResponseStatusCodeSame(404);
         $this->login();$this->send('PATCH','/api/v1/stores/'.$id,['active'=>true,'address'=>'']);self::assertResponseIsSuccessful();
         self::assertNull($this->db->fetchOne('SELECT address FROM stores'));

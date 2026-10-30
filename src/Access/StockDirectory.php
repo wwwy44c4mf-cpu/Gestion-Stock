@@ -33,7 +33,9 @@ final class StockDirectory
     {
         $this->policy->assert($actor, Permission::STOCK_READ, AccessTarget::store($storeId));
         $article = $this->catalog->get($actor, 'article', $articleId)['data'];
-        return ['data' => $this->read($actor, ['store_id' => $storeId, 'article_id' => $article['id']])['page']['data'][0]];
+        $rows=$this->read($actor,['store_id'=>$storeId,'article_id'=>$article['id']])['page']['data'];
+        if($rows===[]) {throw new ApiProblem(404,'resource_not_found','Ressource introuvable.');}
+        return ['data'=>$rows[0]];
     }
 
     /** Local ledger only: no actors, beneficiaries or remote-store identifiers. */
@@ -54,7 +56,7 @@ final class StockDirectory
     {
         $scope = $this->policy->storeScope($actor);
         if (isset($filters['store_id'])) { $this->policy->assert($actor, Permission::STOCK_READ, AccessTarget::store($filters['store_id'])); }
-        $where = [$scope->condition]; $parameters = $scope->parameters;
+        $where = [$scope->condition,'s.deleted_at IS NULL']; $parameters = $scope->parameters;
         foreach (['store_id' => 's.id', 'article_id' => 'a.id', 'category_id' => 'a.category_id'] as $key => $column) {
             if (isset($filters[$key])) { $where[] = $column.' = ?'; $parameters[] = $filters[$key]; }
         }

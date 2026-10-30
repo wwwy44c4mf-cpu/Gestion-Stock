@@ -119,6 +119,7 @@ final class NativeAuthenticationTest extends TestCase
         $db=$setup->getContainer()->get('doctrine')->getConnection();$db->executeStatement('CREATE SCHEMA '.$schema);$db->executeStatement('SET search_path TO '.$schema);
         try {
             foreach(explode('-- migrate:statement',file_get_contents(dirname(__DIR__).'/migrations/sql/001_schema.sql')) as $sql) {if(trim($sql)!=='') {$db->executeStatement($sql);}}
+            \App\Tests\CatalogDeletionSchema::apply($db);
             $db->executeStatement('ALTER TABLE users ADD development_only boolean NOT NULL DEFAULT false');
             foreach(['20261018140000','20261018200000','20261018223000','20261020220000','20261020230000','20261021000000','20261021010000','20261021020000','20261021030000'] as $version) {
                 require_once dirname(__DIR__).'/migrations/Version'.$version.'.php';$class='DoctrineMigrations\\Version'.$version;$migration=new $class($db,new \Psr\Log\NullLogger());$migration->up(new \Doctrine\DBAL\Schema\Schema());foreach($migration->getSql() as $sql) {$db->executeStatement($sql->getStatement());}

@@ -2,9 +2,9 @@
 {% block title %}Nouveau mot de passe · Gestion de stock{% endblock %}
 {% block content %}
 <section class="auth-card card" aria-labelledby="reset-title">
-    <h1 id="reset-title">Choisir un nouveau mot de passe</h1>
+    <h1 id="reset-title">{{ invitation ? 'Créer mon mot de passe' : 'Choisir un nouveau mot de passe' }}</h1>
     {% if error %}<p role="alert" class="notice error">{{ error }}</p>{% endif %}
-    <p>Choisissez un mot de passe de 12 à 128 caractères. Après validation, vos anciennes sessions seront fermées.</p>
+    <p>Choisissez un mot de passe de 12 à 128 caractères. {{ invitation ? 'Après validation, votre compte sera activé et vous pourrez vous connecter.' : 'Après validation, vos anciennes sessions seront fermées.' }}</p>
     <form method="post" action="{{ path('password_reset_confirm') }}">
         <input type="hidden" name="form_nonce" value="{{ form_nonce }}">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token('password_reset_confirm_' ~ form_nonce) }}">
@@ -12,6 +12,6 @@
         <div class="field"><label for="password_confirmation">Confirmer le mot de passe</label><input id="password_confirmation" name="password_confirmation" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
         <button class="button primary" type="submit">Enregistrer le mot de passe</button>
     </form>
-    <p><a href="{{ path('password_reset_request') }}">Demander un nouveau lien</a></p>
+    {% if invitation %}<p>Si le lien a expiré, demandez à votre administrateur de renvoyer votre invitation.</p>{% else %}<p><a href="{{ path('password_reset_request') }}">Demander un nouveau lien</a></p>{% endif %}
 </section>
 {% endblock %}

@@ -22,7 +22,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class ProposalController extends AbstractController
 {
-    public function __construct(private readonly ProposalAdministration $proposals,private readonly CatalogDirectory $catalog) {}
+    public function __construct(private readonly ProposalAdministration $proposals,private readonly CatalogDirectory $catalog,private readonly \App\Administration\AdminInbox $inbox) {}
     #[Route('/api/v1/article-proposals',name:'api_proposals_list',methods:['GET'])]
     public function listing(Request $request,QueryParameters $query): JsonResponse { return $this->json($this->proposals->listing($this->actor(),$query->read($request,'listProposals'))); }
     #[Route('/api/v1/article-proposals/{id}',name:'api_proposals_get',methods:['GET'])]
@@ -86,7 +86,9 @@ final class ProposalController extends AbstractController
     }
     private function renderDetail(string $id,?string $error=null,int $status=200,?string $key=null,string $comment=''): Response
     {
-        $actor=$this->actor();return $this->render('proposals/detail.html.twig',$this->proposals->context($actor,$id)+['categories'=>$this->catalog->categoryOptions($actor),'error'=>$error,'review_key'=>$key??bin2hex(random_bytes(16)),'comment'=>$comment],new Response(status:$status));
+        $actor=$this->actor();$context=$this->proposals->context($actor,$id);
+        if($actor->role==='ADMIN') {$this->inbox->read($actor,'article_proposal',$id);$this->container->get('twig')->addGlobal('admin_unread_count',$this->inbox->count($actor));}
+        return $this->render('proposals/detail.html.twig',$context+['categories'=>$this->catalog->categoryOptions($actor),'error'=>$error,'review_key'=>$key??bin2hex(random_bytes(16)),'comment'=>$comment],new Response(status:$status));
     }
     private function actor(): StockUser { $actor=$this->getUser();if(!$actor instanceof StockUser) { throw new ApiProblem(401,'authentication_required','Connectez-vous.'); }return $actor; }
 }

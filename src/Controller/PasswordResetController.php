@@ -68,7 +68,7 @@ final class PasswordResetController extends AbstractController
         if ($request->isMethod('GET') && $request->query->has('token')) {
             $token=$request->query->getString('token');
             $nonce=bin2hex(random_bytes(16));
-            $forms[$nonce]=['token'=>preg_match('/^[a-f0-9-]{36}\.[a-f0-9]{64}$/D', $token) ? $token : '', 'created_at'=>time()];
+            $forms[$nonce]=['token'=>preg_match('/^[a-f0-9-]{36}\.[a-f0-9]{64}$/D', $token) ? $token : '', 'created_at'=>time(),'invitation'=>$this->reset->isInvitation($token)];
             $forms=array_slice($forms, -10, null, true);
             foreach (array_diff_key($previous, $forms) as $oldNonce=>$unused) { $this->csrf->removeToken('password_reset_confirm_'.$oldNonce); }
             $session->set('_password_reset_forms', $forms);
@@ -89,11 +89,11 @@ final class PasswordResetController extends AbstractController
                 unset($forms[$nonce]);
                 $session->set('_password_reset_forms', $forms);
                 $this->csrf->removeToken('password_reset_confirm_'.$nonce);
-                $this->addFlash('success', 'Votre mot de passe a été modifié. Connectez-vous avec le nouveau mot de passe.');
+                $this->addFlash('success', 'Votre mot de passe est enregistré. Vous pouvez maintenant vous connecter.');
                 return $this->redirectToRoute('login', status: 303);
             } catch (ApiProblem $exception) { $status=$exception->status; $error=$exception->getMessage(); }
         }
-        return $this->render('security/reset_confirm.html.twig', ['error'=>$error, 'form_nonce'=>$nonce], new Response(status: $status));
+        return $this->render('security/reset_confirm.html.twig', ['error'=>$error, 'form_nonce'=>$nonce,'invitation'=>$forms[$nonce]['invitation']??false], new Response(status: $status));
     }
 
     private function protect(Request $request, string $operation, string $nonce=''): void

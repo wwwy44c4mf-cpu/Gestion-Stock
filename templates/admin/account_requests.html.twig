@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+{% block title %}Demandes de compte · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">ADMINISTRATION</p><h1>Demandes de compte</h1><p class="subtitle">Validez les accès et choisissez les droits de chaque personne.</p></div><a href="{{ path('admin_users') }}">Retour aux comptes</a></div>
+<section class="card"><p>{{ result.meta.total }} demande(s), les demandes en attente en premier.</p>
+{% for item in result.data %}<article class="card"><h2><a href="{{ path('admin_users_requests_review',{id:item.id}) }}">{{ item.first_name }} {{ item.last_name }}</a></h2><p>{{ item.email }}</p><p>{{ item.created_at|date('d/m/Y à H:i','Europe/Paris') }} · {{ item.activated_at ? 'Compte activé' : {'pending':'En attente','approved':'Invitation envoyée ou en attente d’envoi','rejected':'Refusée','expired':'Expirée'}[item.status] }}</p><a class="button" href="{{ path('admin_users_requests_review',{id:item.id}) }}">Consulter la demande</a></article>{% else %}<p>Aucune demande de compte.</p>{% endfor %}
+{% include 'components/pagination.html.twig' with {page:result.meta.page,pages:result.meta.total_pages,route:'admin_users_requests',parameters:{}} only %}
+</section>
+{% endblock %}

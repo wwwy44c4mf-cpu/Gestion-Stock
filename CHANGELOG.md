@@ -6,6 +6,8 @@ Aucune version stable ni mise en production n’est déclarée. Les PR ouvertes 
 
 ### Fonctionnalités
 
+- Demande de compte avec prénom, nom et courriel, validation administrative, invitation valable 24 heures et choix personnel du mot de passe. Pastille personnelle des demandes et propositions non lues, suppressions protégées des comptes et magasins vides, quatre actions de stock alignées. Validation locale reçue ; mise à jour serveur à effectuer (#105–#109).
+
 - Suppression des articles du catalogue par les administrateurs et gestionnaires, même avec du stock : confirmation protégée, stocks et historique conservés, retours possibles et absence de réactivation par une catégorie. Migration additive CAT-02 ; recette locale validée (#102).
 
 - Le scanner conserve sa fenêtre et affiche une action de reprise lors d’une interruption de visibilité ou d’un refus caméra, au lieu de disparaître silencieusement. Demande caméra lancée avant le chargement du décodeur. Tests simulés réussis ; validation sur iPhone Brave encore nécessaire (#98).
