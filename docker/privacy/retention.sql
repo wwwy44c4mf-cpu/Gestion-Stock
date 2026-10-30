@@ -126,6 +126,28 @@ DELETE FROM notification_delivery_attempts WHERE event_id IN (SELECT id FROM pri
 DELETE FROM notification_events WHERE id IN (SELECT id FROM privacy_notifications);
 UPDATE information_campaigns SET author_id='00000000-0000-4000-8000-000000000001',subject='[Effacé]',message='[Effacé]',request_key=id::text,request_fingerprint=repeat('0',64)
  WHERE created_at+interval '1 year'<=(SELECT at FROM privacy_clock);
+-- Account applications are nominative actions, including rejected/pending requests.
+-- Dynamic block keeps the operator usable when restoring an older schema.
+DO $$ BEGIN
+ IF to_regclass('administration_reads') IS NOT NULL THEN
+  DELETE FROM administration_reads WHERE read_at+interval '1 year'<=(SELECT at FROM privacy_clock) OR user_id IN (SELECT id FROM privacy_users);
+ END IF;
+ IF to_regclass('account_requests') IS NOT NULL THEN
+  LOCK TABLE account_requests IN ACCESS EXCLUSIVE MODE;
+  DELETE FROM password_reset_tokens WHERE user_id IN (
+   SELECT user_id FROM account_requests WHERE created_at+interval '1 year'<=(SELECT at FROM privacy_clock) AND activated_at IS NULL
+  );
+  DELETE FROM user_creation_requests WHERE request_key IN (
+   SELECT 'account-request:'||id::text FROM account_requests WHERE created_at+interval '1 year'<=(SELECT at FROM privacy_clock) OR user_id IN (SELECT id FROM privacy_users)
+  );
+  UPDATE account_requests SET first_name=NULL,last_name=NULL,email=NULL,user_id=NULL,reviewed_by=NULL,
+   status=CASE WHEN status='pending' THEN 'expired' ELSE status END,
+   reviewed_at=COALESCE(reviewed_at,(SELECT at FROM privacy_clock)),anonymized_at=(SELECT at FROM privacy_clock)
+   WHERE anonymized_at IS NULL AND (created_at+interval '1 year'<=(SELECT at FROM privacy_clock) OR user_id IN (SELECT id FROM privacy_users));
+  UPDATE account_requests SET reviewed_by=NULL WHERE reviewed_by IN (SELECT id FROM privacy_users)
+   OR reviewed_at+interval '1 year'<=(SELECT at FROM privacy_clock);
+ END IF;
+END $$;
 DELETE FROM password_reset_tokens WHERE expires_at<=(SELECT at FROM privacy_clock) OR user_id IN (SELECT id FROM privacy_users);
 DELETE FROM user_stores WHERE user_id IN (SELECT id FROM privacy_users);
 DELETE FROM alert_recipients WHERE user_id IN (SELECT id FROM privacy_users);

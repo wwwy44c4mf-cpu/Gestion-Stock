@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+{% block title %}Supprimer un compte · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><h1>Supprimer un compte</h1><a href="{{ path('admin_users') }}">Retour aux comptes</a></div>
+<section class="card account-form"><h2>{{ account.name ?? 'Compte anonymisé' }}</h2><p>{{ account.email ?? '' }}</p>
+{% if error %}{% include 'components/notice.html.twig' with {kind:'error',message:error} only %}{% endif %}
+<p>Cette suppression est définitive : l’accès, le nom, l’adresse mail et le mot de passe seront effacés. Les mouvements et les historiques seront conservés sans l’identité de cette personne.</p><p>Ses inventaires et propositions en attente doivent être terminés avant la suppression.</p>
+<form method="post"><input type="hidden" name="_csrf_token" value="{{ csrf_token('admin_users_delete_' ~ account.id) }}"><label class="checkbox-row"><input type="checkbox" name="confirm" value="1" required> Je confirme la suppression définitive de ce compte.</label><div class="dialog-actions"><button class="button" type="submit">Supprimer le compte</button><a href="{{ path('admin_users') }}">Annuler</a></div></form>
+</section>
+{% endblock %}

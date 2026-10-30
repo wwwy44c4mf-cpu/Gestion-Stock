@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+{% block title %}Supprimer un magasin · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><h1>Supprimer un magasin</h1><a href="{{ path('stores_list') }}">Retour aux magasins</a></div>
+<section class="card account-form"><h2>{{ store.name }} · {{ store.code }}</h2>
+{% if error %}{% include 'components/notice.html.twig' with {kind:'error',message:error} only %}{% endif %}
+<p>Le magasin disparaîtra des listes et des sélecteurs. Son historique sera conservé. Il ne pourra plus être réactivé.</p><p>Tout le stock doit être à zéro et les inventaires doivent être terminés ou annulés.</p>
+<form method="post"><input type="hidden" name="_csrf_token" value="{{ csrf_token('stores_delete_' ~ store.id) }}"><label class="checkbox-row"><input type="checkbox" name="confirm" value="1" required> Je confirme la suppression de ce magasin.</label><div class="dialog-actions"><button class="button" type="submit">Supprimer le magasin</button><a href="{{ path('stores_list') }}">Annuler</a></div></form>
+</section>
+{% endblock %}

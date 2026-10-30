@@ -12,7 +12,7 @@ use Twig\Environment;
 
 final class UiSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private Environment $twig, private Navigation $navigation, private Security $security, private \App\Ui\StoreContext $context) {}
+    public function __construct(private Environment $twig, private Navigation $navigation, private Security $security, private \App\Ui\StoreContext $context, private \App\Administration\AdminInbox $inbox) {}
 
     public static function getSubscribedEvents(): array
     {
@@ -36,6 +36,7 @@ final class UiSubscriber implements EventSubscriberInterface
         if (str_starts_with($route ?? '', 'stocks_')) { $section = 'stocks'; }
         if (str_starts_with($route ?? '', 'stores_')) { $section = 'magasins'; }
         if ((str_starts_with($route ?? '', 'catalog_') || str_starts_with($route ?? '', 'proposals_'))) { $section = 'articles'; }
+        $this->twig->addGlobal('admin_unread_count', $user instanceof StockUser && $user->role==='ADMIN' ? $this->inbox->count($user) : 0);
         $this->twig->addGlobal('store_options', $context['options']);
         $this->twig->addGlobal('selected_store', $context['selected']);
         $this->twig->addGlobal('navigation_items', $this->navigation->items($user instanceof StockUser ? $user->getRoles() : [], $context['selected'] ?? ($context['options'][0]['id'] ?? null)));

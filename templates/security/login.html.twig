@@ -4,13 +4,13 @@
 <section class="auth-card card" aria-labelledby="login-title">
     <p class="eyebrow">VOTRE ESPACE</p>
     <h1 id="login-title">Connexion</h1>
-    <p class="muted">Connectez-vous avec le compte fourni par votre administrateur.</p>
+    <p class="muted">Connectez-vous à votre compte.</p>
     <form method="post" action="{{ path('login') }}">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token('login') }}">
         <div class="field"><label for="email">Courriel</label><input id="email" name="email" type="email" autocomplete="username" maxlength="254" required autofocus></div>
         <div class="field"><label for="password">Mot de passe</label><input id="password" name="password" type="password" autocomplete="current-password" maxlength="128" required></div>
         <button type="submit" class="button primary">Se connecter</button>
     </form>
-    <p class="context-note"><a href="{{ path('password_reset_request') }}">Mot de passe oublié ?</a> Pour obtenir un accès, contactez votre administrateur.</p>
+    <p class="context-note"><a href="{{ path('password_reset_request') }}">Mot de passe oublié ?</a></p><p><a class="button" href="{{ path('account_request') }}">Demander un compte</a></p>
 </section>
 {% endblock %}

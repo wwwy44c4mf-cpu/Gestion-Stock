@@ -55,3 +55,33 @@ docker compose up -d --wait
 ```
 
 Appliquer la migration avant de servir les nouvelles routes. Le retour arrière refuse de supprimer des résultats de création présents. Les tests isolent leurs données dans des schémas PostgreSQL temporaires ; la recette native utilise de vrais cookies et un noyau de production neuf par requête. Voir [la recette AUTH-02](validation-auth02.md).
+
+## Demandes de compte (USR-03)
+
+Depuis la connexion, « Demander un compte » recueille prénom, nom et adresse mail. Aucun mot de passe, rôle ou magasin n’est demandé au candidat. La réponse reste identique si l’adresse existe déjà ou si une demande est en attente. Un même courriel ne crée pas plusieurs demandes simultanées ; une nouvelle demande après refus est possible après 24 heures. Le formulaire est protégé contre les soumissions sans jeton et limité à cinq tentatives par minute et adresse IP, en commun avec son équivalent API.
+
+Les administrateurs actifs reçoivent une notification générique, sans les données saisies. Dans Administration → Comptes utilisateurs → Demandes de compte, un administrateur consulte le dossier, choisit le rôle et les magasins actifs affectés, puis approuve ou refuse. Les gestionnaires et utilisateurs ne peuvent pas prendre cette décision. Un refus ne crée aucun compte et ne déclenche aucune invitation.
+
+Après approbation, le compte reste inactif. Son titulaire reçoit un lien personnel pour choisir un mot de passe de 12 à 128 caractères. Le lien expire après 24 heures, ne peut servir qu’une fois et n’ouvre pas automatiquement une session. Un administrateur peut renvoyer une invitation ; le précédent lien est invalidé. Les renvois sont espacés d’au moins une minute. Une modification du compte invalide également le lien lié à son ancien état.
+
+La file de courriels conserve uniquement un identifiant de sélection non utilisable pour activer le compte. Le lien utilisable est reconstruit au moment de l’envoi. Le flux « Mot de passe oublié » reste réservé aux comptes actifs et ne permet pas d’activer une demande non approuvée.
+
+Les données nominatives des demandes sont anonymisées après un an, y compris pour les demandes refusées ou encore en attente. Les demandes en attente deviennent expirées. L’identité d’un compte actif suit sa règle propre ; elle n’est pas effacée avec la demande. Le traitement de conservation invalide aussi les invitations concernées et supprime les réponses de création en cache associées.
+
+### Déploiement et recette
+
+La migration additive `DoctrineMigrations\Version20261030010000` ajoute la table des demandes et distingue invitations et réinitialisations. Elle porte le total à 22 migrations. La recette locale utilise uniquement des adresses fictives et des courriels simulés.
+
+Lors du futur déploiement Portainer, prévoir une sauvegarde locale réussie et sa copie Drive, puis mettre à jour **RELEASE_ID et DATABASE_RELEASE_ID** avec la livraison validée : l’image PostgreSQL embarque également le traitement de conservation. Le moteur et le volume PostgreSQL existants sont conservés. Arrêter les services applicatifs, appliquer la migration via le conteneur de maintenance, puis redéployer et vérifier les services avant réouverture. Ne pas supprimer les volumes.
+
+Pour envoyer les liens avec l’adresse neutre déjà utilisée par l’équipe, la variable facultative `MAIL_PUBLIC_URL` peut être renseignée avec l’URL HTTPS publique du Worker. Sans cette variable, les courriels conservent `APP_PUBLIC_URL`. **APP_DOMAIN et les hôtes de confiance ne changent pas.** La valeur est incluse dans la configuration de récupération ; ce n’est pas un secret. Vérifier la connexion et l’activation sur l’adresse choisie avant d’inviter l’équipe.
+
+## Notifications et suppression de comptes
+
+Une pastille à côté d’Administration compte les demandes de compte et propositions d’articles en attente que **l’administrateur connecté** n’a pas encore ouvertes. Les alertes de stock ne sont pas incluses. Le lien Notifications de la page des comptes rassemble les dossiers à examiner. Ouvrir un dossier le marque comme lu pour soi ; les autres administrateurs gardent leur propre état de lecture. Le dossier reste dans la liste jusqu’à son approbation ou son refus.
+
+Un administrateur peut ouvrir Modifier un compte → Supprimer ce compte. La confirmation est obligatoire. La suppression retire immédiatement l’accès et efface nom, courriel, mot de passe, favori, affectations, demandes liées et liens de choix du mot de passe. Les copies de création en cache sont supprimées. La ligne technique du compte reste pour les références historiques ; les vues affichent « Compte anonymisé ». Les quantités, dates et mouvements sont conservés. Les champs libres historiques suivent le traitement de conservation prévu ; aucun changement quantitatif n’est effectué.
+
+Il est interdit de supprimer son propre compte ou de supprimer le dernier administrateur actif de production. Les inventaires ouverts impliquant cette personne et ses propositions d’articles en attente doivent être clôturés avant la suppression, conformément aux règles de conservation des dossiers ouverts. Une suppression n’est pas réversible par une réactivation ; il faut créer un nouveau compte si la personne revient.
+
+Ces ajouts sont suivis par les issues [#106](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/106) et [#108](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/108). La migration complémentaire `Version20261030020000` porte le total à 23 migrations ; l’image de base de données doit embarquer aussi la conservation des états de lecture. Recette locale avant publication et installation.

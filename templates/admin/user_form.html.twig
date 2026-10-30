@@ -16,5 +16,6 @@
 {% if not is_new %}<div class="field"><label class="checkbox-row"><input type="checkbox" name="active" value="1" {% if account.active %}checked{% endif %}> Compte actif</label><p class="muted">Décochez pour désactiver l’accès. La réactivation ne rétablit pas les anciennes sessions.</p></div>{% endif %}
 <button class="button" type="submit">{{ is_new ? 'Créer le compte' : 'Enregistrer les modifications' }}</button>
 </form>
+{% if not is_new and not editing_self %}<p><a href="{{ path('admin_users_delete',{id:account.id}) }}">Supprimer ce compte</a></p>{% endif %}
 </section>
 {% endblock %}

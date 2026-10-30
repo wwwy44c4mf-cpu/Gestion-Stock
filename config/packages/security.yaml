@@ -14,9 +14,9 @@ security:
         - App\Security\LoginAuthenticator
       entry_point: App\Security\LoginAuthenticator
   access_control:
-    - { path: '^/api/v1/(health|openapi\.json|auth/(csrf|login|password-reset/(request|confirm)))$', roles: PUBLIC_ACCESS }
+    - { path: '^/api/v1/(health|openapi\.json|auth/(csrf|login|account-requests|password-reset/(request|confirm)))$', roles: PUBLIC_ACCESS }
     # Test fixtures bypass authentication only in the test container.
     - { request_matcher: App\Security\TestFixtureRequestMatcher, roles: PUBLIC_ACCESS }
     - { path: '^/api/v1', roles: IS_AUTHENTICATED_FULLY }
-    - { path: '^/(connexion$|mot-de-passe/(oublie|reinitialiser)$|assets/|health/)', roles: PUBLIC_ACCESS }
+    - { path: '^/(connexion$|demander-un-compte$|mot-de-passe/(oublie|reinitialiser)$|assets/|health/)', roles: PUBLIC_ACCESS }
     - { path: '^/', roles: IS_AUTHENTICATED_FULLY }

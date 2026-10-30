@@ -1153,6 +1153,76 @@
         },
         "x-max-body-bytes": 65536,
         "x-integer-encoding": "Nombres JSON en base 10 sans décimale ni exposant."
+      },
+      "delete": {
+        "operationId": "deleteUser",
+        "summary": "Supprimer un compte et effacer son identité",
+        "description": "Supprimer un compte et effacer son identité. Action réservée aux administrateurs et protégée contre les opérations incompatibles.",
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "SessionCookie": [],
+            "CsrfToken": []
+          }
+        ],
+        "x-roles": [
+          "ADMIN"
+        ],
+        "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
+        "x-implementation": "available",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "204": {
+            "description": "Suppression effectuée ; aucun corps de réponse."
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-integer-encoding": "Nombres JSON en base 10 sans décimale ni exposant."
       }
     },
     "/stores": {
@@ -1539,6 +1609,76 @@
                 "$ref": "#/components/schemas/StorePatch"
               }
             }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-integer-encoding": "Nombres JSON en base 10 sans décimale ni exposant."
+      },
+      "delete": {
+        "operationId": "deleteStore",
+        "summary": "Supprimer un magasin vide en conservant son historique",
+        "description": "Supprimer un magasin vide en conservant son historique. Action réservée aux administrateurs et protégée contre les opérations incompatibles.",
+        "tags": [
+          "stores"
+        ],
+        "security": [
+          {
+            "SessionCookie": [],
+            "CsrfToken": []
+          }
+        ],
+        "x-roles": [
+          "ADMIN"
+        ],
+        "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
+        "x-implementation": "available",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "204": {
+            "description": "Suppression effectuée ; aucun corps de réponse."
           }
         },
         "x-max-body-bytes": 65536,
@@ -6562,6 +6702,92 @@
         "x-max-body-bytes": 65536,
         "x-integer-encoding": "Nombres JSON en base 10 sans décimale ni exposant."
       }
+    },
+    "/auth/account-requests": {
+      "post": {
+        "operationId": "requestAccount",
+        "summary": "Demander un compte soumis à validation administrative",
+        "description": "Demande publique avec prénom, nom et courriel, soumise à validation par un administrateur. Réponse générique 202 pour une adresse existante ou une demande déjà en attente. Aucun rôle, magasin ou mot de passe ne peut être choisi publiquement. Après approbation administrative, un lien personnel valable 24 heures permet d’activer le compte en choisissant son mot de passe.",
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "CsrfToken": []
+          }
+        ],
+        "x-roles": [],
+        "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
+        "x-implementation": "available",
+        "parameters": [],
+        "responses": {
+          "202": {
+            "description": "Succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Accepted"
+                }
+              }
+            },
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string",
+                  "maxLength": 32
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Error405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountRequestCreate"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-integer-encoding": "Nombres JSON en base 10 sans décimale ni exposant.",
+        "x-rate-limit": {
+          "limit": 5,
+          "interval_seconds": 60,
+          "scope": "adresse IP et route ; _api_sensitive=true à la déclaration de route"
+        }
+      }
     }
   },
   "components": {
@@ -10129,6 +10355,59 @@
           "version"
         ],
         "additionalProperties": false
+      },
+      "AccountRequestCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "first_name",
+          "last_name",
+          "email"
+        ],
+        "properties": {
+          "first_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "last_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254
+          }
+        }
+      },
+      "AccountRequestApprove": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "role",
+          "store_ids"
+        ],
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "MANAGER",
+              "ADMIN"
+            ]
+          },
+          "store_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "maxItems": 100,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
       }
     }
   }

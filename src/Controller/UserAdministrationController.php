@@ -91,6 +91,32 @@ final class UserAdministrationController extends AbstractController
             'stores' => $this->users->storeOptions($actor), 'token_id' => $tokenId, 'creation_key' => $key], new Response(status: $status));
     }
 
+    #[Route('/api/v1/users/{id}',name:'api_users_delete',methods:['DELETE'])]
+    #[IsGranted('APP_ACCOUNTS_ADMIN')]
+    public function deleteApi(string $id): Response
+    {
+        $this->users->delete($this->actor(),$id);return new Response(status:204);
+    }
+    #[Route('/administration/comptes/{id}/supprimer',name:'admin_users_delete',methods:['GET','POST'])]
+    #[IsGranted('APP_ACCOUNTS_ADMIN')]
+    public function deleteForm(string $id,Request $request,CsrfTokenManagerInterface $csrf): Response
+    {
+        $actor=$this->actor();$error=null;$status=200;
+        try {
+            $account=$this->users->get($actor,$id)['data'];
+            if($request->isMethod('POST')) {
+                if(!$csrf->isTokenValid(new CsrfToken('admin_users_delete_'.$id,$request->request->getString('_csrf_token')))) {throw new ApiProblem(403,'invalid_csrf_token','Formulaire expiré. Rechargez la page.');}
+                if(!$request->request->getBoolean('confirm')) {throw new ApiProblem(422,'confirmation_required','Confirmez la suppression pour continuer.');}
+                $this->users->delete($actor,$id);$this->addFlash('success','Le compte a été supprimé et son identité effacée.');
+                return $this->redirectToRoute('admin_users',status:303);
+            }
+        } catch(ApiProblem $e) {
+            if(!isset($account)) {return $this->render('admin/error.html.twig',['message'=>$e->getMessage()],new Response(status:$e->status));}
+            $error=$e->getMessage();$status=$e->status;
+        }
+        return $this->render('admin/user_delete.html.twig',['account'=>$account,'error'=>$error],new Response(status:$status));
+    }
+
     private function actor(): StockUser
     {
         $user = $this->getUser();

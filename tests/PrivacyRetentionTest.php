@@ -51,6 +51,24 @@ final class PrivacyRetentionTest extends KernelTestCase
         $this->db->executeStatement("INSERT INTO runtime_restore_gate VALUES (true,true) ON CONFLICT(singleton) DO UPDATE SET privacy_required=true");
         return compact('u','s','a','e','c','r','n');
     }
+    public function testAccountApplicationsAreAnonymizedWithoutErasingActiveAccountIdentity(): void
+    {
+        $f=$this->fixtures();
+        $old=$this->db->fetchOne("INSERT INTO account_requests(first_name,last_name,email,status,user_id,reviewed_by,created_at,reviewed_at,activated_at) VALUES ('Private','Applicant','private@example.test','approved',?,?,clock_timestamp()-interval '2 years',clock_timestamp()-interval '2 years',clock_timestamp()-interval '2 years') RETURNING id",[$f['u'],$f['u']]);
+        $pending=$this->db->fetchOne("INSERT INTO account_requests(first_name,last_name,email,created_at) VALUES ('Old','Pending','pending@example.test',clock_timestamp()-interval '2 years') RETURNING id");
+        $recent=$this->db->fetchOne("INSERT INTO account_requests(first_name,last_name,email) VALUES ('Recent','Applicant','recent@example.test') RETURNING id");
+        $this->runRetention();
+        foreach([$old,$pending] as $id) {
+            $row=$this->db->fetchAssociative('SELECT * FROM account_requests WHERE id=?',[$id]);
+            foreach(['first_name','last_name','email','user_id','reviewed_by'] as $field) {self::assertNull($row[$field]);}
+            self::assertNotNull($row['anonymized_at']);
+        }
+        self::assertSame('expired',$this->db->fetchOne('SELECT status FROM account_requests WHERE id=?',[$pending]));
+        self::assertSame('recent@example.test',$this->db->fetchOne('SELECT email FROM account_requests WHERE id=?',[$recent]));
+        self::assertSame('private-name',$this->db->fetchOne('SELECT name FROM users WHERE id=?',[$f['u']]));
+        $this->runRetention();self::assertSame(3,(int)$this->db->fetchOne('SELECT count(*) FROM account_requests'));
+    }
+
     public function testGroupedReturnsAnonymizeTheEntireConnectedBeneficiaryChain(): void
     {
         $f=$this->fixtures();

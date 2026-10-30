@@ -18,7 +18,7 @@ final class Dashboard
     {
         $stores = $this->policy->storeScope($actor);
         $consumptions = $this->policy->consumptionScope($actor);
-        return $this->db->fetchAllAssociative('SELECT s.id,s.code,s.name,s.active FROM stores s WHERE ('.$stores->condition.') OR (s.active AND EXISTS (SELECT 1 FROM stock_movements m WHERE m.source_store_id=s.id AND ('.$consumptions->condition.'))) ORDER BY s.name,s.id', [...$stores->parameters, ...$consumptions->parameters]);
+        return $this->db->fetchAllAssociative('SELECT s.id,s.code,s.name,s.active FROM stores s WHERE s.deleted_at IS NULL AND (('.$stores->condition.') OR (s.active AND EXISTS (SELECT 1 FROM stock_movements m WHERE m.source_store_id=s.id AND ('.$consumptions->condition.')))) ORDER BY s.name,s.id', [...$stores->parameters, ...$consumptions->parameters]);
     }
 
     public function read(StockUser $actor, array $filters = [], bool $personal = false): array
@@ -55,7 +55,7 @@ final class Dashboard
             $row = $this->db->fetchAssociative($sql.' SELECT row_to_json(consumed) consumption FROM consumed', $params);
             return ['consumption' => json_decode($row['consumption'], true, flags: JSON_THROW_ON_ERROR)];
         }
-        $storeWhere = [$stores->condition]; $storeParams = $stores->parameters;
+        $storeWhere = [$stores->condition,'s.deleted_at IS NULL']; $storeParams = $stores->parameters;
         if (isset($filters['store_id'])) { $storeWhere[] = 's.id=?'; $storeParams[] = $filters['store_id']; }
         $categoryWhere = isset($filters['category_id']) ? 'a.category_id=?' : 'TRUE';
         $categoryParams = isset($filters['category_id']) ? [$filters['category_id']] : [];

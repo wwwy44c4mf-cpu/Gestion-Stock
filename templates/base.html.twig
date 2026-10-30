@@ -17,7 +17,7 @@
         <nav id="navigation" aria-label="Navigation principale" data-navigation-target="menu">
             <p class="nav-label">ESPACE DE TRAVAIL</p>
             {% for item in navigation_items %}
-                <a class="nav-item" href="{{ path(item.route, item.parameters) }}" {% if current_section == item.active %}aria-current="page"{% endif %}>{{ item.label }}</a>
+                <a class="nav-item" href="{{ path(item.route, item.parameters) }}" {% if current_section == item.active %}aria-current="page"{% endif %}>{{ item.label }}{% if item.active == 'administration' and admin_unread_count|default(0) > 0 %}<span class="notification-count" aria-label="{{ admin_unread_count }} notification(s) non lue(s)">{{ admin_unread_count }}</span>{% endif %}</a>
             {% endfor %}
         </nav>
         <div class="sidebar-note"><span class="status-dot"></span> Gestion de vos magasins<br><small>Votre espace de gestion au quotidien</small></div>

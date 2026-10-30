@@ -69,6 +69,32 @@ final class StoreAdministrationController extends AbstractController
         }
         return $this->render('stores/form.html.twig', ['store' => $data, 'is_new' => $isNew, 'error' => $error, 'token_id' => $tokenId, 'creation_key' => $key], new Response(status: $status));
     }
+    #[Route('/api/v1/stores/{id}',name:'api_stores_delete',methods:['DELETE'])]
+    #[IsGranted('APP_STORES_ADMIN')]
+    public function deleteApi(string $id): Response
+    {
+        $this->stores->delete($this->actor(),$id);return new Response(status:204);
+    }
+    #[Route('/administration/magasins/{id}/supprimer',name:'stores_delete',methods:['GET','POST'])]
+    #[IsGranted('APP_STORES_ADMIN')]
+    public function deleteForm(string $id,Request $request,CsrfTokenManagerInterface $csrf): Response
+    {
+        $actor=$this->actor();$error=null;$status=200;
+        try {
+            $store=$this->stores->get($actor,$id)['data'];
+            if($request->isMethod('POST')) {
+                if(!$csrf->isTokenValid(new CsrfToken('stores_delete_'.$id,$request->request->getString('_csrf_token')))) {throw new ApiProblem(403,'invalid_csrf_token','Formulaire expiré. Rechargez la page.');}
+                if(!$request->request->getBoolean('confirm')) {throw new ApiProblem(422,'confirmation_required','Confirmez la suppression pour continuer.');}
+                $this->stores->delete($actor,$id);$this->addFlash('success','Le magasin a été supprimé.');
+                return $this->redirectToRoute('stores_list',status:303);
+            }
+        } catch(ApiProblem $e) {
+            if(!isset($store)) {return $this->render('admin/error.html.twig',['message'=>$e->getMessage()],new Response(status:$e->status));}
+            $error=$e->getMessage();$status=$e->status;
+        }
+        return $this->render('stores/delete.html.twig',['store'=>$store,'error'=>$error],new Response(status:$status));
+    }
+
     private function actor(): StockUser
     {
         $actor = $this->getUser();

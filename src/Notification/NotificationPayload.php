@@ -6,7 +6,7 @@ final class NotificationPayload
 {
     public function validate(string $type,array $payload): void
     {
-        $fields=match($type) {'stock_low','stock_critical'=>['article','store','quantity','threshold','occurred_at','path'],'information'=>['subject','body','path'],'password_reset'=>['reset_id'],'daily_summary'=>['items'],default=>throw new \InvalidArgumentException('notification_type_invalid')};
+        $fields=match($type) {'stock_low','stock_critical'=>['article','store','quantity','threshold','occurred_at','path'],'information'=>['subject','body','path'],'password_reset','account_activation'=>['reset_id'],'daily_summary'=>['items'],default=>throw new \InvalidArgumentException('notification_type_invalid')};
         if(array_diff(array_keys($payload),$fields) || array_diff($fields,array_keys($payload))) {throw new \InvalidArgumentException('notification_payload_invalid');}
         foreach($payload as $field=>$value) {
             if($field==='reset_id') {if(!is_string($value)||!preg_match('/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/Di',$value)) {throw new \InvalidArgumentException('notification_reset_invalid');}continue;}

@@ -2,7 +2,7 @@
 {% block title %}Comptes utilisateurs · Gestion de stock{% endblock %}
 {% block content %}
 <div class="page-heading"><div><p class="eyebrow">ADMINISTRATION</p><h1>Comptes utilisateurs</h1><p class="subtitle">Gérez les accès de votre équipe.</p></div><a class="button" href="{{ path('admin_users_new') }}">Créer un compte</a></div>
-<p><a href="{{ path('information_list') }}">Messages d’information</a></p>
+<p><a href="{{ path('admin_users_notifications') }}">Notifications{% if admin_unread_count|default(0) > 0 %} ({{ admin_unread_count }} non lues){% endif %}</a> · <a href="{{ path('admin_users_requests') }}">Demandes de compte</a> · <a href="{{ path('information_list') }}">Messages d’information</a></p>
 <section class="card">
 <form method="get" action="{{ path('admin_users') }}" class="account-filters" aria-label="Filtrer les comptes">
 <div class="field"><label for="filter-role">Rôle</label><select id="filter-role" name="role"><option value="">Tous les rôles</option>{% for value,label in {'ADMIN':'Administrateur','MANAGER':'Gestionnaire','USER':'Utilisateur'} %}<option value="{{ value }}" {% if filters.role|default('') == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>

@@ -25,7 +25,9 @@ final class StoreAdministration
     public function get(StockUser $actor, string $id): array
     {
         $this->identity->requireRole($actor, Permission::STORES_ADMIN);
-        return $this->directory->store($actor, $id);
+        $result=$this->directory->store($actor,$id);
+        if($this->db->fetchOne('SELECT deleted_at FROM stores WHERE id=?',[$id])!==null) {throw new ApiProblem(404,'store_deleted','Magasin supprimé.');}
+        return $result;
     }
 
     public function create(StockUser $actor, \stdClass $body, string $key): array
@@ -59,7 +61,7 @@ final class StoreAdministration
         $this->validate($body, 'StorePatch');
         return $this->db->transactional(function () use ($actor, $id, $body): array {
             $this->lockAndAuthorize($actor);
-            $before = $this->directory->store($actor, $id)['data'];
+            $before = $this->get($actor, $id)['data'];
             // Shared lock order: users then stores. Future inventory transitions lock their store first.
             $this->db->fetchOne('SELECT id FROM stores WHERE id = ? FOR UPDATE', [$id]);
             $next = array_replace($before, get_object_vars($body));
@@ -77,6 +79,22 @@ final class StoreAdministration
                 $this->audit($actor, $id, $action, $changed);
             }
             return $this->directory->store($actor, $id);
+        });
+    }
+
+    public function delete(StockUser $actor,string $id): void
+    {
+        $this->db->transactional(function() use($actor,$id): void {
+            $this->lockAndAuthorize($actor);
+            $this->directory->store($actor,$id);
+            $row=$this->db->fetchAssociative('SELECT * FROM stores WHERE id=? FOR UPDATE',[$id]);
+            if($row['deleted_at']!==null) {return;}
+            if($this->db->fetchOne('SELECT 1 FROM stock_levels WHERE store_id=? AND quantity<>0 LIMIT 1',[$id])) {throw new ApiProblem(409,'store_not_empty','Transférez ou sortez tout le stock avant de supprimer ce magasin.');}
+            if($this->db->fetchOne("SELECT 1 FROM inventories WHERE store_id=? AND status NOT IN ('closed','cancelled') LIMIT 1",[$id])) {throw new ApiProblem(409,'inventory_in_progress','Terminez ou annulez l’inventaire avant de supprimer ce magasin.');}
+            $this->db->executeStatement('UPDATE stores SET active=false,deleted_at=clock_timestamp(),updated_at=clock_timestamp() WHERE id=?',[$id]);
+            $this->db->executeStatement('UPDATE users SET favorite_store_id=NULL WHERE favorite_store_id=?',[$id]);
+            $this->db->executeStatement('DELETE FROM user_stores WHERE store_id=?',[$id]);
+            $this->audit($actor,$id,'store.deleted',['active','deleted_at']);
         });
     }
 

@@ -1,10 +1,13 @@
 {% extends 'base.html.twig' %}
 {% block title %}Stocks · Gestion de stock{% endblock %}
 {% block content %}
-<div class="page-heading"><div><p class="eyebrow">DISPONIBILITÉS</p><h1>Stocks</h1><p class="subtitle">Les quantités des magasins auxquels vous avez accès.</p></div>{% if can_transfer %}<p><a class="button" href="{{ path('stocks_transfer_new') }}">Transférer du stock</a></p>{% endif %}
-{% if can_adjust %}<p><a class="button" href="{{ path('stocks_adjustment_new') }}">Ajuster le stock</a></p>{% endif %}
-{% if can_register_entry %}<a class="button" href="{{ path('stocks_entry_new') }}">Enregistrer une entrée</a>{% endif %}</div>
-{% if can_register_consumption %}<p><a class="button" href="{{ path('consumptions_new') }}">Enregistrer une consommation</a></p>{% endif %}
+<div class="page-heading"><div><p class="eyebrow">DISPONIBILITÉS</p><h1>Stocks</h1><p class="subtitle">Les quantités des magasins auxquels vous avez accès.</p></div></div>
+<nav class="stock-actions" aria-label="Actions de stock">
+{% if can_transfer %}<a class="button" href="{{ path('stocks_transfer_new') }}">Transférer du stock</a>{% endif %}
+{% if can_adjust %}<a class="button" href="{{ path('stocks_adjustment_new') }}">Ajuster le stock</a>{% endif %}
+{% if can_register_entry %}<a class="button" href="{{ path('stocks_entry_new') }}">Enregistrer une entrée</a>{% endif %}
+{% if can_register_consumption %}<a class="button" href="{{ path('consumptions_new') }}">Enregistrer une consommation</a>{% endif %}
+</nav>
 <section class="card">
 <form method="get" class="account-filters" aria-label="Filtrer les stocks">
 {% if filters.article_id is defined %}<input type="hidden" name="article_id" value="{{ filters.article_id }}">{% endif %}
