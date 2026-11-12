@@ -55,8 +55,9 @@ class RecoveryTest(unittest.TestCase):
         self.assertEqual(0o700,ARCHIVES.stat().st_mode&0o777);self.assertEqual(0o600,self.archive.stat().st_mode&0o777)
         self.assertTrue(self.archive.read_bytes().startswith(b'age-encryption.org/v1'))
         with backup.unpack(self.archive,IDENTITY) as (stage,manifest):
-            self.assertEqual(23,manifest['tables']['public.doctrine_migration_versions']['rows'])
+            self.assertEqual(24,manifest['tables']['public.doctrine_migration_versions']['rows'])
             self.assertEqual(3,manifest['tables']['public.stock_movements']['rows'])
+            self.assertEqual(1,manifest['tables']['public.article_locations']['rows'])
             self.assertNotIn('source/.secrets/backup_identity',manifest['files']);self.assertNotIn('source/.git/HEAD',manifest['files'])
             self.assertEqual((FIX/'secrets/app_secret').read_bytes(),(stage/'source/.secrets/app_secret').read_bytes())
             with contextlib.closing(backup.connection()) as db: self.assertEqual(manifest['tables'],backup.fingerprints(db))
@@ -65,6 +66,7 @@ class RecoveryTest(unittest.TestCase):
             self.assertTrue(query('SELECT privacy_required FROM runtime_restore_gate')[0][0])
             self.assertEqual(8,query('SELECT sum(quantity) FROM stock_levels')[0][0]);self.assertEqual(3,query('SELECT count(*) FROM stock_movements')[0][0])
             self.assertEqual(1,query('SELECT count(*) FROM inventories')[0][0])
+            self.assertEqual('Étagère reprise — hauteur 1',query('SELECT location FROM article_locations')[0][0])
     def test_02_recover_files_modes_and_existing_directory_refusal(self):
         output=FIX/'recovered';output.mkdir()
         backup.restore_files(self.archive,IDENTITY,output)

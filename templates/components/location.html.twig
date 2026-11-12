@@ -1,0 +1,6 @@
+<stock-location class="location-panel" data-store-input="{{ store_input|default('') }}" data-article-input="{{ article_input|default('') }}" data-store-id="{{ store_id|default('') }}" data-article-id="{{ article_id|default('') }}" data-editable="{{ editable|default(false) ? 'true' : 'false' }}">
+<p><strong>Casage dans ce magasin :</strong> <span data-location-label aria-live="polite">Choisissez le magasin et l’article pour afficher le casage.</span></p>
+{% if editable|default(false) %}<div data-location-editor hidden><div class="field"><label for="casage-label">Casage (facultatif)</label><input id="casage-label" data-location-field maxlength="160" placeholder="Ex. : Étagère A — hauteur 1" autocomplete="off"><p class="muted">Un seul casage par article dans ce magasin. Vous pouvez laisser ce champ vide.</p></div><button class="button" type="button" data-location-save>Enregistrer le casage</button><p class="muted">Ce bouton enregistre le casage uniquement. Le mouvement de stock se valide séparément.</p></div>{% endif %}
+<p data-location-feedback role="status"></p>
+<noscript><p>Activez JavaScript pour afficher le casage après avoir choisi un article et un magasin.</p></noscript>
+</stock-location>

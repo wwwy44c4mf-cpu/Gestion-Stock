@@ -19,5 +19,9 @@ final class CatalogDeletionSchema
         $administration = new \DoctrineMigrations\Version20261030020000($db, new \Psr\Log\NullLogger());
         $administration->up(new \Doctrine\DBAL\Schema\Schema());
         foreach ($administration->getSql() as $sql) { $db->executeStatement($sql->getStatement()); }
+        require_once dirname(__DIR__).'/migrations/Version20261112010000.php';
+        $location = new \DoctrineMigrations\Version20261112010000($db, new \Psr\Log\NullLogger());
+        $location->up(new \Doctrine\DBAL\Schema\Schema());
+        foreach ($location->getSql() as $sql) { $db->executeStatement($sql->getStatement()); }
     }
 }

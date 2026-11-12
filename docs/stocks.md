@@ -28,3 +28,7 @@ Les lectures ne modifient ni les soldes, ni les mouvements, ni les seuils. Aucun
 - `GET /api/v1/stores/{storeId}/stocks/{articleId}/movements` : journal local limité à ADMIN/MANAGER autorisés.
 
 La lecture du catalogue ajoute les tris `category` et `status`, en plus de référence, nom et date ; le tri est complété par l’identifiant. Aucune nouvelle migration n’est nécessaire ; les migrations précédentes doivent être appliquées.
+
+## Casages et fichier Excel
+
+Le [complément CAS-01 / EXP-01](casages-export.md) ajoute le casage facultatif par article et magasin, son affichage lors des sorties et dépôts, ainsi que l’export Excel complet de l’état actuel d’un magasin. Développement validé localement ; publication et installation à effectuer ; migration additive vers 24.

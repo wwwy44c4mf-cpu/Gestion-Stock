@@ -9,7 +9,7 @@ function fixture(mode = 'select') {
         codes: { value: 'EXISTING', dispatchEvent() {}, focus() {} },
     };
     const instance = new Scanner({ scope: { element: { isConnected: true } } });
-    Object.assign(instance, { sequence: 0, modeValue: mode, selectValue: 'article', hasSelectValue: ['select','deposit'].includes(mode), quantityValue: 'quantity', textareaValue: 'codes',
+    Object.assign(instance, { sequence: 0, modeValue: mode, selectValue: 'article', hasSelectValue: ['select','deposit','location'].includes(mode), quantityValue: 'quantity', textareaValue: 'codes',
         csrfValue: 'fixture-csrf', statusTarget: { textContent: '' }, codeTarget: { value: '' }, returnUrlValue: '/consommations/retours' });
     globalThis.document = { getElementById: id => nodes[id] };
     globalThis.window = { location: { origin: 'https://stock.example.test', assign(url) { instance.redirect = url; } } };
@@ -103,4 +103,15 @@ test('leaving the page closes the dialog and stops capture', () => {
     const { instance } = lifecycleFixture(); let stops = 0;
     instance.dialogTarget.open = true; instance.camera = { stop() { stops++; } };
     instance.leaving(); assert.equal(instance.dialogTarget.open, false); assert.equal(stops, 1);
+});
+
+test('location scan accepts an archived article and asks for a storage label without a movement', async () => {
+    const f = fixture('location'); const selections=[];
+    f.nodes.article.dispatchEvent=()=>selections.push(f.nodes.article.value);
+    globalThis.fetch = async () => ({ ok: true, json: async () => ({ data: { id: 'new-id', active: false, sku: 'ARCHIVED', name: 'Old equipment' } }) });
+    await f.instance.accept('ARCHIVED-CODE');
+    assert.deepEqual(selections,['','new-id']);
+    assert.equal(f.instance.redirect,undefined);
+    assert.match(f.instance.statusTarget.textContent,/casage/);
+    assert.doesNotMatch(f.instance.statusTarget.textContent,/quantité/);
 });

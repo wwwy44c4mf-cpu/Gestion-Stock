@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+"""Refresh browser module URLs from their contents, from leaves to entry point."""
+from pathlib import Path
+import hashlib
+import re
+
+assets = Path(__file__).resolve().parent.parent / 'public' / 'assets'
+for parent, dependency in [('scanner-controller.js', 'scan-camera.js'), ('app.js', 'scanner-controller.js')]:
+    version = hashlib.sha256((assets / dependency).read_bytes()).hexdigest()[:16]
+    path = assets / parent
+    content, count = re.subn(r"'\./" + re.escape(dependency) + r"(?:\?v=[a-f0-9]+)?'", "'./" + dependency + '?v=' + version + "'", path.read_text())
+    if count != 1:
+        raise SystemExit('Expected exactly one import of ' + dependency + ' in ' + parent)
+    path.write_text(content)
+print('Scanner module URLs refreshed.')

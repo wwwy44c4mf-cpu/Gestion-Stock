@@ -14,6 +14,9 @@ enum Permission: string
     case CATALOG_DELETE = 'APP_CATALOG_DELETE';
     case CATALOG_PROPOSE = 'APP_CATALOG_PROPOSE';
     case PROPOSAL_READ = 'APP_PROPOSAL_READ';
+    case LOCATION_READ = 'APP_LOCATION_READ';
+    case LOCATION_WRITE = 'APP_LOCATION_WRITE';
+    case STOCK_EXPORT = 'APP_STOCK_EXPORT';
     case STOCK_READ = 'APP_STOCK_READ';
     case ENTRY_CREATE = 'APP_ENTRY_CREATE';
     case CONSUMPTION_CREATE = 'APP_CONSUMPTION_CREATE';
@@ -39,7 +42,7 @@ enum Permission: string
     {
         return match ($this) {
             self::ACCOUNTS_ADMIN, self::STORES_ADMIN, self::CATALOG_ADMIN, self::INFORMATION_SEND => ['ADMIN'],
-            self::CATALOG_READ, self::STOCK_READ, self::CONSUMPTION_CREATE, self::CONSUMPTION_READ,
+            self::LOCATION_READ, self::CATALOG_READ, self::STOCK_READ, self::CONSUMPTION_CREATE, self::CONSUMPTION_READ,
                 self::RETURN_CREATE, self::STATISTICS_READ => ['ADMIN', 'MANAGER', 'USER'],
             default => ['ADMIN', 'MANAGER'],
         };
@@ -49,6 +52,6 @@ enum Permission: string
     {
         return in_array($this, [self::ENTRY_CREATE, self::CONSUMPTION_CREATE, self::CONSUMPTION_OTHER,
             self::TRANSFER_CREATE, self::RETURN_CREATE, self::MOVEMENT_REVERSE, self::ADJUSTMENT_CREATE,
-            self::INVENTORY_WRITE, self::THRESHOLD_WRITE, self::ALERT_RECIPIENTS], true);
+            self::INVENTORY_WRITE, self::LOCATION_WRITE, self::THRESHOLD_WRITE, self::ALERT_RECIPIENTS], true);
     }
 }

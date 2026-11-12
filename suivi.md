@@ -16,14 +16,23 @@ Les décisions ci-dessous précisent ou remplacent les options correspondantes d
 | UI-02 | Thème orange et boutons Sortie / Retour identiques côte à côte | Validé localement, installation à confirmer | [#97](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/97) |
 | SCAN-02 | Scanner interrompu : dialogue conservé, message et reprise manuelle ; validation Brave en attente | Correctif testé localement | [#98](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/98) |
 | OPS-05 | Copie des sauvegardes chiffrées vers Google Drive ; conservation 90 jours et OAuth privé | Installé ; transfert et SHA-256 du téléchargement validés ; restauration complète depuis Drive à tester | [#101](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/101) |
-| ADMIN-04 | Pastille personnelle des demandes de compte et propositions d’articles non lues | Validé localement par l’exploitant ; mise à jour serveur à effectuer | [#106](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/106) |
-| USR-04 | Suppression de comptes avec effacement de l’identité et historiques conservés | Validé localement par l’exploitant ; mise à jour serveur à effectuer | [#108](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/108) |
-| MAG-02 | Suppression des magasins vides, historique conservé et favoris retirés | Validé localement par l’exploitant ; mise à jour serveur à effectuer | [#107](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/107) |
-| UI-03 | Quatre actions de stock alignées sur ordinateur et smartphone | Validé localement par l’exploitant ; mise à jour serveur à effectuer | [#109](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/109) |
-| USR-03 | Demande de compte avec prénom, nom et mail ; approbation et choix personnel du mot de passe | Validé localement par l’exploitant ; mise à jour serveur à effectuer | [#105](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/105) |
+| ADMIN-04 | Pastille personnelle des demandes de compte et propositions d’articles non lues | Installé et validé en production par l’exploitant le 31 octobre 2026 | [#106](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/106) |
+| USR-04 | Suppression de comptes avec effacement de l’identité et historiques conservés | Installé et validé en production par l’exploitant le 31 octobre 2026 | [#108](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/108) |
+| MAG-02 | Suppression des magasins vides, historique conservé et favoris retirés | Installé et validé en production par l’exploitant le 31 octobre 2026 | [#107](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/107) |
+| UI-03 | Quatre actions de stock alignées sur ordinateur et smartphone | Installé et validé en production par l’exploitant le 31 octobre 2026 | [#109](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/109) |
+| USR-03 | Demande de compte avec prénom, nom et mail ; approbation et choix personnel du mot de passe | Installé et validé en production par l’exploitant le 31 octobre 2026 | [#105](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/105) |
 | CAT-02 | Suppression du catalogue par administrateurs et gestionnaires ; stocks et historique conservés | Installé et validé par l’exploitant le 29 octobre 2026 | [#102](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/102) |
 
 Le mini-PC annoncé possède quatre cœurs et 8,1 Go de mémoire totale ; la charge domotique et la capacité disponible restent à vérifier sur le serveur. La préparation ne vaut pas ouverture en production. Voir [le guide Portainer](docs/installation-portainer.md), notamment les conditions de copie hors serveur et de planification de la conservation. Ce lot s’ajoute aux 39 lots MVP déjà terminés.
+
+## Casages et export — 12 novembre 2026
+
+| Lot | Besoin | Statut | Issue |
+| --- | --- | --- | --- |
+| CAS-01 | Casage manuel facultatif unique par article et magasin ; modification par administrateurs et gestionnaires autorisés, affichage à la sortie et au retour selon le magasin choisi | Validé localement par l’exploitant le 12 novembre 2026 ; publication en cours | [#111](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/111) |
+| EXP-01 | Export Excel à la demande de l’état complet actuel d’un magasin, sans historique, avec casages et seuils | Validé localement par l’exploitant le 12 novembre 2026 ; publication en cours | [#112](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/112) |
+
+Voir [le fonctionnement des casages et de l’export](docs/casages-export.md) et [la recette locale](docs/validation-casages-export.md). Migration additive vers 24 ; production conservée sur la livraison précédente jusqu’à publication et mise à jour contrôlée.
 
 ## Décisions validées
 

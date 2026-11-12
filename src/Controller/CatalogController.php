@@ -22,7 +22,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class CatalogController extends AbstractController
 {
-    public function __construct(private readonly CatalogDirectory $directory,private readonly CatalogAdministration $administration) {}
+    public function __construct(private readonly CatalogDirectory $directory,private readonly CatalogAdministration $administration,
+        private readonly \App\Location\ArticleLocations $locations,private readonly \App\Access\AccessDirectory $access,
+        private readonly \App\Ui\StoreContext $context,private readonly \Doctrine\DBAL\Connection $db) {}
     #[Route('/api/v1/articles',name:'api_articles_list',methods:['GET'],defaults:['kind'=>'article'])]
     #[Route('/api/v1/categories',name:'api_categories_list',methods:['GET'],defaults:['kind'=>'category'])]
     public function listing(string $kind,Request $request,QueryParameters $query): JsonResponse
@@ -108,6 +110,9 @@ final class CatalogController extends AbstractController
     {
         $actor=$this->actor();$isNew=$id===null;
         $data=$isNew?($kind==='article'?['sku'=>'','name'=>'','description'=>'','category_id'=>null,'active'=>true,'unit_code'=>'unit','version'=>1]:['name'=>'','parent_id'=>null,'active'=>true]):$this->administration->get($actor,$kind,$id)['data'];
+        $locationStores=$kind==='article'&&$isNew?$this->access->storeOptions($actor,\App\Security\Permission::LOCATION_WRITE):[];
+        $locationStore=$request->isMethod('POST')?$request->request->getString('location_store_id'):($locationStores!==[]?($this->context->preferred($request,$actor,$locationStores)??''):'');
+        $locationText=$request->isMethod('POST')?$request->request->getString('location'):'';
         $key=$isNew?bin2hex(random_bytes(16)):'';$tokenId='catalog_'.$kind.'_'.($id??'create');$error=null;$status=200;
         if ($request->isMethod('POST')) {
             try {
@@ -126,12 +131,18 @@ final class CatalogController extends AbstractController
                 } else { $body->parent_id=$request->request->getString('parent_id')?:null; }
                 $body->active=$request->request->getBoolean('active');
                 $data=array_replace($data,get_object_vars($body));
-                $result=$isNew?$this->administration->create($actor,$kind,$body,$key):$this->administration->update($actor,$kind,$id,$body);
+                $initialLocation=$kind==='article'&&$isNew?$this->locations->validate($locationText):null;
+                if($initialLocation!==null&&$locationStore==='') {throw new ApiProblem(422,'location_store_required','Choisissez le magasin de ce casage, ou laissez le casage vide.');}
+                $result=$this->db->transactional(function() use($isNew,$actor,$kind,$body,$key,$id,$initialLocation,$locationStore): array {
+                    $result=$isNew?$this->administration->create($actor,$kind,$body,$key):$this->administration->update($actor,$kind,$id,$body);
+                    if($initialLocation!==null) {$this->locations->save($actor,$locationStore,$result['data']['id'],$initialLocation,0);}
+                    return $result;
+                });
                 $this->addFlash('success',$isNew?($kind==='article'?'L’article a été créé.':'La catégorie a été créée.'):'Les modifications ont été enregistrées.');
                 return $this->redirectToRoute($kind==='article'?'catalog_article_edit':'catalog_category_edit',['id'=>$result['data']['id']],303);
             } catch (ApiProblem $problem) { $error=$problem->getMessage();$status=$problem->status; }
         }
-        return $this->render('catalog/form.html.twig',['kind'=>$kind,'item'=>$data,'is_new'=>$isNew,'error'=>$error,'token_id'=>$tokenId,'creation_key'=>$key,'scan_codes_text'=>$request->isMethod('POST')?$request->request->getString('scan_codes'):implode("\n",$data['scan_codes']??[]),'categories'=>$this->directory->categoryOptions($actor)],new Response(status:$status));
+        return $this->render('catalog/form.html.twig',['location_stores'=>$locationStores,'location_store'=>$locationStore,'location_text'=>$locationText,'kind'=>$kind,'item'=>$data,'is_new'=>$isNew,'error'=>$error,'token_id'=>$tokenId,'creation_key'=>$key,'scan_codes_text'=>$request->isMethod('POST')?$request->request->getString('scan_codes'):implode("\n",$data['scan_codes']??[]),'categories'=>$this->directory->categoryOptions($actor)],new Response(status:$status));
     }
     private function actor(): StockUser { $actor=$this->getUser();if (!$actor instanceof StockUser) { throw new ApiProblem(401,'authentication_required','Connectez-vous.'); }return $actor; }
 }

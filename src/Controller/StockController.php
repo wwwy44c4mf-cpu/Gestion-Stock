@@ -44,7 +44,7 @@ final class StockController extends AbstractController
         if (!$request->query->has('store_id') && ($selected = $context->read($request, $actor)['selected']) !== null) { $filters['store_id'] = $selected; }
         $result = $this->stocks->listing($actor, $filters);
         return $this->render('stocks/list.html.twig', [
-            'result' => $result, 'filters' => $filters, 'labels' => $this->stocks->labels($result['data']),
+            'can_export'=>isset($filters['store_id'])&&$this->isGranted(Permission::STOCK_EXPORT->value,\App\Security\AccessTarget::store($filters['store_id'])),'export_store_id'=>$filters['store_id']??null,'result' => $result, 'filters' => $filters, 'labels' => $this->stocks->labels($result['data']),
             'can_transfer' => in_array($actor->role,['ADMIN','MANAGER'],true) && $this->directory->storeOptions($actor,Permission::TRANSFER_CREATE) !== [], 'can_adjust' => in_array($actor->role,['ADMIN','MANAGER'],true) && $this->directory->storeOptions($actor,Permission::ADJUSTMENT_CREATE) !== [], 'can_register_consumption' => $this->directory->storeOptions($actor,Permission::CONSUMPTION_CREATE) !== [], 'can_register_entry' => in_array($actor->role,['ADMIN','MANAGER'],true) && $this->directory->storeOptions($actor,Permission::ENTRY_CREATE) !== [], 'stores' => $this->directory->storeOptions($actor), 'categories' => $this->catalog->categoryOptions($actor),
         ]);
     }
