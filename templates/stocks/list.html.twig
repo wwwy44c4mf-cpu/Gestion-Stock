@@ -8,6 +8,8 @@
 {% if can_register_entry %}<a class="button" href="{{ path('stocks_entry_new') }}">Enregistrer une entrée</a>{% endif %}
 {% if can_register_consumption %}<a class="button" href="{{ path('consumptions_new') }}">Enregistrer une consommation</a>{% endif %}
 </nav>
+{% if app.user.role in ['ADMIN','MANAGER'] %}<p><a class="button" href="{{ path('stocks_locations') }}">Gérer les casages</a></p>{% endif %}
+{% if can_export %}<p><a class="button" href="{{ path('store_export',{id:export_store_id}) }}">Exporter ce magasin en Excel</a></p>{% endif %}
 <section class="card">
 <form method="get" class="account-filters" aria-label="Filtrer les stocks">
 {% if filters.article_id is defined %}<input type="hidden" name="article_id" value="{{ filters.article_id }}">{% endif %}

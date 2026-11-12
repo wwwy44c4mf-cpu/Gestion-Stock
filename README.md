@@ -110,3 +110,5 @@ Serveur unique Docker Compose avec Caddy intégré et HTTPS. Sauvegardes quotidi
 Avant ouverture : renseigner serveur/domaine, SMTP, destination extérieure, responsables et surveillance ; relire la sécurité, valider la recette du commit livré puis suivre [la fiche de livraison](docs/livraison.md). Aucune de ces actions n’est réalisée automatiquement par une PR.
 
 Le [retour par article dans le magasin de dépôt et le magasin favori](docs/retours-depot-magasin-favori.md) simplifie les retours sans rechercher une date de consommation.
+
+Les [casages par magasin et l’export Excel](docs/casages-export.md) sont validés en recette locale ; voir [les contrôles et essais proposés](docs/validation-casages-export.md).

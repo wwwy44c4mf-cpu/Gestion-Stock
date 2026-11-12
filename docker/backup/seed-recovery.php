@@ -12,6 +12,7 @@ $db->transactional(function()use($db){
     $out=$db->fetchOne("INSERT INTO stock_movements(type,article_id,source_store_id,quantity,author_id,consumer_id,idempotency_key) VALUES ('consumption',?,?,3,?,?,'recovery-consumption') RETURNING id",[$article,$store,$user,$user]);
     $ret=$db->fetchOne("INSERT INTO stock_movements(type,article_id,destination_store_id,quantity,author_id,related_movement_id,idempotency_key) VALUES ('return',?,?,1,?,?,'recovery-return') RETURNING id",[$article,$store,$user,$out]);
     $db->insert('stock_levels',['article_id'=>$article,'store_id'=>$store,'quantity'=>8,'low_threshold'=>3,'critical_threshold'=>1]);
+    $db->insert('article_locations',['article_id'=>$article,'store_id'=>$store,'location'=>'Étagère reprise — hauteur 1']);
     foreach([$entry=>'stock.entry',$out=>'stock.consumption',$ret=>'stock.return'] as $id=>$action) {$db->insert('audit_logs',['actor_id'=>$user,'store_id'=>$store,'action'=>$action,'target_type'=>'stock_movement','target_id'=>$id]);}
     $db->executeStatement("INSERT INTO inventories(store_id,created_by) VALUES (?,?)",[$store,$user]);
     $db->executeStatement("INSERT INTO messenger_messages(body,headers,queue_name,created_at,available_at) VALUES ('durable-recovery-fixture','{}','ops_recovery_probe',clock_timestamp(),clock_timestamp())");

@@ -1,0 +1,31 @@
+# Recette locale — Casages et export Excel
+
+Lots : [CAS-01 #111](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/111) et [EXP-01 #112](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/112). Préparés le 12 novembre 2026, sur données fictives. Aucun service de production modifié, aucun courriel réel envoyé.
+
+## Contrôles effectués
+
+- Suite générale : 475 tests PHP, 5 902 assertions réussies, contrôles OpenAPI, parcours métier HTTP et charge de 920 requêtes réussis. Aucun écart de rapprochement ni stock négatif. Rapport : `var/qa/20261112T163011Z-61288`.
+- Complément ciblé : sept tests PHP, 60 assertions réussies. Casages facultatifs et indépendants par magasin, absence d’effet sur les stocks/alertes, conflits de version, limites du texte, droits gestionnaires, lecture seule des techniciens y compris hors affectation, CSRF, création d’article avec casage et annulation atomique en cas de magasin invalide.
+- Export : vrai ZIP OOXML, 31 articles inclus malgré la pagination habituelle ; bon magasin, absence des casages d’un autre magasin ; protection des codes et textes commençant par `=`, champs vides, quantités numériques, refus des rôles et magasins non autorisés, état réactualisé au prochain clic.
+- Lecture indépendante du fichier par openpyxl, puis import et rendu des deux feuilles par l’outil de vérification des tableurs. Les zéros initiaux sont vérifiés dans les cellules du fichier ; le moteur d’aperçu peut les normaliser visuellement à l’import.
+- JavaScript : 27 tests réussis du scanner, de la caméra, du décodage et du Worker. Le scan de casage accepte aussi un article désactivé ; la sélection précédente est effacée dès le début d’une recherche pour éviter de montrer un ancien emplacement avec un code inconnu.
+- Navigateur local : modification et enregistrement d’un casage, recherche par code, changement de magasin, téléchargement Excel, sorties et retours du technicien en lecture seule. Largeurs 375, 768 et 1 280 pixels, sans débordement de la nouvelle page de gestion des casages. Les tests de caméra sur les appareils physiques restent à effectuer après installation.
+- Sauvegarde et restauration : onze tests réussis avec les 24 migrations, casage conservé dans l’archive et restauré, application récupérée, connexion et stock vérifiés sur une installation isolée.
+
+- Recette Portainer isolée : installation des 24 migrations, redéploiement, contrôle de l’accès Cloudflared, sauvegarde chiffrée et restauration réussis. Rapport : `var/portainer/20261112T163945Z-62227`.
+
+## Essai humain sur le Mac
+
+Adresse : `http://127.0.0.1:18791`. Comptes de recette fictifs habituels, mots de passe de recette uniquement.
+
+1. Ouvrir **Stocks → Gérer les casages** et sélectionner **Article fictif 1**. Dans le magasin A, il est rangé « Étagère A — hauteur 1 » ; dans le magasin B, « Étagère B — hauteur 2 ».
+2. Modifier la valeur ou l’effacer, puis cliquer sur **Enregistrer le casage**. Aucun mouvement n’est nécessaire.
+3. Ouvrir une sortie ou un retour, choisir cet article et changer de magasin : l’indication de rangement doit suivre la sélection.
+4. Dans **Magasins**, télécharger le fichier Excel du magasin voulu et contrôler les feuilles **Stock** et **Magasin**.
+5. À la création d’un nouvel article, laisser le casage vide ou renseigner un magasin et une case.
+
+La démonstration contient deux magasins, vingt articles et un historique fictif. Le code de démonstration `CASAGE-DEMO-001` retrouve l’article fictif 1 via la saisie manuelle du scanner. Les exemples ne nécessitent aucune donnée réelle.
+
+## État
+
+Validation humaine locale confirmée par l’exploitant le 12 novembre 2026. Publication GitHub en cours ; installation sur le serveur à effectuer. L’installation actuelle reste celle du commit `5080c47d3df5d8a983462d852bc84e1f8733dbc1`, à 23 migrations. Ne pas remplacer RELEASE_ID avant publication et contrôles de la livraison.

@@ -29,13 +29,13 @@ final class AccessPolicy
             return;
         }
         if ($target === null || !$this->uuid($target->id)) { $this->missing(); }
-        $storePermissions = [Permission::STOCK_READ, Permission::ENTRY_CREATE, Permission::CONSUMPTION_CREATE, Permission::RETURN_CREATE,
+        $storePermissions = [Permission::LOCATION_READ,Permission::LOCATION_WRITE,Permission::STOCK_EXPORT,Permission::STOCK_READ, Permission::ENTRY_CREATE, Permission::CONSUMPTION_CREATE, Permission::RETURN_CREATE,
             Permission::CONSUMPTION_OTHER, Permission::ADJUSTMENT_CREATE, Permission::INVENTORY_READ,
             Permission::INVENTORY_WRITE, Permission::THRESHOLD_WRITE, Permission::ALERT_READ,
             Permission::ALERT_RECIPIENTS, Permission::AUDIT_READ, Permission::STATISTICS_READ,
             Permission::DASHBOARD_READ, Permission::MOVEMENT_READ, Permission::BENEFICIARIES_READ];
         if ($target->kind === 'store' && in_array($permission, $storePermissions, true)) {
-            if ($identity['role']==='USER' && in_array($permission,[Permission::CONSUMPTION_CREATE,Permission::RETURN_CREATE],true)) { $this->activeStore($target->id); }
+            if ($identity['role']==='USER' && in_array($permission,[Permission::CONSUMPTION_CREATE,Permission::RETURN_CREATE,Permission::LOCATION_READ],true)) { $this->activeStore($target->id); }
             else { $this->store($identity, $target->id, $permission->writesStock()); }
             return;
         }
@@ -98,7 +98,7 @@ final class AccessPolicy
     {
         $identity = $this->identity->requireRole($actor, $permission);
         $this->alias($alias);
-        if ($identity['role']==='USER' && in_array($permission,[Permission::CONSUMPTION_CREATE,Permission::RETURN_CREATE],true)) { return new SqlScope($alias.'.active'); }
+        if ($identity['role']==='USER' && in_array($permission,[Permission::CONSUMPTION_CREATE,Permission::RETURN_CREATE,Permission::LOCATION_READ],true)) { return new SqlScope($alias.'.active'); }
         return $this->stores($identity, $alias.'.id', $permission->writesStock());
     }
 

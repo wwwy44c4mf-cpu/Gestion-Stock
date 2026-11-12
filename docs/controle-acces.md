@@ -12,6 +12,9 @@ La sélection « Tous mes magasins » ou d’un magasin dans l’en-tête est un
 | Suppression du catalogue, stocks et historique conservés | Oui | Oui | Non |
 | Proposition catalogue | Oui | Oui | Non |
 | Stocks | Tous, désactivés compris | Actifs affectés | Actifs affectés |
+| Lecture du casage | Tous, désactivés compris | Actifs affectés | Tout magasin actif, sans quantité hors affectation |
+| Modification du casage | Magasin actif | Actif affecté | Non |
+| Export Excel du magasin | Tous, désactivés compris | Actifs affectés | Non |
 | Saisie de sa consommation | Magasin actif | Actif affecté | Tout magasin actif, même sans affectation |
 | Consommation pour autrui | Magasin actif | Actif affecté | Non |
 | Entrées, ajustements, transferts et annulations | Magasins actifs | Actifs affectés | Non |

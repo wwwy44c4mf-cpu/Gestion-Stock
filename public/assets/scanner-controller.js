@@ -1,5 +1,5 @@
 import { Controller } from './vendor/stimulus.js';
-import { ScanCamera } from './scan-camera.js';
+import { ScanCamera } from './scan-camera.js?v=2cb0ab0b0d2c2c06';
 
 export default class extends Controller {
     static targets = ['dialog', 'video', 'status', 'previewStatus', 'code', 'start', 'resume'];
@@ -93,7 +93,10 @@ export default class extends Controller {
         }
         const select = this.hasSelectValue ? document.getElementById(this.selectValue) : null;
         const previous = select?.value;
-        if (select) select.value = '';
+        if (select) {
+            select.value = '';
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+        }
         this.message('Recherche de l’article…');
         this.request = new AbortController();
         try {
@@ -111,14 +114,18 @@ export default class extends Controller {
                 url.searchParams.set('article_id', article.id);
                 window.location.assign(url.href); return;
             }
-            if ((this.modeValue !== 'deposit' && !article.active) || !Array.from(select.options).some(option => option.value === article.id)) {
+            if ((!['deposit', 'location'].includes(this.modeValue) && !article.active) || !Array.from(select.options).some(option => option.value === article.id)) {
                 this.message('Cet article est désactivé ou indisponible pour cette opération.'); return;
             }
             select.value = article.id;
             select.dispatchEvent(new Event('change', { bubbles: true }));
             const quantity = document.getElementById(this.quantityValue);
-            if (previous !== article.id) quantity.value = '';
-            quantity.focus();
+            if (quantity && previous !== article.id) quantity.value = '';
+            quantity?.focus();
+            if (this.modeValue === 'location') {
+                this.message(`${article.sku} · ${article.name} sélectionné. Renseignez le casage pour le magasin choisi.`);
+                return;
+            }
             this.message(`${article.sku} · ${article.name} sélectionné. Saisissez la quantité, puis confirmez le formulaire.`);
         } catch (error) {
             if (error.name !== 'AbortError' && sequence === this.sequence) this.message('Recherche impossible. Vérifiez votre connexion ou choisissez l’article manuellement.');

@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+{% block title %}Casages · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">RANGEMENT</p><h1>Casages des articles</h1><p class="subtitle">Scannez ou choisissez un article, puis renseignez son emplacement dans le magasin.</p></div><a href="{{ path('stocks_list') }}">Retour aux stocks</a></div>
+<section class="card account-form"><div class="field"><label for="location-store">Magasin</label><select id="location-store"><option value="">Choisir un magasin</option>{% for store in stores %}<option value="{{ store.id }}" {% if item.store_id == store.id %}selected{% endif %}>{{ store.code }} · {{ store.name }}</option>{% endfor %}</select></div>
+<div class="field"><label for="location-article">Article</label><select id="location-article"><option value="">Scanner ou choisir un article</option>{% for article in articles %}<option value="{{ article.id }}" {% if item.article_id == article.id %}selected{% endif %}>{{ article.sku }} · {{ article.name }}{{ article.active ? '' : ' (désactivé)' }}</option>{% endfor %}</select></div>
+{% include 'components/scanner.html.twig' with {mode:'location',select_id:'location-article',quantity_id:'casage-label'} only %}
+{% include 'components/location.html.twig' with {store_input:'location-store',article_input:'location-article',editable:true} only %}
+</section>
+{% endblock %}

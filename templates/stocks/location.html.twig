@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+{% block title %}Modifier le casage · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Modifier le casage</h1><p>{{ labels.sku }} · {{ labels.article_name }}</p><p>Magasin : {{ labels.store_code }} · {{ labels.store_name }}</p></div><a href="{{ path('stocks_list') }}">Retour aux stocks</a></div>
+<section class="card account-form">
+{% if error %}{% include 'components/notice.html.twig' with {kind:'error',message:error} only %}<p><a href="{{ path('stocks_location_edit',{storeId:item.store_id,articleId:item.article_id}) }}">Recharger le casage actuel</a></p>{% endif %}
+<form method="post"><input type="hidden" name="_csrf_token" value="{{ csrf_token('location_' ~ item.store_id ~ '_' ~ item.article_id) }}"><input type="hidden" name="version" value="{{ item.version }}"><div class="field"><label for="location-label">Casage (facultatif)</label><input id="location-label" name="location" value="{{ item.location ?? '' }}" maxlength="160" placeholder="Ex. : Étagère A — hauteur 1"><p class="muted">Ce casage concerne uniquement cet article dans ce magasin. Laissez vide pour le retirer.</p></div><button class="button" type="submit">Enregistrer le casage</button></form>
+</section>
+{% endblock %}
