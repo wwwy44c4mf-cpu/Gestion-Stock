@@ -41,9 +41,9 @@ final class CatalogController extends AbstractController
     public function article(string $id): JsonResponse { return $this->json($this->directory->get($this->actor(),'article',$id)); }
     #[Route('/api/v1/articles',name:'api_articles_create',methods:['POST'],defaults:['kind'=>'article'])]
     #[Route('/api/v1/categories',name:'api_categories_create',methods:['POST'],defaults:['kind'=>'category'])]
-    #[IsGranted('APP_CATALOG_ADMIN')]
     public function create(string $kind,Request $request,JsonBody $json,IdempotencyKey $key): JsonResponse
     {
+        $this->denyAccessUnlessGranted($kind==='article'?'APP_CATALOG_CREATE':'APP_CATALOG_ADMIN');
         $result=$this->administration->create($this->actor(),$kind,$json->read($request,$kind==='article'?'ArticleCreate':'CategoryCreate'),$key->read($request));
         $path=$kind==='article'?'/api/v1/articles/':'/api/v1/categories/';
         return $this->json($result,201,['Location'=>$path.$result['data']['id']]);
@@ -105,11 +105,13 @@ final class CatalogController extends AbstractController
     #[Route('/administration/articles/{id}/modifier',name:'catalog_article_edit',methods:['GET','POST'],defaults:['kind'=>'article','_camera_scan'=>true])]
     #[Route('/administration/categories/nouvelle',name:'catalog_category_new',methods:['GET','POST'],defaults:['kind'=>'category'])]
     #[Route('/administration/categories/{id}/modifier',name:'catalog_category_edit',methods:['GET','POST'],defaults:['kind'=>'category'])]
-    #[IsGranted('APP_CATALOG_ADMIN')]
     public function form(string $kind,Request $request,CsrfTokenManagerInterface $csrf,?string $id=null): Response
     {
         $actor=$this->actor();$isNew=$id===null;
+        $this->denyAccessUnlessGranted($kind==='article'&&$isNew?'APP_CATALOG_CREATE':'APP_CATALOG_ADMIN');
         $data=$isNew?($kind==='article'?['sku'=>'','name'=>'','description'=>'','category_id'=>null,'active'=>true,'unit_code'=>'unit','version'=>1]:['name'=>'','parent_id'=>null,'active'=>true]):$this->administration->get($actor,$kind,$id)['data'];
+        $tracksReels=$kind==='category'&&$id!==null?(bool)$this->db->fetchOne("SELECT coalesce((to_jsonb(c)->>'tracks_reels')::boolean,false) FROM categories c WHERE id=?",[$id]):false;
+        $requestedReels=$request->isMethod('POST')?$request->request->getBoolean('tracks_reels'):$tracksReels;
         $locationStores=$kind==='article'&&$isNew?$this->access->storeOptions($actor,\App\Security\Permission::LOCATION_WRITE):[];
         $locationStore=$request->isMethod('POST')?$request->request->getString('location_store_id'):($locationStores!==[]?($this->context->preferred($request,$actor,$locationStores)??''):'');
         $locationText=$request->isMethod('POST')?$request->request->getString('location'):'';
@@ -133,16 +135,21 @@ final class CatalogController extends AbstractController
                 $data=array_replace($data,get_object_vars($body));
                 $initialLocation=$kind==='article'&&$isNew?$this->locations->validate($locationText):null;
                 if($initialLocation!==null&&$locationStore==='') {throw new ApiProblem(422,'location_store_required','Choisissez le magasin de ce casage, ou laissez le casage vide.');}
-                $result=$this->db->transactional(function() use($isNew,$actor,$kind,$body,$key,$id,$initialLocation,$locationStore): array {
+                $result=$this->db->transactional(function() use($isNew,$actor,$kind,$body,$key,$id,$initialLocation,$locationStore,$tracksReels,$requestedReels): array {
                     $result=$isNew?$this->administration->create($actor,$kind,$body,$key):$this->administration->update($actor,$kind,$id,$body);
+                    if($kind==='category'&&$tracksReels!==$requestedReels) {
+                        $categoryId=$result['data']['id'];
+                        if($this->db->fetchOne('SELECT 1 FROM stock_movements m JOIN articles a ON a.id=m.article_id WHERE a.category_id=? LIMIT 1',[$categoryId])) {throw new ApiProblem(409,'category_has_history','Ce mode ne peut pas changer sur une catégorie ayant déjà des mouvements. Créez une catégorie dédiée.');}
+                        $this->db->executeStatement('UPDATE categories SET tracks_reels=? WHERE id=?',[$requestedReels?'true':'false',$categoryId]);
+                    }
                     if($initialLocation!==null) {$this->locations->save($actor,$locationStore,$result['data']['id'],$initialLocation,0);}
                     return $result;
                 });
                 $this->addFlash('success',$isNew?($kind==='article'?'L’article a été créé.':'La catégorie a été créée.'):'Les modifications ont été enregistrées.');
-                return $this->redirectToRoute($kind==='article'?'catalog_article_edit':'catalog_category_edit',['id'=>$result['data']['id']],303);
+                return $this->redirectToRoute($kind==='article'?($actor->role==='ADMIN'?'catalog_article_edit':'catalog_article'):'catalog_category_edit',['id'=>$result['data']['id']],303);
             } catch (ApiProblem $problem) { $error=$problem->getMessage();$status=$problem->status; }
         }
-        return $this->render('catalog/form.html.twig',['location_stores'=>$locationStores,'location_store'=>$locationStore,'location_text'=>$locationText,'kind'=>$kind,'item'=>$data,'is_new'=>$isNew,'error'=>$error,'token_id'=>$tokenId,'creation_key'=>$key,'scan_codes_text'=>$request->isMethod('POST')?$request->request->getString('scan_codes'):implode("\n",$data['scan_codes']??[]),'categories'=>$this->directory->categoryOptions($actor)],new Response(status:$status));
+        return $this->render('catalog/form.html.twig',['tracks_reels'=>$requestedReels,'location_stores'=>$locationStores,'location_store'=>$locationStore,'location_text'=>$locationText,'kind'=>$kind,'item'=>$data,'is_new'=>$isNew,'error'=>$error,'token_id'=>$tokenId,'creation_key'=>$key,'scan_codes_text'=>$request->isMethod('POST')?$request->request->getString('scan_codes'):implode("\n",$data['scan_codes']??[]),'categories'=>$this->directory->categoryOptions($actor)],new Response(status:$status));
     }
     private function actor(): StockUser { $actor=$this->getUser();if (!$actor instanceof StockUser) { throw new ApiProblem(401,'authentication_required','Connectez-vous.'); }return $actor; }
 }

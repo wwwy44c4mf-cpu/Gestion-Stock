@@ -1,5 +1,7 @@
 # Casages et export Excel d’un magasin
 
+**Version historique installée le 12 novembre.** La [maquette suivante](maquette-evolutions.md) retire l’export manuel et autorise la création directe des articles par les gestionnaires. Les règles ci-dessous décrivent la livraison antérieure.
+
 Lots [CAS-01 #111](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/111) et [EXP-01 #112](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/112).
 
 ## Casage facultatif

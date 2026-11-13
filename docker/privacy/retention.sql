@@ -22,6 +22,12 @@ CREATE TEMP TABLE privacy_open_users ON COMMIT DROP AS
  UNION SELECT validated_by FROM inventories WHERE status NOT IN ('closed','cancelled') AND validated_by IS NOT NULL
  UNION SELECT l.counted_by FROM inventory_lines l JOIN inventories i ON i.id=l.inventory_id WHERE i.status NOT IN ('closed','cancelled') AND l.counted_by IS NOT NULL
  UNION SELECT proposed_by FROM article_proposals WHERE status='pending';
+DO $$ BEGIN
+ IF to_regclass('tool_loans') IS NOT NULL THEN
+  LOCK TABLE tool_loans,ca_requests,cable_reel_movements,unlinked_returns,stock_orders IN ACCESS EXCLUSIVE MODE;
+  INSERT INTO privacy_open_users SELECT borrower_id FROM tool_loans WHERE returned_at IS NULL;
+ END IF;
+END $$;
 CREATE TEMP TABLE privacy_users ON COMMIT DROP AS
  SELECT id FROM users WHERE NOT active AND anonymized_at IS NULL
  AND deactivated_at + interval '1 year' <= (SELECT at FROM privacy_clock)
@@ -146,6 +152,18 @@ DO $$ BEGIN
    WHERE anonymized_at IS NULL AND (created_at+interval '1 year'<=(SELECT at FROM privacy_clock) OR user_id IN (SELECT id FROM privacy_users));
   UPDATE account_requests SET reviewed_by=NULL WHERE reviewed_by IN (SELECT id FROM privacy_users)
    OR reviewed_at+interval '1 year'<=(SELECT at FROM privacy_clock);
+ END IF;
+END $$;
+DO $$ BEGIN
+ IF to_regclass('tool_loans') IS NOT NULL THEN
+  UPDATE tool_loans SET borrower_id='00000000-0000-4000-8000-000000000001',returned_by='00000000-0000-4000-8000-000000000001'
+   WHERE returned_at+interval '1 year'<=(SELECT at FROM privacy_clock);
+  ALTER TABLE cable_reel_movements DISABLE TRIGGER cable_movements_immutable;
+  UPDATE cable_reel_movements SET actor_id='00000000-0000-4000-8000-000000000001' WHERE created_at+interval '1 year'<=(SELECT at FROM privacy_clock);
+  ALTER TABLE cable_reel_movements ENABLE TRIGGER cable_movements_immutable;
+  DELETE FROM ca_requests WHERE created_at+interval '1 year'<=(SELECT at FROM privacy_clock) OR actor_id IN (SELECT id FROM privacy_users);
+  DELETE FROM unlinked_returns WHERE movement_id IN (SELECT id FROM privacy_due);
+  UPDATE stock_orders SET ordered_by='00000000-0000-4000-8000-000000000001' WHERE ordered_at+interval '1 year'<=(SELECT at FROM privacy_clock) OR ordered_by IN (SELECT id FROM privacy_users);
  END IF;
 END $$;
 DELETE FROM password_reset_tokens WHERE expires_at<=(SELECT at FROM privacy_clock) OR user_id IN (SELECT id FROM privacy_users);

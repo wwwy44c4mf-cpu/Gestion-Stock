@@ -32,3 +32,7 @@ La lecture du catalogue ajoute les tris `category` et `status`, en plus de réf�
 ## Casages et fichier Excel
 
 Le [complément CAS-01 / EXP-01](casages-export.md) ajoute le casage facultatif par article et magasin, son affichage lors des sorties et dépôts, ainsi que l’export Excel complet de l’état actuel d’un magasin. Développement validé localement ; publication et installation à effectuer ; migration additive vers 24.
+
+## Évolutions en maquette
+
+La [maquette CA](maquette-evolutions.md), non publiée, ajoute les articles commandés, le retour sans sortie préalable, les outils individualisés et les tourets. Elle retire l’export manuel Excel. La version installée reste inchangée tant que cette maquette n’est pas validée.

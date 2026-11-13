@@ -69,6 +69,23 @@ final class PrivacyRetentionTest extends KernelTestCase
         $this->runRetention();self::assertSame(3,(int)$this->db->fetchOne('SELECT count(*) FROM account_requests'));
     }
 
+    public function testCuratifHistoryIsAnonymizedWithoutChangingLengthsOrOpenLoans(): void
+    {
+        $f=$this->fixtures();
+        $tool=$this->db->fetchOne("INSERT INTO tool_items(store_id,name,reference) VALUES(?,'Scie','SCIE') RETURNING id",[$f['s']]);
+        $closed=$this->db->fetchOne("INSERT INTO tool_loans(tool_id,store_id,borrower_id,returned_at,returned_by) VALUES(?,?,?,clock_timestamp()-interval '2 years',?) RETURNING id",[$tool,$f['s'],$f['u'],$f['u']]);
+        $open=$this->db->fetchOne('INSERT INTO tool_loans(tool_id,store_id,borrower_id) VALUES(?,?,?) RETURNING id',[$tool,$f['s'],$f['u']]);
+        $reel=$this->db->fetchOne("INSERT INTO cable_reels(article_id,store_id,reference,initial_length,remaining_length) VALUES(?,?,'R',500,400) RETURNING id",[$f['a'],$f['s']]);
+        $this->db->executeStatement("INSERT INTO cable_reel_movements(reel_id,actor_id,type,length,created_at) VALUES(?,?,'use',100,clock_timestamp()-interval '2 years')",[$reel,$f['u']]);
+        $this->db->executeStatement("INSERT INTO ca_requests(actor_id,request_key,fingerprint,kind,result,created_at) VALUES(?,'old',?,'tools.borrow','{}',clock_timestamp()-interval '2 years')",[$f['u'],str_repeat('a',64)]);
+        $this->runRetention();
+        self::assertSame(AnonymousIdentity::ID,$this->db->fetchOne('SELECT borrower_id FROM tool_loans WHERE id=?',[$closed]));
+        self::assertSame($f['u'],$this->db->fetchOne('SELECT borrower_id FROM tool_loans WHERE id=?',[$open]));
+        self::assertSame(AnonymousIdentity::ID,$this->db->fetchOne('SELECT actor_id FROM cable_reel_movements WHERE reel_id=?',[$reel]));
+        self::assertSame(400,(int)$this->db->fetchOne('SELECT remaining_length FROM cable_reels WHERE id=?',[$reel]));
+        self::assertSame(0,(int)$this->db->fetchOne("SELECT count(*) FROM ca_requests WHERE request_key='old'"));
+        $this->runRetention();self::assertSame(2,(int)$this->db->fetchOne('SELECT count(*) FROM tool_loans'));
+    }
     public function testGroupedReturnsAnonymizeTheEntireConnectedBeneficiaryChain(): void
     {
         $f=$this->fixtures();

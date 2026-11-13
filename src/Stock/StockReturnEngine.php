@@ -41,6 +41,7 @@ final class StockReturnEngine
                 return ['data'=>$this->movements->resource($previous)];
             }
             $origin=$this->db->fetchAssociative("SELECT * FROM stock_movements WHERE id = ? AND type = 'consumption' FOR UPDATE",[$body->consumption_id]);
+            if($this->db->fetchOne("SELECT 1 FROM articles a JOIN categories c ON c.id=a.category_id WHERE a.id=? AND coalesce((to_jsonb(c)->>'tracks_reels')::boolean,false)",[$origin['article_id']])) {throw new ApiProblem(409,'reel_workflow_required','Cet article est suivi par touret : utilisez son écran dédié.');}
             if ($this->db->fetchOne("SELECT 1 FROM stock_movements WHERE type = 'reversal' AND related_movement_id = ?",[$origin['id']])) { throw new ApiProblem(409,'consumption_reversed','Cette consommation a été annulée ou corrigée. Utilisez la consommation corrigée.'); }
             $returned=(int)$this->db->fetchOne("SELECT coalesce(sum(r.quantity),0) FROM stock_movements r WHERE r.type = 'return' AND r.related_movement_id = ? AND NOT EXISTS (SELECT 1 FROM stock_movements undo WHERE undo.type = 'reversal' AND undo.related_movement_id = r.id)",[$origin['id']]);
             if ($body->quantity>(int)$origin['quantity']-$returned) { throw new ApiProblem(409,'excessive_return','La quantité dépasse le nombre d’unités encore à rendre.'); }

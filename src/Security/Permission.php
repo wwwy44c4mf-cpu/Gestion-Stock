@@ -7,9 +7,11 @@ namespace App\Security;
 /** Central role matrix. Store/ownership checks are applied by AccessPolicy. */
 enum Permission: string
 {
+    case ARTICLE_PURGE = 'APP_ARTICLE_PURGE';
     case ACCOUNTS_ADMIN = 'APP_ACCOUNTS_ADMIN';
     case STORES_ADMIN = 'APP_STORES_ADMIN';
     case CATALOG_READ = 'APP_CATALOG_READ';
+    case CATALOG_CREATE = 'APP_CATALOG_CREATE';
     case CATALOG_ADMIN = 'APP_CATALOG_ADMIN';
     case CATALOG_DELETE = 'APP_CATALOG_DELETE';
     case CATALOG_PROPOSE = 'APP_CATALOG_PROPOSE';

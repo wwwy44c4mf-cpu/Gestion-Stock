@@ -28,4 +28,8 @@ La démonstration contient deux magasins, vingt articles et un historique fictif
 
 ## État
 
-Validation humaine locale confirmée par l’exploitant le 12 novembre 2026. Publication GitHub en cours ; installation sur le serveur à effectuer. L’installation actuelle reste celle du commit `5080c47d3df5d8a983462d852bc84e1f8733dbc1`, à 23 migrations. Ne pas remplacer RELEASE_ID avant publication et contrôles de la livraison.
+Validation locale, publication puis installation confirmées par l’exploitant le 12 novembre 2026. Commit installé : `a9d72275fc83e79795fbabde6cdd1ee7818dcbe8`, branche `codex/cas-01-casages-export`, PR #113. Les cinq contrôles GitHub du run 43264075856 sont réussis, dont 482 tests PHP et 5 962 assertions. La migration `Version20261112010000` porte le total à 24.
+
+## Validation de production — 12 novembre 2026
+
+Sauvegarde et copie Drive confirmées par l’exploitant avant maintenance. Migration appliquée, redéploiement réussi, services sains et initialiseurs en code 0. Rapprochement des stocks : `{"consistent":true,"differences":[]}`. Le casage est conservé après rechargement et visible en sortie et en retour. Le fichier Excel est ouvert avec ses deux feuilles, les bonnes quantités et le casage. Issues #111 et #112 clôturées après ces confirmations. Aucun accès direct au serveur ; résultats communiqués par l’exploitant.

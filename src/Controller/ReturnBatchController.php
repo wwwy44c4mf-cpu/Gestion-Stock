@@ -15,7 +15,7 @@ use Symfony\Component\Security\Csrf\{CsrfToken,CsrfTokenManagerInterface};
 final class ReturnBatchController extends AbstractController
 {
     public function __construct(private readonly ReturnBatchEngine $engine, private readonly AccessIdentity $identity,
-        private readonly AccessPolicy $policy, private readonly AccessDirectory $directory, private readonly Connection $db) {}
+        private readonly AccessPolicy $policy, private readonly AccessDirectory $directory, private readonly Connection $db,private readonly \App\Curatif\UnifiedReturns $unified) {}
 
     #[Route('/api/v1/movements/return-batches',name:'api_return_batch_create',methods:['POST'])]
     public function create(Request $request,JsonBody $json,IdempotencyKey $key): JsonResponse
@@ -51,9 +51,9 @@ final class ReturnBatchController extends AbstractController
                 $key=$raw['_movement_key']??'';
                 if(!preg_match('/^[1-9][0-9]{0,15}$/D',$data['quantity'])) { throw new ApiProblem(422,'invalid_quantity','Saisissez une quantité entière positive.'); }
                 $body=(object)$data;$body->quantity=(int)$data['quantity'];
-                $result=$this->engine->record($actor,$body,$key)['data'];
+                $result=$this->unified->record($actor,$body,$key);
                 $this->addFlash('success','Le dépôt de '.$result['quantity'].' unité(s) a été enregistré.');
-                return $this->redirectToRoute('consumptions_return_batch_receipt',['id'=>$result['id']],303);
+                return $this->redirectToRoute('consumptions_return_unified_receipt',['key'=>$key],303);
             } catch(ApiProblem $problem) { $error=$problem->getMessage();$status=$problem->status; }
         }
         return $this->render('returns/batch_form.html.twig',['item'=>$data,'stores'=>$stores,'articles'=>$articles,'can_choose_beneficiary'=>$canChoose,'beneficiaries'=>$beneficiaries,'movement_key'=>$key,'error'=>$error],new Response(status:$status));
@@ -78,6 +78,14 @@ final class ReturnBatchController extends AbstractController
         $row['consumer_name']=$this->db->fetchOne("SELECT CASE WHEN anonymized_at IS NULL THEN name ELSE 'Compte anonymisé' END FROM users WHERE id=?",[$row['consumer_id']]);
         $canReadOrigins=$actor->role==='ADMIN';
         return $this->render('returns/batch_receipt.html.twig',['deposit'=>$row,'movements'=>$movements,'can_read_origins'=>$canReadOrigins]);
+    }
+    #[Route('/consommations/retours/confirmation/{key}',name:'consumptions_return_unified_receipt',priority:40,methods:['GET'])]
+    public function unifiedReceipt(string $key): Response
+    {
+        $actor=$this->actor();$row=$this->db->fetchAssociative("SELECT result,created_at FROM ca_requests WHERE actor_id=? AND request_key=? AND kind='returns.unified'",[$actor->id,$key]);
+        if(!$row) {throw new ApiProblem(404,'return_not_found','Retour introuvable.');}
+        $result=json_decode($row['result'],true,flags:JSON_THROW_ON_ERROR);$this->policy->assert($actor,Permission::RETURN_CREATE,AccessTarget::store($result['store_id']));
+        return $this->render('returns/unified_receipt.html.twig',['deposit'=>$result,'article'=>$this->db->fetchAssociative('SELECT sku,name FROM articles WHERE id=?',[$result['article_id']]),'store'=>$this->db->fetchAssociative('SELECT code,name FROM stores WHERE id=?',[$result['store_id']]),'created_at'=>$row['created_at']]);
     }
     private function actor(): StockUser
     {

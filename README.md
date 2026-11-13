@@ -112,3 +112,5 @@ Avant ouverture : renseigner serveur/domaine, SMTP, destination extérieure, res
 Le [retour par article dans le magasin de dépôt et le magasin favori](docs/retours-depot-magasin-favori.md) simplifie les retours sans rechercher une date de consommation.
 
 Les [casages par magasin et l’export Excel](docs/casages-export.md) sont validés en recette locale ; voir [les contrôles et essais proposés](docs/validation-casages-export.md).
+
+Les [évolutions CA en maquette locale](docs/maquette-evolutions.md) sont préparées pour validation avant publication et production ; [compte rendu des essais](docs/validation-maquette.md).

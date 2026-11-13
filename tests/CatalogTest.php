@@ -111,12 +111,12 @@ final class CatalogTest extends WebTestCase
             $this->login($name);
             foreach(['/api/v1/articles','/api/v1/articles/'.$id,'/api/v1/categories','/articles','/categories','/articles/'.$id] as $path) { $this->client->request('GET',$path);self::assertResponseIsSuccessful(); }
             self::assertSelectorNotExists('a[href="/administration/articles/'.$id.'/modifier"]');
-            $this->article(['sku'=>'FORBIDDEN']);self::assertResponseStatusCodeSame(403);$this->category(['name'=>'Forbidden']);self::assertResponseStatusCodeSame(403);
+            $this->article(['sku'=>'FORBIDDEN']);self::assertResponseStatusCodeSame($name==='manager'?201:403);$this->category(['name'=>'Forbidden']);self::assertResponseStatusCodeSame(403);
             $this->send('PATCH','/api/v1/articles/'.$id,['version'=>1,'active'=>false]);self::assertResponseStatusCodeSame(403);$this->send('PATCH','/api/v1/categories/'.$cat,['name'=>'Forbidden']);self::assertResponseStatusCodeSame(403);
-            foreach(['/administration/articles/nouveau','/administration/articles/'.$id.'/modifier','/administration/categories/nouvelle','/administration/categories/'.$cat.'/modifier'] as $path) { $this->client->request('GET',$path);self::assertResponseStatusCodeSame(403); }
+            foreach(['/administration/articles/nouveau','/administration/articles/'.$id.'/modifier','/administration/categories/nouvelle','/administration/categories/'.$cat.'/modifier'] as $path) { $this->client->request('GET',$path);self::assertResponseStatusCodeSame($name==='manager'&&$path==='/administration/articles/nouveau'?200:403); }
         }
         $this->login();$this->client->request('POST','/api/v1/articles',server:['CONTENT_TYPE'=>'application/json','HTTP_IDEMPOTENCY_KEY'=>'csrf-key-123'],content:'{"sku":"NO-CSRF","name":"X"}');self::assertResponseStatusCodeSame(403);
-        self::assertSame(1,(int)$this->db->fetchOne('SELECT count(*) FROM articles'));
+        self::assertSame(2,(int)$this->db->fetchOne('SELECT count(*) FROM articles'));
     }
     public function testQueriesPaginationAndEscapingDoNotExposeStocks(): void
     {

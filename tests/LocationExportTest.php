@@ -102,35 +102,4 @@ final class LocationExportTest extends WebTestCase
         $this->client->request('GET','/casages');self::assertResponseStatusCodeSame(403);
         $this->login('manager');$this->client->request('GET','/casages');self::assertResponseIsSuccessful();self::assertSelectorExists('[data-location-save]');self::assertSelectorExists('[data-controller="scanner"]');
     }
-    public function testExportContainsWholeCurrentStoreAsRealSafeWorkbook(): void
-    {
-        $this->location('A','Étagère A — hauteur 1',0);$this->location('B','SECRET AUTRE MAGASIN',0);
-        for($i=0;$i<30;$i++) {$this->db->insert('articles',['sku'=>'R'.$i,'name'=>'Référence '.$i]);}
-        $this->client->request('GET','/magasins/'.$this->stores['A'].'/export.xlsx');self::assertResponseIsSuccessful();
-        $response=$this->client->getResponse();self::assertSame('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',$response->headers->get('Content-Type'));
-        self::assertStringContainsString('no-store',$response->headers->get('Cache-Control'));self::assertStringContainsString('attachment;',$response->headers->get('Content-Disposition'));
-        $path=sys_get_temp_dir().'/export-test-'.bin2hex(random_bytes(8)).'.zip';
-        try {
-            file_put_contents($path,$response->getContent());$zip=new \PharData($path);
-            $sheet=$zip['xl/worksheets/sheet1.xml']->getContent();
-            self::assertStringContainsString('Étagère A — hauteur 1',$sheet);self::assertStringNotContainsString('SECRET AUTRE MAGASIN',$sheet);
-            self::assertStringContainsString('00042',$sheet);self::assertStringContainsString('00123456789',$sheet);self::assertStringContainsString('=texte inoffensif',$sheet);
-            self::assertStringNotContainsString('<f>',$sheet);self::assertStringContainsString('A1:L36',$sheet);self::assertStringContainsString('r="E6" t="n"',$sheet);
-            self::assertNotFalse(simplexml_load_string($sheet));self::assertNotFalse(simplexml_load_string($zip['xl/styles.xml']->getContent()));
-            // Actual app-generated file for independent reader and visual verification.
-            if(is_dir('/qa-output')) {file_put_contents('/qa-output/casage-export.xlsx',$response->getContent());}
-            unset($zip);
-        } finally {unlink($path);}
-    }
-    public function testExportAuthorizationAndSnapshotRefresh(): void
-    {
-        $this->login('manager');$this->client->request('GET','/api/v1/stores/'.$this->stores['A'].'/export.xlsx');self::assertResponseIsSuccessful();
-        $this->client->request('GET','/api/v1/stores/'.$this->stores['B'].'/export.xlsx');self::assertResponseStatusCodeSame(404);
-        $this->login('user');$this->client->request('GET','/magasins/'.$this->stores['A'].'/export.xlsx');self::assertResponseStatusCodeSame(403);
-        $this->login('admin');$service=static::getContainer()->get(\App\Export\StoreStockSnapshot::class);$actor=static::getContainer()->get(\App\Security\StockUserProvider::class)->loadUserByIdentifier('admin@example.test');
-        self::assertNull($service->read($actor,$this->stores['A'])['rows'][0]['location']);
-        $this->location('A','Nouveau casage',0);
-        self::assertSame('Nouveau casage',$service->read($actor,$this->stores['A'])['rows'][0]['location']);
-        self::assertFalse($this->db->isTransactionActive());
-    }
 }
