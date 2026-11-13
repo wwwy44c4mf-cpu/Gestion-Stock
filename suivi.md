@@ -29,10 +29,19 @@ Le mini-PC annoncé possède quatre cœurs et 8,1 Go de mémoire totale ; la cha
 
 | Lot | Besoin | Statut | Issue |
 | --- | --- | --- | --- |
-| CAS-01 | Casage manuel facultatif unique par article et magasin ; modification par administrateurs et gestionnaires autorisés, affichage à la sortie et au retour selon le magasin choisi | Validé localement par l’exploitant le 12 novembre 2026 ; publication en cours | [#111](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/111) |
-| EXP-01 | Export Excel à la demande de l’état complet actuel d’un magasin, sans historique, avec casages et seuils | Validé localement par l’exploitant le 12 novembre 2026 ; publication en cours | [#112](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/112) |
+| CAS-01 | Casage manuel facultatif unique par article et magasin ; modification par administrateurs et gestionnaires autorisés, affichage à la sortie et au retour selon le magasin choisi | Installé et validé en production par l’exploitant le 12 novembre 2026 | [#111](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/111) |
+| EXP-01 | Export Excel à la demande de l’état complet actuel d’un magasin, sans historique, avec casages et seuils | Installé et validé en production par l’exploitant le 12 novembre 2026 | [#112](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/112) |
 
-Voir [le fonctionnement des casages et de l’export](docs/casages-export.md) et [la recette locale](docs/validation-casages-export.md). Migration additive vers 24 ; production conservée sur la livraison précédente jusqu’à publication et mise à jour contrôlée.
+Voir [le fonctionnement des casages et de l’export](docs/casages-export.md) et [la recette locale](docs/validation-casages-export.md). Migration vers 24 appliquée ; livraison `a9d72275fc83e79795fbabde6cdd1ee7818dcbe8` installée, stocks cohérents et essais de production confirmés.
+
+## Suppression définitive et dimensions des actions — 13 novembre 2026
+
+| Lot | Besoin | Statut | Issue |
+| --- | --- | --- | --- |
+| ART-04 | Suppression définitive d’un article réel ou de test, de ses stocks et historiques ; administrateurs et gestionnaires autorisés sur tous les magasins concernés | Développé et testé localement ; validation humaine en attente | [#114](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/114) |
+| UI-04 | Casages et export dans la même grille et aux mêmes dimensions que les quatre autres actions de stock | Dimensions vérifiées localement ; validation humaine en attente | [#115](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/115) |
+
+Voir [la suppression définitive des articles](docs/suppression-definitive-articles.md) et [la recette associée](docs/validation-suppression-definitive.md). Publication et installation en attente de validation locale.
 
 ## Décisions validées
 
@@ -958,3 +967,17 @@ Les achats, commandes automatiques, facturation, ERP, géolocalisation, équipem
 ## Demande suivante
 
 - CAT-02 : l’exploitant a validé la suppression dans l’aperçu local. Réservée aux administrateurs/gestionnaires, elle masque l’article même avec du stock et conserve les quantités et historiques ([#102](https://github.com/wwwy44c4mf-cpu/Gestion-Stock/issues/102)).
+
+## Maquette des évolutions — 13 novembre 2026
+
+Demandes regroupées dans [le cadrage de la maquette](docs/maquette-evolutions.md). Création directe par les gestionnaires et retours sans consommation préalable autorisés pour tous les rôles confirmés. Compléter les précisions une par une ; validation de la maquette complète avant publication et production.
+
+- 13 novembre 2026 : maquette locale des issues #114 à #123 en cours de vérification. Création gestionnaire, suppression définitive avec confirmation, scan ajustement, retour sans origine, commande par magasin, outillage CA individualisé et tourets en mètres entiers développés. Navigation utilisateur réduite, compteur après sortie et export manuel retirés. Migration locale 25. Aucune publication de code ni mise en production. Le fichier Excel existant sera étudié en dernière étape après son transfert depuis le PC.
+
+- 13 novembre 2026 : maquette disponible localement sur http://127.0.0.1:18791 ; recette générale réussie (505 tests PHP / 6 087 assertions, quatre validations OpenAPI, 920 requêtes HTTP et aucun écart de stock), puis 37 tests ciblés réussis sur les dernières protections. Sauvegarde/restauration et affichage mobile vérifiés. Voir [la validation](docs/validation-maquette.md). En attente de l’essai utilisateur ; publication et production non effectuées. Excel existant toujours différé à la dernière étape.
+
+- 13 novembre 2026 : OUT-01 ajusté à la demande de l’exploitant : un bouton « Rendre les outils » par personne et magasin restitue tout en une seule opération. Maquette locale seulement.
+
+- 13 novembre 2026 : RET-03 unifié dans le formulaire « Retour », sans bouton séparé pour les dépôts sans sortie. Allocation automatique des consommations existantes et réintégration du surplus dans la même transaction ; maquette locale uniquement.
+
+- 13 novembre 2026 : l’exploitant valide la maquette complète et autorise sa mise en production. Préparation de la livraison contrôlée sur une branche dédiée, sans données de démonstration ni secrets. Excel existant différé.

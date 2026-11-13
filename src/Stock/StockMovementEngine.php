@@ -30,7 +30,7 @@ final class StockMovementEngine
         private readonly AccessPolicy $policy, private readonly OpenApiContract $contract, private readonly IdempotencyKey $keys,
         #[Autowire('%kernel.secret%')] private readonly string $secret) {}
 
-    public function record(StockUser $actor, string $operation, \stdClass $body, string $key): array
+    public function record(StockUser $actor, string $operation, \stdClass $body, string $key,bool $reelOperation=false): array
     {
         [$schema, $permission] = self::OPERATIONS[$operation] ?? throw new ApiProblem(422, 'unsupported_movement', 'Ce type de mouvement n’est pas encore disponible.');
         $this->identity->requireRole($actor, $permission);
@@ -41,7 +41,7 @@ final class StockMovementEngine
             if (isset($body->$field)) { $body->$field = strtolower($body->$field); }
         }
         $fingerprint = hash_hmac('sha256', $this->keys->fingerprint($actor->id, 'POST', '/stock-engine/'.$operation, $body), $this->secret);
-        return $this->db->transactional(function () use ($actor, $operation, $permission, $body, $key, $fingerprint): array {
+        return $this->db->transactional(function () use ($actor, $operation, $permission, $body, $key, $fingerprint,$reelOperation): array {
             // Shared guards stabilize authorizations/statuses while allowing concurrent movements.
             // Administration takes an incompatible users lock first, in the same global order.
             foreach (['users', 'user_stores', 'stores', 'articles', 'inventories'] as $table) {
@@ -60,6 +60,7 @@ final class StockMovementEngine
             if ($operation === 'consumption') { $this->policy->assertConsumption($actor, $body->store_id, $consumer); }
             $article = $this->db->fetchAssociative('SELECT id,active,unit_code FROM articles WHERE id = ?', [$body->article_id]);
             if (!$article) { throw new ApiProblem(404, 'article_not_found', 'Article introuvable.'); }
+            if(!$reelOperation&&$this->db->fetchOne("SELECT 1 FROM articles a JOIN categories c ON c.id=a.category_id WHERE a.id=? AND coalesce((to_jsonb(c)->>'tracks_reels')::boolean,false)",[$article['id']])) {throw new ApiProblem(409,'use_reel_workflow','Cet article est suivi par touret. Utilisez Tourets de câble pour saisir les mètres.');}
             if ($article['unit_code'] !== 'unit' || (!$article['active'] && $operation !== 'adjustment')) {
                 throw new ApiProblem(409, 'inactive_article', 'Cet article ne permet pas ce mouvement.');
             }
@@ -81,6 +82,7 @@ final class StockMovementEngine
                 }
                 $this->db->executeStatement('UPDATE stock_levels SET quantity = ?,version = version + 1 WHERE article_id = ? AND store_id = ?', [$next, $article['id'], $store]);
             }
+            if(in_array($operation,['entry','adjustment'],true)&&$destination!==null&&$this->db->fetchOne("SELECT to_regclass('stock_orders') IS NOT NULL")) {$this->db->executeStatement('DELETE FROM stock_orders WHERE article_id=? AND store_id=?',[$article['id'],$destination]);}
             $movement = $this->db->fetchAssociative('INSERT INTO stock_movements (type,article_id,source_store_id,destination_store_id,quantity,author_id,consumer_id,reason,reference,comment,idempotency_key,request_fingerprint) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) RETURNING *', [
                 $operation, $article['id'], $source, $destination, $quantity, $actor->id, $consumer,
                 isset($body->reason) ? trim($body->reason) : null, $body->reference ?? null, $body->comment ?? null, $key, $fingerprint,

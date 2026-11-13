@@ -77,13 +77,14 @@ final class StockDirectory
         $order = $filters['order'] ?? 'asc';
         if (!in_array($order, ['asc', 'desc'], true)) { throw new ApiProblem(422, 'invalid_query', 'Ordre invalide.'); }
         $pagination = new Pagination($filters['page'] ?? 1, $filters['limit'] ?? 25);
+        $orderExpression=$this->db->fetchOne("SELECT to_regclass('stock_orders') IS NOT NULL")?'EXISTS(SELECT 1 FROM stock_orders o WHERE o.article_id=a.id AND o.store_id=s.id)':'false';
         $from = ' FROM stores s CROSS JOIN articles a LEFT JOIN stock_levels sl ON sl.store_id = s.id AND sl.article_id = a.id LEFT JOIN article_locations loc ON loc.store_id=s.id AND loc.article_id=a.id WHERE '.implode(' AND ', $where);
         // A single SQL statement keeps page, count and arbitrary-precision total in one MVCC snapshot.
-        $sql = 'WITH scoped AS (SELECT a.id article_id, s.id store_id, a.sku, s.code store_code, coalesce(sl.quantity,0) quantity, sl.low_threshold, sl.critical_threshold, loc.location'.$from.'), page AS (SELECT * FROM scoped ORDER BY '.$sort.' '.strtoupper($order).', article_id, store_id LIMIT '.$pagination->limit.' OFFSET '.$pagination->offset().') SELECT (SELECT count(*) FROM scoped) total, (SELECT coalesce(sum(quantity),0)::text FROM scoped) sum, coalesce((SELECT json_agg(page ORDER BY '.$sort.' '.strtoupper($order).', article_id, store_id) FROM page),\'[]\'::json) rows';
+        $sql = 'WITH scoped AS (SELECT a.id article_id, s.id store_id, a.sku, s.code store_code, coalesce(sl.quantity,0) quantity, sl.low_threshold, sl.critical_threshold, loc.location, '.$orderExpression.' ordered'.$from.'), page AS (SELECT * FROM scoped ORDER BY '.$sort.' '.strtoupper($order).', article_id, store_id LIMIT '.$pagination->limit.' OFFSET '.$pagination->offset().') SELECT (SELECT count(*) FROM scoped) total, (SELECT coalesce(sum(quantity),0)::text FROM scoped) sum, coalesce((SELECT json_agg(page ORDER BY '.$sort.' '.strtoupper($order).', article_id, store_id) FROM page),\'[]\'::json) rows';
         $result = $this->db->fetchAssociative($sql, $parameters);
         $rows = json_decode($result['rows'], true, flags: JSON_THROW_ON_ERROR);
         $items = array_map(static fn(array $row): array => [
-            'article_id' => $row['article_id'], 'store_id' => $row['store_id'], 'location'=>$row['location'], 'quantity' => (int) $row['quantity'],
+            'article_id' => $row['article_id'], 'store_id' => $row['store_id'], 'location'=>$row['location'], 'ordered'=>(bool)$row['ordered'], 'quantity' => (int) $row['quantity'],
             'low_threshold' => $row['low_threshold'] === null ? null : (int) $row['low_threshold'],
             'critical_threshold' => $row['critical_threshold'] === null ? null : (int) $row['critical_threshold'], 'unit_code' => 'unit',
         ], $rows);
@@ -98,6 +99,8 @@ final class StockDirectory
             if (!isset($articles[$row['article_id']])) { $articles[$row['article_id']] = $this->db->fetchAssociative('SELECT sku,name,active FROM articles WHERE id = ?', [$row['article_id']]); }
             if (!isset($stores[$row['store_id']])) { $stores[$row['store_id']] = $this->db->fetchAssociative('SELECT code,name,active FROM stores WHERE id = ?', [$row['store_id']]); }
         }
-        return ['articles' => $articles, 'stores' => $stores];
+        $reels=[];
+        if($this->db->fetchOne("SELECT to_regclass('cable_reels') IS NOT NULL")) {foreach($rows as $row) {$reels[$row['store_id'].':'.$row['article_id']]=$this->db->fetchAllAssociative('SELECT reference,remaining_length FROM cable_reels WHERE store_id=? AND article_id=? ORDER BY reference',[$row['store_id'],$row['article_id']]);}}
+        return ['articles' => $articles, 'stores' => $stores,'reels'=>$reels];
     }
 }

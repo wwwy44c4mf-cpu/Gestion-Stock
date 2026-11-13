@@ -10,8 +10,6 @@ use Symfony\Component\HttpFoundation\{Request,Response,ResponseHeaderBag};
 use Symfony\Component\Routing\Attribute\Route;
 final class StoreExportController extends AbstractController
 {
-    #[Route('/magasins/{id}/export.xlsx',name:'store_export',methods:['GET'])]
-    #[Route('/api/v1/stores/{id}/export.xlsx',name:'api_store_export',methods:['GET'])]
     public function export(string $id,Request $request,StoreStockSnapshot $snapshots,StockWorkbook $workbooks): Response
     {
         $actor=$this->getUser();if(!$actor instanceof StockUser) {throw new ApiProblem(401,'authentication_required','Connectez-vous.');}

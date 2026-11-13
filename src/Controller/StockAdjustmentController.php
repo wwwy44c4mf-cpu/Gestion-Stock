@@ -36,7 +36,7 @@ final class StockAdjustmentController extends AbstractController
         return $this->json($this->engine->record($actor, 'adjustment', $json->read($request, 'AdjustmentCreate'), $key->read($request)), 201);
     }
 
-    #[Route('/stocks/ajustement', name: 'stocks_adjustment_new', priority: 10, methods: ['GET', 'POST'])]
+    #[Route('/stocks/ajustement', name: 'stocks_adjustment_new', priority: 10, methods: ['GET', 'POST'],defaults:['_camera_scan'=>true])]
     public function form(Request $request, CsrfTokenManagerInterface $csrf, StoreContext $context): Response
     {
         $actor = $this->actor();

@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+{% block title %}Suppression définitive des articles · Gestion de stock{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">ADMINISTRATION</p><h1>Suppression définitive des articles</h1><p class="subtitle">Choisissez un article et vérifiez toutes les données concernées avant de confirmer son effacement définitif.</p></div><a href="{{ path('stocks_list') }}">Retour aux stocks</a></div>
+<section class="card"><p>Cette fonction efface définitivement un article et tout son historique dans tous les magasins. Cette fonction concerne les articles réels comme les articles de test. Pour conserver les stocks et l’historique, utilisez le retrait habituel du catalogue.</p>
+{% if app.user.role == 'MANAGER' %}<p>Seuls les articles dont tous les magasins concernés sont actifs et vous sont affectés sont proposés, y compris les magasins présents dans l’historique.</p>{% endif %}
+<form method="get" class="account-filters"><div class="field"><label for="cleanup-q">Référence ou nom</label><input id="cleanup-q" name="q" value="{{ q }}" maxlength="160"></div><button class="button" type="submit">Rechercher</button></form>
+{% if more %}<p class="notice">Les 50 premiers articles sont affichés. Précisez la recherche pour retrouver l’article voulu.</p>{% endif %}
+<div class="table-scroll"><table><caption>Articles disponibles, y compris ceux retirés du catalogue</caption><thead><tr><th>Référence</th><th>Article</th><th>État</th><th>Suppression définitive</th></tr></thead><tbody>{% for article in articles %}<tr><td>{{ article.sku }}</td><td>{{ article.name }}</td><td>{{ article.deleted_at ? 'Retiré du catalogue' : (article.active ? 'Actif' : 'Désactivé') }}</td><td><a href="{{ path('article_purge_confirm',{id:article.id}) }}">Vérifier avant d’effacer</a></td></tr>{% else %}<tr><td colspan="4">Aucun article correspondant.</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

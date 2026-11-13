@@ -99,6 +99,7 @@ final class InventoryWorkflow
         foreach($lines as $line) {if($line['counted_qty']===null) {throw new ApiProblem(409,'incomplete_inventory','Toutes les quantités doivent être comptées avant la validation.');}}
         // Validate and lock every existing balance before recording any adjustment.
         foreach($lines as $line) {
+            if((int)$line['delta']!==0 && $this->db->fetchOne("SELECT 1 FROM articles a JOIN categories c ON c.id=a.category_id WHERE a.id=? AND coalesce((to_jsonb(c)->>'tracks_reels')::boolean,false)",[$line['article_id']])) {throw new ApiProblem(409,'reel_inventory_difference','Vérifiez les tourets individuels avant de valider un écart sur cet article.');}
             $balance=$this->db->fetchAssociative('SELECT quantity,version FROM stock_levels WHERE article_id=? AND store_id=? FOR UPDATE',[$line['article_id'],$inventory['store_id']]);
             if((int)($balance['quantity']??0)!==(int)$line['theoretical_qty']) {throw new ApiProblem(409,'inventory_stock_drift','Un solde ne correspond plus à la référence figée. La clôture est refusée.');}
             if((int)$line['delta']!==0 && (string)($balance['version']??0)===(string)PHP_INT_MAX) {throw new ApiProblem(409,'stock_limit_reached','La limite de version d’un solde est atteinte.');}

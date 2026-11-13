@@ -21,6 +21,7 @@ final class Navigation
         }
         $items = [['label' => 'Tableau de bord', 'route' => 'home', 'parameters' => [], 'active' => 'home']];
         foreach (self::SECTIONS as $section => $label) {
+            if ($user && !$admin && !$manager && !in_array($section,['articles','stocks','consommations'],true)) {continue;}
             if ($section === 'administration' && !$admin) {
                 continue;
             }

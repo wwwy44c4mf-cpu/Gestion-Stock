@@ -69,6 +69,7 @@ final class StoreAdministration
             if ($before['active'] && !$next['active'] && $this->db->fetchOne("SELECT 1 FROM inventories WHERE store_id = ? AND status IN ('in_progress', 'pending_validation') LIMIT 1", [$id])) {
                 throw new ApiProblem(409, 'inventory_in_progress', 'Terminez ou annulez l’inventaire avant de désactiver ce magasin.');
             }
+            if($before['active'] && !$next['active']) {$this->requireNoToolLoan($id);}
             $changed = [];
             foreach (get_object_vars($body) as $field => $value) { if ($before[$field] !== $next[$field]) { $changed[] = $field; } }
             if ($changed !== []) {
@@ -91,6 +92,7 @@ final class StoreAdministration
             if($row['deleted_at']!==null) {return;}
             if($this->db->fetchOne('SELECT 1 FROM stock_levels WHERE store_id=? AND quantity<>0 LIMIT 1',[$id])) {throw new ApiProblem(409,'store_not_empty','Transférez ou sortez tout le stock avant de supprimer ce magasin.');}
             if($this->db->fetchOne("SELECT 1 FROM inventories WHERE store_id=? AND status NOT IN ('closed','cancelled') LIMIT 1",[$id])) {throw new ApiProblem(409,'inventory_in_progress','Terminez ou annulez l’inventaire avant de supprimer ce magasin.');}
+            $this->requireNoToolLoan($id);
             $this->db->executeStatement('UPDATE stores SET active=false,deleted_at=clock_timestamp(),updated_at=clock_timestamp() WHERE id=?',[$id]);
             $this->db->executeStatement('UPDATE users SET favorite_store_id=NULL WHERE favorite_store_id=?',[$id]);
             $this->db->executeStatement('DELETE FROM user_stores WHERE store_id=?',[$id]);
@@ -98,6 +100,10 @@ final class StoreAdministration
         });
     }
 
+    private function requireNoToolLoan(string $id): void
+    {
+        if($this->db->fetchOne("SELECT to_regclass('tool_loans')") && $this->db->fetchOne('SELECT 1 FROM tool_loans WHERE store_id=? AND returned_at IS NULL',[$id])) {throw new ApiProblem(409,'store_tool_loans','Les outils empruntés doivent être rendus avant de fermer ce magasin.');}
+    }
     private function lockAndAuthorize(StockUser $actor): void
     {
         // Same order as account administration; serializes replay keys and protects actor revocation.

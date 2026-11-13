@@ -30,13 +30,14 @@ final class CatalogAdministration
     }
     public function create(StockUser $actor, string $kind, \stdClass $body, string $key): array
     {
-        $this->identity->requireRole($actor, Permission::CATALOG_ADMIN); $this->validate($kind, $body, true);
+        $permission=$kind==='article'?Permission::CATALOG_CREATE:Permission::CATALOG_ADMIN;
+        $this->identity->requireRole($actor,$permission); $this->validate($kind, $body, true);
         if (!preg_match('/^[A-Za-z0-9._:-]{8,160}$/D', $key)) { throw new ApiProblem(422, 'invalid_idempotency_key', 'Clé de création invalide.'); }
         $path = $kind === 'article' ? '/api/v1/articles' : '/api/v1/categories';
         $fingerprint = hash_hmac('sha256', $this->keys->fingerprint($actor->id, 'POST', $path, $body), $this->secret);
         try {
-            return $this->db->transactional(function () use ($actor, $kind, $body, $key, $fingerprint): array {
-                $this->lock($actor);
+            return $this->db->transactional(function () use ($actor, $kind, $body, $key, $fingerprint,$permission): array {
+                $this->lock($actor,$permission);
                 $previous = $this->db->fetchAssociative('SELECT request_fingerprint,response FROM catalog_creation_requests WHERE actor_id = ? AND resource_type = ? AND request_key = ?', [$actor->id,$kind,$key]);
                 if ($previous) {
                     if (!hash_equals($previous['request_fingerprint'], $fingerprint)) { throw new ApiProblem(409, 'idempotency_conflict', 'Cette clé a déjà servi pour une autre création.'); }
@@ -72,6 +73,7 @@ final class CatalogAdministration
             $next = array_replace($before,get_object_vars($body)); $next['name'] = trim($next['name']);
             foreach (['category_id','parent_id'] as $reference) { if (isset($next[$reference])) { $next[$reference] = strtolower($next[$reference]); } }
             if ($kind === 'article' && ($next['category_id'] !== $before['category_id'] || (!$before['active'] && $next['active']))) { $this->categoryTarget($next['category_id']); }
+            if($kind==='article') {$this->reelCategoryChange($id,$before['category_id'],$next['category_id']);}
             if ($kind === 'category' && $next['parent_id'] !== $before['parent_id']) {
                 $this->categoryTarget($next['parent_id']);
                 if ($next['parent_id'] !== null && $this->db->fetchOne('WITH RECURSIVE parents AS (SELECT id,parent_id FROM categories WHERE id = ? UNION SELECT c.id,c.parent_id FROM categories c JOIN parents p ON c.id = p.parent_id) SELECT 1 FROM parents WHERE id = ?', [$next['parent_id'],$id])) { throw new ApiProblem(422,'category_cycle','Une catégorie ne peut pas être son propre ancêtre.'); }
@@ -137,8 +139,15 @@ final class CatalogAdministration
         $next=array_replace($before,get_object_vars($payload));
         $next['name']=trim($next['name']);if ($next['category_id'] !== null) { $next['category_id']=strtolower($next['category_id']); }
         if ($next['category_id'] !== $before['category_id'] || (!$before['active'] && $next['active'])) { $this->categoryTarget($next['category_id']); }
+        $this->reelCategoryChange($articleId,$before['category_id'],$next['category_id']);
         foreach (get_object_vars($payload) as $field=>$value) { if ($next[$field] !== $before[$field]) { return; } }
         throw new ApiProblem(422,'no_article_change','Aucune modification de l’article n’a été proposée.');
+    }
+    private function reelCategoryChange(string $article,?string $before,?string $after): void
+    {
+        if($before===$after) {return;}
+        $tracked=fn(?string $id):bool=>$id!==null&&(bool)$this->db->fetchOne("SELECT coalesce((to_jsonb(c)->>'tracks_reels')::boolean,false) FROM categories c WHERE id=?",[$id]);
+        if($tracked($before)!==$tracked($after) && $this->db->fetchOne('SELECT 1 FROM stock_movements WHERE article_id=? LIMIT 1',[$article])) {throw new ApiProblem(409,'reel_category_history','Un article ayant déjà des mouvements ne peut pas changer de mode de suivi des tourets.');}
     }
     private function lock(StockUser $actor, Permission $permission = Permission::CATALOG_ADMIN): void
     {

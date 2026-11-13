@@ -2138,7 +2138,8 @@
           }
         ],
         "x-roles": [
-          "ADMIN"
+          "ADMIN",
+          "MANAGER"
         ],
         "x-perimeter": "Selon la description ; contrôle serveur obligatoire, jamais depuis un identifiant client seul.",
         "x-implementation": "available",
@@ -6988,92 +6989,6 @@
         "x-max-body-bytes": 65536,
         "x-integer-encoding": "Nombres JSON en base 10 sans décimale ni exposant."
       }
-    },
-    "/stores/{id}/export.xlsx": {
-      "get": {
-        "operationId": "exportStoreStock",
-        "summary": "Télécharger l’état actuel complet du magasin en Excel",
-        "description": "Administrateurs et gestionnaires autorisés uniquement. Instantané cohérent du magasin au moment du clic, sans historique et sans limite de pagination. Le fichier .xlsx reste privé et n’est pas mis en cache.",
-        "tags": [
-          "stores"
-        ],
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "x-roles": [
-          "ADMIN",
-          "MANAGER"
-        ],
-        "x-perimeter": "Même périmètre que la liste ; magasin hors périmètre, inexistant ou identifiant invalide : 404.",
-        "x-implementation": "available",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Succès",
-            "content": {
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            },
-            "headers": {
-              "X-Request-Id": {
-                "schema": {
-                  "type": "string",
-                  "maxLength": 32
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/Error400"
-          },
-          "401": {
-            "$ref": "#/components/responses/Error401"
-          },
-          "403": {
-            "$ref": "#/components/responses/Error403"
-          },
-          "404": {
-            "$ref": "#/components/responses/Error404"
-          },
-          "405": {
-            "$ref": "#/components/responses/Error405"
-          },
-          "409": {
-            "$ref": "#/components/responses/Error409"
-          },
-          "413": {
-            "$ref": "#/components/responses/Error413"
-          },
-          "415": {
-            "$ref": "#/components/responses/Error415"
-          },
-          "422": {
-            "$ref": "#/components/responses/Error422"
-          },
-          "429": {
-            "$ref": "#/components/responses/Error429"
-          },
-          "500": {
-            "$ref": "#/components/responses/Error500"
-          }
-        }
-      }
     }
   },
   "components": {
@@ -8394,6 +8309,10 @@
               "null"
             ],
             "maxLength": 160
+          },
+          "ordered": {
+            "type": "boolean",
+            "description": "Réapprovisionnement signalé pour ce magasin et cet article."
           }
         },
         "additionalProperties": false,

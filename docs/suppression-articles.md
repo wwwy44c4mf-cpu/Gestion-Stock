@@ -13,3 +13,5 @@ L’API `DELETE /api/v1/articles/{id}` reçoit `{ "version": 1 }` et retourne la
 La migration `Version20261029010000` ajoute uniquement la date de suppression et la contrainte interdisant qu’un article supprimé soit actif. Elle ne supprime ni ne convertit les données existantes. Le retour de schéma est refusé si des articles supprimés sont présents, afin de ne pas perdre cet état.
 
 La nouvelle interface est d’abord à vérifier sur l’aperçu local contenant uniquement des données fictives. La recette ne vaut pas installation sur le serveur réel. Avant installation, conserver une sauvegarde chiffrée récente hors serveur et suivre le déroulement de migration contrôlée du [guide Portainer](installation-portainer.md). La stack Drive est indépendante et ne doit pas être redéployée pour cette modification.
+
+La [suppression définitive des articles](suppression-definitive-articles.md) est accessible aux administrateurs et aux gestionnaires autorisés sur tous les magasins concernés, après avertissement et confirmation. Elle efface les fiches, stocks et historiques ; la suppression habituelle décrite ici continue à conserver les données.

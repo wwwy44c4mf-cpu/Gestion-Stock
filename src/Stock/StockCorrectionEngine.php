@@ -45,6 +45,7 @@ final class StockCorrectionEngine
             // A return's consumption is locked first, including cancellation, so every
             // change to the returned total follows consumption -> return -> balance.
             $original = $this->db->fetchAssociative('SELECT * FROM stock_movements WHERE id = ?',[$id]);
+            if($this->db->fetchOne("SELECT 1 FROM articles a JOIN categories c ON c.id=a.category_id WHERE a.id=? AND coalesce((to_jsonb(c)->>'tracks_reels')::boolean,false)",[$original['article_id']])) {throw new ApiProblem(409,'reel_workflow_required','Cet article est suivi par touret : utilisez son écran dédié.');}
             if ($original['type'] === 'return') { $this->db->fetchOne('SELECT id FROM stock_movements WHERE id = ? FOR UPDATE',[$original['related_movement_id']]); }
             $original = $this->db->fetchAssociative('SELECT * FROM stock_movements WHERE id = ? FOR UPDATE',[$id]);
             if ($original['type'] === 'reversal' || $original['inventory_id'] !== null) { throw new ApiProblem(409,'uncorrectable_movement','Ce mouvement ne peut pas être corrigé ici.'); }

@@ -42,6 +42,7 @@ final class ReturnBatchEngine
                 throw new ApiProblem(422,'invalid_beneficiary','Choisissez un bénéficiaire actif.');
             }
             if(!$this->db->fetchOne('SELECT 1 FROM articles WHERE id=?',[$body->article_id])) { throw new ApiProblem(404,'article_not_found','Article introuvable.'); }
+            if($this->db->fetchOne("SELECT 1 FROM articles a JOIN categories c ON c.id=a.category_id WHERE a.id=? AND coalesce((to_jsonb(c)->>'tracks_reels')::boolean,false)",[$body->article_id])) {throw new ApiProblem(409,'reel_workflow_required','Cet article est suivi par touret : utilisez son écran dédié.');}
             // Lock originals before calculating remaining quantities in a NEW snapshot.
             // A concurrent immutable return does not update its original row.
             $ids=$this->db->fetchFirstColumn("SELECT id FROM stock_movements WHERE type='consumption' AND article_id=? AND consumer_id=? ORDER BY created_at,id FOR UPDATE",[$body->article_id,$body->consumer_id]);

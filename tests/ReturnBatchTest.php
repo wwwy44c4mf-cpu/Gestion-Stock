@@ -127,7 +127,7 @@ final class ReturnBatchTest extends WebTestCase
     public function testFormKeepsScannedArticleQuantityAndStoreOnFailure(): void
     {
         $this->seedConsumptions();$crawler=$this->client->request('GET','/consommations/retours/nouveau?article_id='.$this->article);self::assertResponseIsSuccessful();self::assertSelectorExists('[data-scanner-mode-value="deposit"]');
-        $form=$crawler->selectButton('Enregistrer le retour')->form(['store_id'=>$this->stores['C'],'quantity'=>'8']);$this->client->submit($form);self::assertResponseStatusCodeSame(409);self::assertInputValueSame('quantity','8');self::assertSelectorExists('#deposit-store option[selected][value="'.$this->stores['C'].'"]');self::assertSelectorExists('#deposit-article option[selected][value="'.$this->article.'"]');
+        $form=$crawler->selectButton('Enregistrer le retour')->form(['store_id'=>$this->stores['C'],'quantity'=>'0']);$this->client->submit($form);self::assertResponseStatusCodeSame(422);self::assertInputValueSame('quantity','0');self::assertSelectorExists('#deposit-store option[selected][value="'.$this->stores['C'].'"]');self::assertSelectorExists('#deposit-article option[selected][value="'.$this->article.'"]');
         $this->client->request('POST','/consommations/retours/nouveau',array_replace($form->getPhpValues(),['_csrf_token'=>'bad','quantity'=>'1']));self::assertResponseStatusCodeSame(403);
     }
     public function testReturnCorrectionChangesTheDepositAndReopensOriginalRemainder(): void

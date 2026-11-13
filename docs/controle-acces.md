@@ -7,9 +7,11 @@ La sélection « Tous mes magasins » ou d’un magasin dans l’en-tête est un
 | Action | ADMIN | MANAGER | USER |
 |---|---|---|---|
 | Comptes, rôles et affectations | Tous | Non | Non |
-| Administration magasins et catalogue | Oui | Non | Non |
+| Administration magasins et catégories ; modification directe du catalogue | Oui | Non | Non |
+| Création directe d’un article | Oui | Oui | Non |
 | Lecture catalogue | Oui | Oui | Oui |
 | Suppression du catalogue, stocks et historique conservés | Oui | Oui | Non |
+| Suppression définitive d’un article et de ses historiques | Oui, après avertissement et confirmation | Si tous les magasins concernés sont actifs et affectés | Non |
 | Proposition catalogue | Oui | Oui | Non |
 | Stocks | Tous, désactivés compris | Actifs affectés | Actifs affectés |
 | Lecture du casage | Tous, désactivés compris | Actifs affectés | Tout magasin actif, sans quantité hors affectation |
