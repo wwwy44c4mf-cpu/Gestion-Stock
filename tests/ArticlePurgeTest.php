@@ -141,6 +141,20 @@ final class ArticlePurgeTest extends WebTestCase
         self::assertFalse($this->db->fetchOne('SELECT 1 FROM articles WHERE id=?',[$this->realArticle]));self::assertSame(20,(int)$this->db->fetchOne('SELECT quantity FROM stock_levels WHERE article_id=?',[$this->testArticle]));
         self::assertSame(0,(int)$this->db->fetchOne('SELECT count(*) FROM stock_reconciliation WHERE missing_balance OR difference<>0'));
     }
+    public function testInactiveArticleCanBeDeletedFromStockWithoutReactivation(): void
+    {
+        $this->db->executeStatement('UPDATE articles SET active=false WHERE id=?',[$this->testArticle]);
+        $this->assignManager('A');$this->db->insert('user_stores',['user_id'=>$this->actor('user')->id,'store_id'=>$this->stores['A']]);
+        $url='/articles/'.$this->testArticle.'/effacer-definitivement';
+        $this->client->loginUser($this->actor('user'));$this->client->request('GET','/stocks?store_id='.$this->stores['A']);self::assertResponseIsSuccessful();self::assertSelectorNotExists('a[href="'.$url.'"]');
+        $this->client->loginUser($this->admin);$this->client->request('GET','/stocks?store_id='.$this->stores['A']);self::assertResponseIsSuccessful();self::assertSelectorExists('a[href="'.$url.'"]');self::assertSelectorNotExists('a[href="/articles/'.$this->realArticle.'/effacer-definitivement"]');
+        $this->client->loginUser($this->actor('manager'));$this->client->request('GET','/stocks/'.$this->stores['A'].'/'.$this->testArticle);self::assertResponseIsSuccessful();self::assertSelectorExists('a[href="'.$url.'"]');
+        $crawler=$this->client->clickLink('Supprimer définitivement l’article');self::assertResponseIsSuccessful();self::assertSelectorTextContains('[role=alert]','tous ses stocks et tout son historique');
+        $this->client->submit($crawler->selectButton('Supprimer définitivement cet article')->form(['sku'=>'ESSAI','confirmed'=>'1']));self::assertResponseStatusCodeSame(303);
+        foreach(['articles'=>'id','stock_levels'=>'article_id','stock_movements'=>'article_id'] as $table=>$column) {self::assertSame(0,(int)$this->db->fetchOne('SELECT count(*) FROM '.$table.' WHERE '.$column.'=?',[$this->testArticle]));}
+        self::assertSame(20,(int)$this->db->fetchOne('SELECT quantity FROM stock_levels WHERE article_id=?',[$this->realArticle]));self::assertSame(0,(int)$this->db->fetchOne('SELECT count(*) FROM stock_reconciliation WHERE missing_balance OR difference<>0'));$this->assertGuardsActive();
+    }
+
     public function testManagerCannotPreviewOrDeleteArticleInAnUnassignedStoreEvenWithZeroBalance(): void
     {
         $this->assignManager('A');$this->db->insert('stock_levels',['article_id'=>$this->testArticle,'store_id'=>$this->stores['B'],'quantity'=>0]);$manager=$this->actor('manager');

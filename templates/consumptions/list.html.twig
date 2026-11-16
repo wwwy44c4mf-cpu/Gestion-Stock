@@ -1,7 +1,8 @@
 {% extends 'base.html.twig' %}
 {% block title %}Historique des consommations · Gestion de stock{% endblock %}
 {% block content %}
-<p><a class="button" href="{{ path('ca_tools') }}">Outillage CA</a> <a class="button" href="{{ path('ca_reels') }}">Tourets de câble</a></p>
+{% set ca_context = filters.store_id|default(selected_store) %}{% set ca_visible = false %}{% for option in store_options %}{% if option.active and option.ca_enabled|default(false) and (ca_context is empty or option.id == ca_context) %}{% set ca_visible = true %}{% endif %}{% endfor %}
+<p data-ca-group {% if not ca_visible %}hidden{% endif %}><a class="button" data-ca-operation href="{{ path('ca_tools') }}" {% if not ca_visible %}hidden{% endif %}>Outillage CA</a> <a class="button" data-ca-operation href="{{ path('ca_reels') }}" {% if not ca_visible %}hidden{% endif %}>Tourets de câble</a></p>
 
 <div class="page-heading"><div><p class="eyebrow">CONSOMMATIONS</p><h1>{{ app.user.role == 'USER' ? 'Mes consommations' : 'Historique des consommations' }}</h1><p class="subtitle">{{ app.user.role == 'USER' ? 'Vos consommations, y compris celles enregistrées pour vous par un gestionnaire.' : 'Les consommations des magasins que vous pouvez consulter.' }}</p></div><nav class="consumption-actions" aria-label="Opérations de matériel"><a class="button" href="{{ path('consumptions_new') }}">Sortie</a><a class="button" href="{{ path('consumptions_return_batch_new') }}">Retour</a></nav></div>
 <p class="muted">Les consommations anonymisées après un an ne figurent plus dans les vues personnelles. Une correction liée peut également en sortir avant un an. Les quantités restent dans les statistiques globales autorisées ; pour un retour ancien, contactez un gestionnaire du magasin d’origine.</p>

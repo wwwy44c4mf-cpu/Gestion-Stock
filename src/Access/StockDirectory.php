@@ -33,7 +33,7 @@ final class StockDirectory
     {
         $this->policy->assert($actor, Permission::STOCK_READ, AccessTarget::store($storeId));
         $article = $this->catalog->get($actor, 'article', $articleId)['data'];
-        $rows=$this->read($actor,['store_id'=>$storeId,'article_id'=>$article['id']])['page']['data'];
+        $rows=$this->read($actor,['store_id'=>$storeId,'article_id'=>$article['id']],false)['page']['data'];
         if($rows===[]) {throw new ApiProblem(404,'resource_not_found','Ressource introuvable.');}
         return ['data'=>$rows[0]];
     }
@@ -52,11 +52,12 @@ final class StockDirectory
         return $pagination->response($rows, $total);
     }
 
-    private function read(StockUser $actor, array $filters): array
+    private function read(StockUser $actor, array $filters,bool $establishedOnly=true): array
     {
         $scope = $this->policy->storeScope($actor);
         if (isset($filters['store_id'])) { $this->policy->assert($actor, Permission::STOCK_READ, AccessTarget::store($filters['store_id'])); }
         $where = [$scope->condition,'s.deleted_at IS NULL']; $parameters = $scope->parameters;
+        if($establishedOnly&&isset($filters['store_id'])) {$where[]=StoreArticles::condition('a.id','s.id');}
         foreach (['store_id' => 's.id', 'article_id' => 'a.id', 'category_id' => 'a.category_id'] as $key => $column) {
             if (isset($filters[$key])) { $where[] = $column.' = ?'; $parameters[] = $filters[$key]; }
         }

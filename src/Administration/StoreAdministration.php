@@ -47,6 +47,7 @@ final class StoreAdministration
                 $id = $this->db->fetchOne('INSERT INTO stores (code, name, description, address, active) VALUES (?, ?, ?, ?, ?) RETURNING id',
                     [trim($body->code), trim($body->name), $body->description ?? '', $this->address($body->address ?? null), $body->active ?? true],
                     [\Doctrine\DBAL\ParameterType::STRING, \Doctrine\DBAL\ParameterType::STRING, \Doctrine\DBAL\ParameterType::STRING, \Doctrine\DBAL\ParameterType::STRING, \Doctrine\DBAL\ParameterType::BOOLEAN]);
+                if($body->ca_enabled??false) {$this->db->executeStatement('UPDATE stores SET ca_enabled=true WHERE id=?',[$id]);}
                 $response = $this->directory->store($actor, $id);
                 $this->audit($actor, $id, 'store.created', ['code', 'name', 'description', 'address', 'active']);
                 $this->db->executeStatement('INSERT INTO store_creation_requests (actor_id, request_key, request_fingerprint, store_id, response) VALUES (?, ?, ?, ?, ?::jsonb)', [$actor->id, $key, $fingerprint, $id, json_encode($response, JSON_THROW_ON_ERROR)]);
@@ -73,6 +74,7 @@ final class StoreAdministration
             $changed = [];
             foreach (get_object_vars($body) as $field => $value) { if ($before[$field] !== $next[$field]) { $changed[] = $field; } }
             if ($changed !== []) {
+                if(in_array('ca_enabled',$changed,true)) {$this->db->executeStatement('UPDATE stores SET ca_enabled=? WHERE id=?',[$next['ca_enabled'],$id],[\Doctrine\DBAL\ParameterType::BOOLEAN,\Doctrine\DBAL\ParameterType::STRING]);}
                 $this->db->executeStatement('UPDATE stores SET name = ?, description = ?, address = ?, active = ?, updated_at = clock_timestamp() WHERE id = ?',
                     [$next['name'], $next['description'], $next['address'], $next['active'], $id],
                     [\Doctrine\DBAL\ParameterType::STRING, \Doctrine\DBAL\ParameterType::STRING, \Doctrine\DBAL\ParameterType::STRING, \Doctrine\DBAL\ParameterType::BOOLEAN, \Doctrine\DBAL\ParameterType::STRING]);

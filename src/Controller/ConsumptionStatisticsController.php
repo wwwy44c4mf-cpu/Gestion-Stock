@@ -25,11 +25,6 @@ final class ConsumptionStatisticsController extends AbstractController
         $filters=$query->read($filtered,'consumptionStatistics');foreach(['store_id','category_id'] as $key) {if(isset($filters[$key])) {$filters[$key]=strtolower($filters[$key]);}}
         if(!$request->query->has('store_id')&&($selected=$context->read($request,$actor)['selected'])!==null) {$filters['store_id']=$selected;}
         $stores=$history->options($actor)['stores'];
-        if($actor->role==='USER') {
-            $deposits=$db->fetchAllAssociative("SELECT DISTINCT s.id,s.code,s.name,s.active FROM stores s JOIN stock_movements r ON r.destination_store_id=s.id JOIN stock_movements m ON m.id=r.related_movement_id WHERE r.type='return' AND m.consumer_id=? AND s.active ORDER BY s.name,s.id",[$actor->id]);
-            $stores=array_values(array_column([...$stores,...$deposits],null,'id'));
-            usort($stores,fn($a,$b)=>[$a['name'],$a['id']]<=>[$b['name'],$b['id']]);
-        }
         return $this->render('statistics/consumptions.html.twig',['result'=>$this->statistics->read($actor,$filters),'filters'=>$filters,'stores'=>$stores,'categories'=>$catalog->categoryOptions($actor)]);
     }
 }

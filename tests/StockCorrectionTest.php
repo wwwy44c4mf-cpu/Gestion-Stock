@@ -178,7 +178,7 @@ final class StockCorrectionTest extends WebTestCase
 
     public function testNegativeAdjustmentFormRedirectsToItsSourceAndReplaysOnce(): void
     {
-        $this->entry();$this->login('manager');$crawler=$this->client->request('GET','/stocks/ajustement');$form=$crawler->selectButton('Enregistrer l’ajustement')->form(['store_id'=>$this->stores['A'],'article_id'=>$this->article,'quantity'=>'-2','reason'=>'Écart négatif']);
+        $this->entry();$this->login('manager');$crawler=$this->client->request('GET','/stocks/ajustement?store_id='.$this->stores['A']);$form=$crawler->selectButton('Enregistrer l’ajustement')->form(['store_id'=>$this->stores['A'],'article_id'=>$this->article,'quantity'=>'-2','reason'=>'Écart négatif']);
         $this->client->submit($form);self::assertResponseStatusCodeSame(303);self::assertSame('/stocks/'.$this->stores['A'].'/'.$this->article,$this->client->getResponse()->headers->get('Location'));$this->client->followRedirect();self::assertResponseIsSuccessful();self::assertSelectorTextContains('main','L’ajustement de −2 unités');self::assertSelectorTextContains('h2','Quantité actuelle : 8');
         $before=$this->totals();$this->client->submit($form);self::assertResponseStatusCodeSame(303);$this->unchanged($before);$this->reconciled();
         $this->login('user');$this->client->request('POST','/api/v1/movements/adjustments',server:['CONTENT_TYPE'=>'application/json','HTTP_X_CSRF_TOKEN'=>$this->csrf,'HTTP_IDEMPOTENCY_KEY'=>'user-adjustment-forbidden'],content:json_encode(['article_id'=>$this->article,'store_id'=>$this->stores['A'],'quantity'=>1,'reason'=>'Interdit']));self::assertResponseStatusCodeSame(403);$this->unchanged($before);

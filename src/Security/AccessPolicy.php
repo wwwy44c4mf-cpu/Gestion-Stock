@@ -35,8 +35,7 @@ final class AccessPolicy
             Permission::ALERT_RECIPIENTS, Permission::AUDIT_READ, Permission::STATISTICS_READ,
             Permission::DASHBOARD_READ, Permission::MOVEMENT_READ, Permission::BENEFICIARIES_READ];
         if ($target->kind === 'store' && in_array($permission, $storePermissions, true)) {
-            if ($identity['role']==='USER' && in_array($permission,[Permission::CONSUMPTION_CREATE,Permission::RETURN_CREATE,Permission::LOCATION_READ],true)) { $this->activeStore($target->id); }
-            else { $this->store($identity, $target->id, $permission->writesStock()); }
+            $this->store($identity, $target->id, $permission->writesStock());
             return;
         }
         if ($target->kind === 'transfer' && $permission === Permission::TRANSFER_CREATE && $target->otherId !== null && $this->uuid($target->otherId)) {
@@ -53,8 +52,9 @@ final class AccessPolicy
             if (!$row) { $this->missing(); }
             if ($identity['role'] === 'USER') {
                 if ($row['consumer_id'] !== $identity['id']) { $this->missing(); }
-                // Personal reads and returns survive assignment removal, but require an active origin.
-                $this->activeStore($row['source_store_id']);
+                // Personal history remains readable; new returns require a current assignment.
+                if ($permission === Permission::RETURN_CREATE) { $this->store($identity, $row['source_store_id'], true); }
+                else { $this->activeStore($row['source_store_id']); }
                 return;
             }
             $this->store($identity, $row['source_store_id'], $permission->writesStock());
@@ -98,7 +98,6 @@ final class AccessPolicy
     {
         $identity = $this->identity->requireRole($actor, $permission);
         $this->alias($alias);
-        if ($identity['role']==='USER' && in_array($permission,[Permission::CONSUMPTION_CREATE,Permission::RETURN_CREATE,Permission::LOCATION_READ],true)) { return new SqlScope($alias.'.active'); }
         return $this->stores($identity, $alias.'.id', $permission->writesStock());
     }
 

@@ -27,7 +27,7 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 final class ConsumptionController extends AbstractController
 {
     public function __construct(private readonly StockMovementEngine $engine, private readonly AccessIdentity $identity,
-        private readonly AccessPolicy $policy, private readonly AccessDirectory $directory, private readonly CatalogDirectory $catalog) {}
+        private readonly AccessPolicy $policy, private readonly AccessDirectory $directory, private readonly CatalogDirectory $catalog,private readonly \App\Access\StoreArticles $storeArticles) {}
 
     #[Route('/api/v1/movements/consumptions', name: 'api_consumptions_create', methods: ['POST'])]
     public function create(Request $request, JsonBody $json, IdempotencyKey $key): JsonResponse
@@ -76,12 +76,13 @@ final class ConsumptionController extends AbstractController
                 $body = (object) ['article_id'=>$data['article_id'],'store_id'=>$data['store_id'],'quantity'=>(int)$data['quantity'],'consumer_id'=>$data['consumer_id']];
                 if ($data['comment'] !== '') { $body->comment = $data['comment']; }
                 if ($data['reference'] !== '') { $body->reference = $data['reference']; }
+                $this->storeArticles->assertMembership($actor,$data['store_id'],$data['article_id']);
                 $result = $this->engine->record($actor, 'consumption', $body, $key)['data'];
                 $this->addFlash('success', 'La consommation de '.$result['quantity'].' unité'.($result['quantity'] > 1 ? 's' : '').' a été enregistrée.');
                 return $this->redirectToRoute('consumptions_receipt', ['id'=>$result['id']], 303);
             } catch (ApiProblem $problem) { $error = $problem->getMessage(); $status = $problem->status; }
         }
-        return $this->render('consumptions/form.html.twig', ['can_choose_beneficiary'=>$canChoose,'beneficiaries'=>$beneficiaries,'item'=>$data,'movement_key'=>$key,'error'=>$error,'stores'=>$stores,'articles'=>$articles], new Response(status:$status));
+        return $this->render('consumptions/form.html.twig', ['store_article_ids'=>$this->storeArticles->memberships($actor,$stores),'can_choose_beneficiary'=>$canChoose,'beneficiaries'=>$beneficiaries,'item'=>$data,'movement_key'=>$key,'error'=>$error,'stores'=>$stores,'articles'=>$articles], new Response(status:$status));
     }
 
     #[Route('/consommations/{id}', name: 'consumptions_receipt', methods: ['GET'])]

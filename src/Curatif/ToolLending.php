@@ -18,7 +18,6 @@ final class ToolLending
         if(trim($name)===''||mb_strlen($name)>160||trim($reference)===''||mb_strlen($reference)>70||$copies<1||$copies>50) {throw new ApiProblem(422,'invalid_tool','Renseignez un nom, une référence et de 1 à 50 exemplaires.');}
         $this->db->transactional(function() use($actor,$store,$name,$reference,$copies): void {
             $this->lock();$this->policy->assert($actor,Permission::ENTRY_CREATE,AccessTarget::store($store));
-            $this->db->executeStatement('UPDATE stores SET ca_enabled=true WHERE id=?',[$store]);
             for($i=1;$i<=$copies;$i++) {$this->db->insert('tool_items',['store_id'=>$store,'name'=>trim($name),'reference'=>trim($reference).($copies>1?'-'.$i:'')]);}
             $this->audit($actor,$store,'tools.created',null,['copies'=>$copies]);
         });

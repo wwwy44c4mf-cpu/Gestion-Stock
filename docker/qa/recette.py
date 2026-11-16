@@ -99,16 +99,19 @@ def smoke(fixture, clients):
     manager_a.expect('POST', '/api/v1/movements/consumptions', {'store_id': b, 'article_id': article, 'quantity': 1}, expected=(403, 404))
     assert stock(admin, b, article) == before
     passed('REC-02')
-    # Technicians may use any active store for their own withdrawal/deposit;
-    # their read perimeter and the managers' assignments remain enforced.
-    outside, _ = technician_a.expect('POST', '/api/v1/movements/consumptions', {'store_id': b, 'article_id': article, 'quantity': 1}, expected=(201,))
-    assert outside['data']['consumer_id'] == technician_a.user['id']
+    # Current assignments also restrict withdrawals, deposits and favourites.
+    technician_a.expect('POST', '/api/v1/movements/consumptions', {'store_id': b, 'article_id': article, 'quantity': 1}, expected=(404,))
+    technician_a.expect('POST', '/api/v1/movements/return-batches', {'store_id': b, 'article_id': article, 'quantity': 1}, expected=(404,))
+    technician_a.expect('PATCH', '/api/v1/auth/me', {'timezone': 'Europe/Paris', 'favorite_store_id': b}, expected=(422,))
+    assert stock(admin, b, article) == before
+    outside, _ = technician_b.expect('POST', '/api/v1/movements/consumptions', {'store_id': b, 'article_id': article, 'quantity': 1}, expected=(201,))
+    assert outside['data']['consumer_id'] == technician_b.user['id']
     assert stock(admin, b, article) == before - 1
     deposit_body = {'store_id': b, 'article_id': article, 'quantity': 1}
-    deposit, _ = technician_a.expect('POST', '/api/v1/movements/return-batches', deposit_body, expected=(201,), key='qa-deposit-replay')
-    replay, _ = technician_a.expect('POST', '/api/v1/movements/return-batches', deposit_body, expected=(201,), key='qa-deposit-replay')
+    deposit, _ = technician_b.expect('POST', '/api/v1/movements/return-batches', deposit_body, expected=(201,), key='qa-deposit-replay')
+    replay, _ = technician_b.expect('POST', '/api/v1/movements/return-batches', deposit_body, expected=(201,), key='qa-deposit-replay')
     assert deposit == replay and stock(admin, b, article) == before
-    profile, _ = technician_a.expect('PATCH', '/api/v1/auth/me', {'timezone': 'Europe/Paris', 'favorite_store_id': b})
+    profile, _ = technician_b.expect('PATCH', '/api/v1/auth/me', {'timezone': 'Europe/Paris', 'favorite_store_id': b})
     assert profile['data']['favorite_store_id'] == b
     passed('EXTRA-deposit-and-favorite')
     assert stock(admin, a, article) == 5

@@ -1,1 +1,4 @@
-<nav class="consumption-actions" aria-label="Opérations de consommation"><a class="button" href="{{ path('consumptions_new') }}">Sortie</a><a class="button" href="{{ path('consumptions_return_batch_new') }}">Retour</a><a class="button" href="{{ path('ca_tools') }}">Outillage CA</a><a class="button" href="{{ path('ca_reels') }}">Tourets de câble</a></nav>
+{% set ca_context = item.store_id|default(store_id|default(filters.store_id|default(selected_store))) %}
+{% set ca_visible = false %}
+{% for option in store_options %}{% if option.active and option.ca_enabled|default(false) and (ca_context is empty or option.id == ca_context) %}{% set ca_visible = true %}{% endif %}{% endfor %}
+<nav class="consumption-actions" aria-label="Opérations de consommation"><a class="button" href="{{ path('consumptions_new') }}">Sortie</a><a class="button" href="{{ path('consumptions_return_batch_new') }}">Retour</a><a class="button" data-ca-operation href="{{ path('ca_tools') }}" {% if not ca_visible %}hidden{% endif %}>Outillage CA</a><a class="button" data-ca-operation href="{{ path('ca_reels') }}" {% if not ca_visible %}hidden{% endif %}>Tourets de câble</a></nav>

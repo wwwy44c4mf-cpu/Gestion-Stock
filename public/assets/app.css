@@ -68,6 +68,7 @@
 }
 
 /* Equal primary actions remain side by side, including on small phones. */
+[data-ca-operation][hidden],[data-ca-group][hidden]{display:none!important}
 .consumption-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; width:min(100%,360px); flex-shrink:0; }
 .consumption-actions .button { display:flex; align-items:center; justify-content:center; width:100%; min-height:52px; text-align:center; font-weight:700; }
 .button:hover { background:#e86e00; border-color:#e86e00; }

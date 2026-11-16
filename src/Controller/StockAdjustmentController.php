@@ -27,7 +27,7 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 final class StockAdjustmentController extends AbstractController
 {
     public function __construct(private readonly StockMovementEngine $engine, private readonly AccessIdentity $identity,
-        private readonly AccessPolicy $policy, private readonly AccessDirectory $directory, private readonly CatalogDirectory $catalog) {}
+        private readonly AccessPolicy $policy, private readonly AccessDirectory $directory, private readonly CatalogDirectory $catalog,private readonly \App\Access\StoreArticles $storeArticles) {}
 
     #[Route('/api/v1/movements/adjustments', name: 'api_stock_adjustments_create', methods: ['POST'])]
     public function create(Request $request, JsonBody $json, IdempotencyKey $key): JsonResponse
@@ -69,12 +69,13 @@ final class StockAdjustmentController extends AbstractController
                 foreach ($data as $name => $_) { $data[$name] = $raw[$name] ?? ''; }
                 if (!preg_match('/^-?[1-9][0-9]{0,15}$/D', $data['quantity'])) { throw new ApiProblem(422, 'invalid_quantity', 'Saisissez une variation entière non nulle, positive ou négative, sans décimale ni exposant.'); }
                 $body = (object) ['article_id'=>$data['article_id'],'store_id'=>$data['store_id'],'quantity'=>(int)$data['quantity'],'reason'=>$data['reason']];
+                $this->storeArticles->assertMembership($actor,$data['store_id'],$data['article_id']);
                 $result = $this->engine->record($actor, 'adjustment', $body, $key)['data'];
                 $this->addFlash('success', 'L’ajustement de '.($result['source_store_id'] === null ? '+' : '−').$result['quantity'].' unité'.($result['quantity'] > 1 ? 's' : '').' a été enregistré.');
                 return $this->redirectToRoute('stocks_detail', ['storeId'=>$result['source_store_id'] ?? $result['destination_store_id'],'articleId'=>$result['article_id']], 303);
             } catch (ApiProblem $problem) { $error = $problem->getMessage(); $status = $problem->status; }
         }
-        return $this->render('stocks/adjustment.html.twig', ['item'=>$data,'movement_key'=>$key,'error'=>$error,'stores'=>$stores,'articles'=>$articles], new Response(status:$status));
+        return $this->render('stocks/adjustment.html.twig', ['store_article_ids'=>$this->storeArticles->memberships($actor,$stores),'item'=>$data,'movement_key'=>$key,'error'=>$error,'stores'=>$stores,'articles'=>$articles], new Response(status:$status));
     }
 
     private function actor(): StockUser

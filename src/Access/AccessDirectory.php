@@ -31,7 +31,7 @@ final class AccessDirectory
         if ($sort === null) { throw new ApiProblem(422, 'invalid_query', 'Tri invalide.'); }
         $pagination = new Pagination($filters['page'] ?? 1, $filters['limit'] ?? 25);
         $total = (int) $this->db->fetchOne('SELECT count(*) FROM stores s WHERE '.$where, $parameters);
-        $rows = $this->db->fetchAllAssociative('SELECT s.id, s.code, s.name, s.description, s.address, s.active, s.created_at FROM stores s WHERE '.$where.' ORDER BY '.$sort.' '.$order.', s.id LIMIT '.$pagination->limit.' OFFSET '.$pagination->offset(), $parameters);
+        $rows = $this->db->fetchAllAssociative("SELECT s.id, s.code, s.name, s.description, s.address, s.active, s.created_at,coalesce((to_jsonb(s)->>'ca_enabled')::boolean,false) ca_enabled FROM stores s WHERE ".$where.' ORDER BY '.$sort.' '.$order.', s.id LIMIT '.$pagination->limit.' OFFSET '.$pagination->offset(), $parameters);
         return $pagination->response(array_map($this->storeRow(...), $rows), $total);
     }
 
@@ -39,7 +39,7 @@ final class AccessDirectory
     {
         $this->policy->assert($actor, Permission::STOCK_READ, AccessTarget::store($id));
         $scope = $this->policy->storeScope($actor);
-        $row = $this->db->fetchAssociative('SELECT s.id, s.code, s.name, s.description, s.address, s.active, s.created_at FROM stores s WHERE s.id = ? AND ('.$scope->condition.')', [$id, ...$scope->parameters]);
+        $row = $this->db->fetchAssociative("SELECT s.id, s.code, s.name, s.description, s.address, s.active, s.created_at,coalesce((to_jsonb(s)->>'ca_enabled')::boolean,false) ca_enabled FROM stores s WHERE s.id = ? AND (".$scope->condition.')', [$id, ...$scope->parameters]);
         if (!$row) { throw new ApiProblem(404, 'resource_not_found', 'Ressource introuvable.'); }
         return ['data' => $this->storeRow($row)];
     }
@@ -48,7 +48,7 @@ final class AccessDirectory
     public function storeOptions(StockUser $actor, Permission $permission = Permission::STOCK_READ): array
     {
         $scope = $this->policy->storeScope($actor, $permission);
-        return $this->db->fetchAllAssociative('SELECT s.id, s.code, s.name, s.active FROM stores s WHERE ('.$scope->condition.') AND s.deleted_at IS NULL ORDER BY s.name, s.id', $scope->parameters);
+        return $this->db->fetchAllAssociative("SELECT s.id, s.code, s.name, s.active,coalesce((to_jsonb(s)->>'ca_enabled')::boolean,false) ca_enabled FROM stores s WHERE (".$scope->condition.') AND s.deleted_at IS NULL ORDER BY s.name, s.id', $scope->parameters);
     }
 
     public function beneficiaries(StockUser $actor, array $filters): array
