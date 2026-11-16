@@ -21,7 +21,7 @@ final class CatalogDirectory
         $where = [$kind === 'article' ? 'r.deleted_at IS NULL' : 'TRUE']; $parameters = [];
         if($kind==='article'&&isset($filters['store_id'])) {
             $this->policy->assert($actor,Permission::STOCK_READ,\App\Security\AccessTarget::store($filters['store_id']));
-            $where[]=StoreArticles::condition('r.id','?');array_push($parameters,$filters['store_id'],$filters['store_id'],$filters['store_id']);
+            $where[]=StoreArticles::condition('r.id','?');array_push($parameters,$filters['store_id'],$filters['store_id'],$filters['store_id'],$filters['store_id']);
         }
         if (isset($filters['status'])) {
             if (!in_array($filters['status'], ['active','inactive'], true)) { $this->invalid(); }

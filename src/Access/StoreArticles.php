@@ -29,13 +29,17 @@ final class StoreArticles
     {
         foreach([$store,$article] as $id) {if(!preg_match('/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/Di',$id)) {throw new \App\Api\ApiProblem(422,'invalid_selection','Choisissez un magasin et un article valides.');}}
         $this->policy->assert($actor,\App\Security\Permission::STOCK_READ,\App\Security\AccessTarget::store($store));
-        if(!$this->db->fetchOne('SELECT 1 FROM articles a WHERE a.id=? AND '.self::condition('a.id','?'),[$article,$store,$store,$store])) {throw new \App\Api\ApiProblem(422,'article_outside_store','Cet article n’est pas référencé dans ce magasin. Utilisez une entrée ou un retour pour l’y ajouter.');}
+        if(!$this->db->fetchOne('SELECT 1 FROM articles a WHERE a.id=? AND '.self::condition('a.id','?'),[$article,$store,$store,$store,$store])) {throw new \App\Api\ApiProblem(422,'article_outside_store','Cet article n’est pas référencé dans ce magasin. Utilisez une entrée ou un retour pour l’y ajouter.');}
+    }
+    public static function visible(string $article,string $store): string
+    {
+        return "NOT EXISTS(SELECT 1 FROM stock_levels withdrawn_level WHERE withdrawn_level.article_id=".$article." AND withdrawn_level.store_id=".$store." AND coalesce((to_jsonb(withdrawn_level)->>'withdrawn')::boolean,false))";
     }
     public static function condition(string $article,string $store): string
     {
         foreach([$article,$store] as $expression) {if($expression!=='?'&&!preg_match('/^[a-z_]+\.[a-z_]+$/D',$expression)) {throw new \InvalidArgumentException('Invalid SQL expression');}}
         return '(EXISTS(SELECT 1 FROM stock_levels established_level WHERE established_level.article_id='.$article.' AND established_level.store_id='.$store.')'
             .' OR EXISTS(SELECT 1 FROM article_locations established_location WHERE established_location.article_id='.$article.' AND established_location.store_id='.$store.')'
-            .' OR EXISTS(SELECT 1 FROM stock_movements established_movement WHERE established_movement.article_id='.$article.' AND '.$store.' IN (established_movement.source_store_id,established_movement.destination_store_id)))';
+            .' OR EXISTS(SELECT 1 FROM stock_movements established_movement WHERE established_movement.article_id='.$article.' AND '.$store.' IN (established_movement.source_store_id,established_movement.destination_store_id))) AND '.self::visible($article,$store);
     }
 }

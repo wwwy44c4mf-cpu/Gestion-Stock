@@ -57,6 +57,7 @@ final class StockDirectory
         $scope = $this->policy->storeScope($actor);
         if (isset($filters['store_id'])) { $this->policy->assert($actor, Permission::STOCK_READ, AccessTarget::store($filters['store_id'])); }
         $where = [$scope->condition,'s.deleted_at IS NULL']; $parameters = $scope->parameters;
+        if($establishedOnly) {$where[]=StoreArticles::visible('a.id','s.id');}
         if($establishedOnly&&isset($filters['store_id'])) {$where[]=StoreArticles::condition('a.id','s.id');}
         foreach (['store_id' => 's.id', 'article_id' => 'a.id', 'category_id' => 'a.category_id'] as $key => $column) {
             if (isset($filters[$key])) { $where[] = $column.' = ?'; $parameters[] = $filters[$key]; }

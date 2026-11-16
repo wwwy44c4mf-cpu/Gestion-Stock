@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+{% block title %}Retirer de ce magasin · Gestion de stock{% endblock %}
+{% block content %}
+<section class="card account-form"><h1>Retirer de ce magasin</h1>
+<p><strong>{{ item.sku }} · {{ item.name }}</strong><br>Magasin : {{ item.store_name }}</p>
+{% if error %}<p class="notice notice-error" role="alert">{{ error }}</p>{% endif %}
+<p>L’article ne figurera plus dans les listes de ce magasin. Sa fiche au catalogue, les autres magasins et tous les mouvements passés sont conservés.</p>
+<p>Ses alertes de stock seront clôturées et la mention « commandé » retirée pour ce magasin. Son casage et ses seuils sont conservés. Une nouvelle entrée ou un retour le fera réapparaître automatiquement.</p>
+{% if item.quantity != 0 %}<p class="notice" role="alert">Le stock doit être à zéro. Il reste {{ item.quantity }} unité(s).</p>{% endif %}
+<form method="post" action="{{ path('stocks_article_withdraw',{storeId:item.store_id,articleId:item.article_id}) }}">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token('withdraw_'~item.store_id~'_'~item.article_id) }}">
+<label><input type="checkbox" name="confirm" value="1" required> Je confirme le retrait uniquement de ce magasin.</label>
+<p><button class="button" type="submit" {{ item.quantity != 0 ? 'disabled' : '' }}>Confirmer le retrait du magasin</button></p></form>
+<a href="{{ path('stocks_detail',{storeId:item.store_id,articleId:item.article_id}) }}">Annuler</a></section>
+{% endblock %}
