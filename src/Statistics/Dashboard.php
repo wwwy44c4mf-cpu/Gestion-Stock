@@ -65,7 +65,7 @@ final class Dashboard
         foreach ($bounds as $key => $instant) { $movementWhere[] = 'm.created_at '.($key === 'date_from' ? '>=' : '<').' to_timestamp(?)'; $movementParams[] = $instant; }
         $sql .= ', allowed_stores AS (SELECT s.id FROM stores s WHERE '.implode(' AND ', $storeWhere).'),
             catalogue AS (SELECT a.* FROM articles a WHERE '.$categoryWhere.'),
-            positions AS (SELECT s.id store_id,a.id article_id,coalesce(sl.quantity,0) quantity,sl.low_threshold FROM allowed_stores s CROSS JOIN catalogue a LEFT JOIN stock_levels sl ON sl.store_id=s.id AND sl.article_id=a.id),
+            positions AS (SELECT s.id store_id,a.id article_id,coalesce(sl.quantity,0) quantity,sl.low_threshold FROM allowed_stores s CROSS JOIN catalogue a LEFT JOIN stock_levels sl ON sl.store_id=s.id AND sl.article_id=a.id WHERE NOT coalesce((to_jsonb(sl)->>\'withdrawn\')::boolean,false)),
             visible_movements AS (SELECT m.id FROM stock_movements m JOIN articles a ON a.id=m.article_id WHERE '.implode(' AND ', $movementWhere).'),
             alerts AS (SELECT al.* FROM stock_alerts al JOIN allowed_stores s ON s.id=al.store_id JOIN catalogue a ON a.id=al.article_id WHERE al.status=\'active\')
             SELECT (SELECT count(*) FROM catalogue WHERE active) active_articles,

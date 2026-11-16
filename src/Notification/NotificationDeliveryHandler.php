@@ -31,6 +31,9 @@ final class NotificationDeliveryHandler
                 $allowed=(bool)$this->db->fetchOne('SELECT 1 FROM effective_alert_recipients(?,?) WHERE user_id=?',[$event['store_id'],$type,$event['recipient_id']]);
             }
             if($allowed&&$event['type']==='information'&&($event['information_id']??null)!==null) {$allowed=(bool)$this->db->fetchOne('SELECT information_recipient_eligible(?)',[$event['id']]);}
+            if($allowed&&in_array($event['type'],['stock_low','stock_critical'],true)&&$event['alert_id']!==null) {
+                $allowed=!(bool)$this->db->fetchOne("SELECT 1 FROM stock_alerts a JOIN stock_levels l ON l.article_id=a.article_id AND l.store_id=a.store_id WHERE a.id=? AND coalesce((to_jsonb(l)->>'withdrawn')::boolean,false)",[$event['alert_id']]);
+            }
             if($allowed&&$event['type']==='daily_summary'&&str_starts_with($event['event_key'],'daily-summary:')) {
                 $payload=(new DailySummaryAudience($this->db))->payload($event);
                 $allowed=$payload!==null;if($allowed) {$event['payload']=json_encode($payload,JSON_THROW_ON_ERROR);}

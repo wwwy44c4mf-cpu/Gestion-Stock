@@ -232,6 +232,62 @@ final class CuratifMaquetteTest extends WebTestCase
             self::assertSelectorExists('select[name=article_id] option[value="'.$foreign.'"]');
         }
     }
+    public function testLocalWithdrawalKeepsOtherStoreCatalogueHistoryAndRestoresOnReceipt(): void
+    {
+        $engine=static::getContainer()->get(StockMovementEngine::class);
+        $engine->record($this->actors['admin'],'entry',(object)['article_id'=>$this->article,'store_id'=>$this->stores['B'],'quantity'=>2,'reason'=>'Autre magasin'],bin2hex(random_bytes(16)));
+        $this->db->executeStatement('UPDATE stock_levels SET low_threshold=2,critical_threshold=0 WHERE article_id=? AND store_id=?',[$this->article,$this->stores['A']]);
+        $this->move('adjustment',-5);$before=(int)$this->db->fetchOne('SELECT count(*) FROM stock_movements');
+        self::assertSame(1,(int)$this->db->fetchOne("SELECT count(*) FROM stock_alerts WHERE store_id=? AND status='active'",[$this->stores['A']]));
+        $this->client->loginUser($this->actors['manager']);$url='/stocks/'.$this->stores['A'].'/'.$this->article.'/retirer';
+        $crawler=$this->client->request('GET',$url);self::assertResponseIsSuccessful();self::assertSelectorTextContains('main','les autres magasins');
+        $form=$crawler->selectButton('Confirmer le retrait du magasin')->form(['confirm'=>'1']);$this->client->submit($form);self::assertResponseStatusCodeSame(303);
+        $this->client->submit($form);self::assertResponseStatusCodeSame(303);
+        self::assertSame(1,(int)$this->db->fetchOne("SELECT count(*) FROM audit_logs WHERE action='stock.article_withdrawn'"));
+        self::assertSame($before,(int)$this->db->fetchOne('SELECT count(*) FROM stock_movements'));
+        self::assertSame(2,(int)$this->db->fetchOne('SELECT quantity FROM stock_levels WHERE article_id=? AND store_id=?',[$this->article,$this->stores['B']]));
+        self::assertSame(0,(int)$this->db->fetchOne("SELECT count(*) FROM stock_alerts WHERE store_id=? AND status='active'",[$this->stores['A']]));
+        $event=$this->db->fetchOne("SELECT id FROM notification_events WHERE store_id=? AND type='stock_critical' LIMIT 1",[$this->stores['A']]);self::assertNotFalse($event);
+        $this->db->executeStatement("UPDATE notification_events SET status='queued' WHERE id=?",[$event]);
+        $mail=new class implements \App\Notification\MailDelivery {public int $sent=0;public function send(\Symfony\Component\Mime\Email $email): void {$this->sent++;}};
+        $handler=new \App\Notification\NotificationDeliveryHandler($this->db,$mail,static::getContainer()->get(\App\Notification\NotificationRenderer::class),new \Psr\Log\NullLogger(),true,'test');
+        try {$handler(new \App\Message\DeliverNotification($event));self::fail('Alerte retirée non envoyée');}catch(\Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException) {}
+        self::assertSame(0,$mail->sent);
+        $catalog=static::getContainer()->get(\App\Access\CatalogDirectory::class);$stocks=static::getContainer()->get(\App\Access\StockDirectory::class);
+        self::assertSame(0,$catalog->listing($this->actors['admin'],'article',['store_id'=>$this->stores['A']])['meta']['total']);
+        self::assertSame(0,$stocks->listing($this->actors['admin'],['store_id'=>$this->stores['A']])['meta']['total']);
+        self::assertSame($this->article,$catalog->get($this->actors['admin'],'article',$this->article)['data']['id']);
+        self::assertSame(2,$stocks->history($this->actors['admin'],$this->stores['A'],$this->article)['meta']['total']);
+        $workflow=static::getContainer()->get(\App\Inventory\InventoryWorkflow::class);
+        $inventory=$workflow->create($this->actors['admin'],(object)['store_id'=>$this->stores['A']],bin2hex(random_bytes(16)))['data']['id'];
+        $workflow->transition($this->actors['admin'],$inventory,'start',bin2hex(random_bytes(16)));
+        self::assertSame(0,(int)$this->db->fetchOne('SELECT count(*) FROM inventory_lines WHERE inventory_id=? AND article_id=?',[$inventory,$this->article]));
+        $workflow->transition($this->actors['admin'],$inventory,'cancel',bin2hex(random_bytes(16)));
+        static::getContainer()->get(StockExtensions::class)->deposit($this->actors['user'],$this->stores['A'],$this->article,1,bin2hex(random_bytes(16)));
+        self::assertSame(1,$stocks->listing($this->actors['admin'],['store_id'=>$this->stores['A']])['meta']['total']);
+        self::assertFalse((bool)$this->db->fetchOne('SELECT withdrawn FROM stock_levels WHERE article_id=? AND store_id=?',[$this->article,$this->stores['A']]));
+        self::assertSame(0,(int)$this->db->fetchOne('SELECT count(*) FROM stock_reconciliation WHERE missing_balance OR difference<>0'));
+    }
+    public function testLocalWithdrawalRechecksQuantityAssignmentInventoryAndConfirmation(): void
+    {
+        $service=static::getContainer()->get(\App\Stock\StoreArticleWithdrawal::class);
+        $this->denied(fn()=> $service->withdraw($this->actors['user'],$this->stores['A'],$this->article),403);
+        $this->denied(fn()=> $service->withdraw($this->actors['manager'],$this->stores['B'],$this->article),404);
+        $this->denied(fn()=> $service->withdraw($this->actors['admin'],$this->stores['A'],$this->article),409);
+        $this->move('adjustment',-5);$url='/stocks/'.$this->stores['A'].'/'.$this->article.'/retirer';
+        $this->client->loginUser($this->actors['user']);$this->client->request('GET','/stocks?store_id='.$this->stores['A']);
+        self::assertSelectorNotExists('a[href="'.$url.'"]');$this->client->request('GET',$url);self::assertResponseStatusCodeSame(403);
+        $this->client->loginUser($this->actors['admin']);$this->client->request('GET','/stocks?store_id='.$this->stores['A']);self::assertSelectorExists('a[href="'.$url.'"]');
+        $crawler=$this->client->request('GET',$url);$values=$crawler->selectButton('Confirmer le retrait du magasin')->form()->getPhpValues();
+        $this->client->request('POST',$url,$values);self::assertResponseStatusCodeSame(422);
+        $this->client->request('POST',$url,array_replace($values,['confirm'=>'1','_csrf_token'=>'bad']));self::assertResponseStatusCodeSame(403);
+        $inventory=$this->db->fetchOne("INSERT INTO inventories(store_id,created_by,status,snapshot_at) VALUES(?,?,'in_progress',clock_timestamp()) RETURNING id",[$this->stores['A'],$this->actors['admin']->id]);
+        $this->denied(fn()=> $service->withdraw($this->actors['admin'],$this->stores['A'],$this->article),409);
+        $this->db->executeStatement("UPDATE inventories SET status='cancelled',cancelled_at=clock_timestamp() WHERE id=?",[$inventory]);
+        $this->move('entry',1);$this->client->request('POST',$url,array_replace($values,['confirm'=>'1']));self::assertResponseStatusCodeSame(409);
+        self::assertFalse((bool)$this->db->fetchOne('SELECT withdrawn FROM stock_levels WHERE article_id=? AND store_id=?',[$this->article,$this->stores['A']]));
+        self::assertSame(0,(int)$this->db->fetchOne("SELECT count(*) FROM audit_logs WHERE action='stock.article_withdrawn'"));
+    }
     public function testNavigationScannerAndRemovedExportFollowNewRequirements(): void
     {
         $items=(new \App\Ui\Navigation())->items(['ROLE_UTILISATEUR'],$this->stores['A']);self::assertSame(['Tableau de bord','Articles','Stocks','Consommations'],array_column($items,'label'));

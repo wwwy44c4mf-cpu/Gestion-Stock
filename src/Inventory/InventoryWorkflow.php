@@ -133,6 +133,6 @@ final class InventoryWorkflow
     private function snapshot(string $id,string $store): void
     {
         // No balance is created for an article whose theoretical quantity is zero.
-        $this->db->executeStatement('INSERT INTO inventory_lines (inventory_id,article_id,theoretical_qty) SELECT ?,a.id,coalesce(sl.quantity,0) FROM articles a LEFT JOIN stock_levels sl ON sl.article_id=a.id AND sl.store_id=? WHERE a.active OR coalesce(sl.quantity,0)>0 ORDER BY a.id',[$id,$store]);
+        $this->db->executeStatement("INSERT INTO inventory_lines (inventory_id,article_id,theoretical_qty) SELECT ?,a.id,coalesce(sl.quantity,0) FROM articles a LEFT JOIN stock_levels sl ON sl.article_id=a.id AND sl.store_id=? WHERE (a.active OR coalesce(sl.quantity,0)>0) AND NOT coalesce((to_jsonb(sl)->>'withdrawn')::boolean,false) ORDER BY a.id",[$id,$store]);
     }
 }

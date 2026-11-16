@@ -989,3 +989,9 @@ Demandes regroupées dans [le cadrage de la maquette](docs/maquette-evolutions.m
 - 16 novembre 2026 : filtrage des formulaires confirmé et intégré à la maquette. Recette finale : 516 tests PHP / 6 216 assertions, quatre contrôles OpenAPI, 920 requêtes HTTP, aucun stock négatif ni écart de rapprochement. Listes dynamiques, références à zéro, onglets CA et affectations vérifiés au navigateur en 375 et 1 280 pixels. Maquette en attente de validation utilisateur ; aucun code publié ni déploiement de ces évolutions.
 
 - 16 novembre 2026 : l’exploitant valide la maquette et autorise la mise en production des issues #125 à #128. Livraison préparée depuis le commit installé 99cbb3b ; aucune migration supplémentaire, image de base à conserver. Installation Portainer à effectuer après sauvegarde récente hors serveur.
+
+- 16 novembre 2026 : version f65ea02f déployée par l’exploitant, services healthy et initialize/setup terminés avec succès. Nouvelle demande STK-07 (#130) : retirer une référence d’un seul magasin à zéro, administrateurs et gestionnaires autorisés, catalogue/autres magasins/historique conservés. Développement et recette en maquette uniquement ; voir docs/retrait-article-magasin.md.
+
+- 16 novembre 2026 : STK-07 prêt en maquette. Recette générale 518 tests / 6 242 assertions et 920 requêtes sans écart ; contrôles ciblés des permissions et des inventaires, puis parcours mobile et refus technicien vérifiés. Exemple DEMO-RETRAIT à zéro dans Blaise Pascal CA. Aucune publication de code ni modification de production pour ce lot.
+
+- 16 novembre 2026 : l’exploitant valide STK-07 et autorise sa mise en production. Publication depuis f65ea02f et contrôles de livraison en cours ; nouvelle migration Version20261116010000, image PostgreSQL conservée.
