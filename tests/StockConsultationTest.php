@@ -58,7 +58,7 @@ final class StockConsultationTest extends WebTestCase
         $this->login('manager'); $before = $this->db->fetchAllAssociative('SELECT * FROM stock_levels ORDER BY article_id,store_id');
         $result = $this->get('/api/v1/stocks'); self::assertSame(8,$result['meta']['total']); $this->valid($result,'StockLevelPage');
         $filtered = $this->get('/api/v1/stocks?q=vis&category_id='.$this->categories['Alpha'].'&store_id='.$this->stores['A'].'&status=below_threshold&sort=quantity&order=desc'); self::assertCount(1,$filtered['data']);self::assertSame(5,$filtered['data'][0]['quantity']);
-        $zero = $this->get('/api/v1/stores/'.$this->stores['A'].'/stocks?status=out_of_stock'); self::assertSame(3,$zero['meta']['total']);
+        $zero = $this->get('/api/v1/stores/'.$this->stores['A'].'/stocks?status=out_of_stock'); self::assertSame(1,$zero['meta']['total']);self::assertSame([$this->articles['REF-2']],array_column($zero['data'],'article_id'));
         $threshold = $this->get('/api/v1/stores/'.$this->stores['A'].'/stocks?status=below_threshold'); self::assertSame(2,$threshold['meta']['total']);
         $literal = $this->get('/api/v1/stocks?q=%25'); self::assertSame(2,$literal['meta']['total']);
         self::assertSame($before,$this->db->fetchAllAssociative('SELECT * FROM stock_levels ORDER BY article_id,store_id'));
@@ -114,6 +114,7 @@ final class StockConsultationTest extends WebTestCase
 
     public function testHtmlFiltersLinksEscapingAndUnavailableStoreViews(): void
     {
+        $this->db->insert('stock_levels',['article_id'=>$this->articles['100%'],'store_id'=>$this->stores['A'],'quantity'=>0]);
         $this->login('manager');$this->client->request('GET','/stocks?store_id='.$this->stores['A'].'&q=%25');self::assertResponseIsSuccessful();self::assertSelectorTextContains('tbody','Littéral <script>');self::assertSelectorNotExists('main script');self::assertSelectorExists('nav a[aria-current="page"][href="/stocks"]');self::assertSelectorNotExists('option[value="'.$this->stores['C'].'"]');self::assertSelectorNotExists('option[value="'.$this->stores['D'].'"]');
         $this->client->request('GET','/articles/'.$this->articles['REF-1'].'?limit=1');self::assertResponseIsSuccessful();self::assertSelectorTextContains('main','Stock total autorisé : 12');self::assertSelectorTextNotContains('main','Magasin C');
         $this->client->request('GET','/stocks?store_id='.$this->stores['D']);self::assertResponseStatusCodeSame(404);self::assertSelectorExists('a[href="/stocks"]');

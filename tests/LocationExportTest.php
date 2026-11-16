@@ -63,12 +63,14 @@ final class LocationExportTest extends WebTestCase
         self::assertSame(3,(int)$this->db->fetchOne("SELECT count(*) FROM audit_logs WHERE action='stock.location_updated'"));
         foreach([str_repeat('x',161),"A\nB"] as $bad) {$this->location('A',$bad,2);self::assertResponseStatusCodeSame(422);}
     }
-    public function testTechnicianSeesLocationInUnassignedActiveStoreWithoutWriteOrStockAccess(): void
+    public function testTechnicianLocationReadRequiresAssignmentAndNeverAllowsWrite(): void
     {
         $this->location('B','Case B privée au stock',0);$this->login('user');
+        $this->location('B');self::assertResponseStatusCodeSame(404);
+        $this->db->insert('user_stores',['user_id'=>$this->db->fetchOne("SELECT id FROM users WHERE email='user@example.test'"),'store_id'=>$this->stores['B']]);
         $data=$this->location('B')['data'];self::assertResponseIsSuccessful();self::assertFalse($data['can_edit']);self::assertArrayNotHasKey('quantity',$data);
         $this->location('B','Interdit',1);self::assertResponseStatusCodeSame(403);
-        $this->client->request('GET','/api/v1/stores/'.$this->stores['B'].'/stocks');self::assertResponseStatusCodeSame(404);
+        $this->client->request('GET','/api/v1/stores/'.$this->stores['B'].'/stocks');self::assertResponseIsSuccessful();
         $this->db->executeStatement('UPDATE stores SET active=false WHERE id=?',[$this->stores['B']]);
         $this->location('B');self::assertResponseStatusCodeSame(404);
     }

@@ -11,7 +11,7 @@
 </head>
 <body>
 <a class="skip-link" href="#contenu">Aller au contenu</a>
-<div class="shell" data-controller="navigation">
+<div class="shell" data-controller="navigation curatif-navigation">
     <aside class="sidebar">
         <a class="brand" href="{{ path('home') }}"><span class="brand-icon" aria-hidden="true">▦</span> Gestion de stock</a>
         <button class="menu-toggle" type="button" data-navigation-target="toggle" data-action="navigation#toggle" aria-expanded="true" aria-controls="navigation">Menu</button>
@@ -31,7 +31,7 @@
                 <label for="magasin">Magasin</label>
                 <select id="magasin" name="store_id" aria-describedby="magasin-aide" {% if store_options is empty %}disabled{% endif %}>
                     <option value="">{{ store_options is empty ? 'Aucun magasin en consultation' : 'Tous mes magasins' }}</option>
-                    {% for store in store_options %}<option value="{{ store.id }}" {% if selected_store == store.id %}selected{% endif %}>{{ store.name }}{{ store.active ? '' : ' (désactivé)' }}</option>{% endfor %}
+                    {% for store in store_options %}<option value="{{ store.id }}" data-curatif="{{ store.active and store.ca_enabled|default(false) ? '1' : '0' }}" {% if selected_store == store.id %}selected{% endif %}>{{ store.name }}{{ store.active ? '' : ' (désactivé)' }}</option>{% endfor %}
                 </select>
                 {% if store_options is not empty %}<button class="button" type="submit">Choisir</button>{% endif %}
             </form>{% endif %}

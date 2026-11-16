@@ -1,0 +1,7 @@
+<div class="field" data-controller="store-articles" data-store-articles-store-value="{{ store_input }}" data-store-articles-select-value="{{ select_id }}">
+<label for="{{ select_id }}">Article (obligatoire)</label>
+<select id="{{ select_id }}" name="article_id" required><option value="">{{ store_id ? 'Choisir un article de ce magasin' : 'Choisir d’abord un magasin' }}</option>{% for article in articles %}{% if store_id and store_id in store_article_ids[article.id]|default([]) %}<option value="{{ article.id }}" {{ article_id == article.id ? 'selected' : '' }}>{{ article.sku }} · {{ article.name }}{{ article.active is defined and not article.active ? ' (désactivé)' : '' }}</option>{% endif %}{% endfor %}</select>
+<template data-store-articles-target="source">{% for article in articles %}{% if store_article_ids[article.id]|default([]) %}<option value="{{ article.id }}" data-stores="{{ store_article_ids[article.id]|json_encode }}">{{ article.sku }} · {{ article.name }}{{ article.active is defined and not article.active ? ' (désactivé)' : '' }}</option>{% endif %}{% endfor %}</template>
+<p class="muted" data-store-articles-target="status">Seuls les articles déjà utilisés ou configurés dans le magasin sont proposés, même à zéro.</p>
+<noscript><p>Pour changer de magasin, choisissez-le dans la barre du haut puis rouvrez ce formulaire.</p></noscript>
+</div>

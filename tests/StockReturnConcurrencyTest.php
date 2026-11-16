@@ -56,6 +56,7 @@ final class StockReturnConcurrencyTest extends KernelTestCase
             foreach(['admin'=>1,'user1'=>3] as $name=>$role) { $db->insert('users',['email'=>$name.'@example.test','name'=>$name,'password_hash'=>$hash,'role_id'=>$role]); }
             $user=$db->fetchOne("SELECT id FROM users WHERE email='user1@example.test'");$stores=[];
             foreach(['A','B','C'] as $code) { $stores[$code]=$db->fetchOne('INSERT INTO stores(code,name) VALUES(?,?) RETURNING id',[$code,$code]); }
+            foreach($stores as $store) {$db->insert('user_stores',['user_id'=>$user,'store_id'=>$store]);}
             $admin=static::getContainer()->get(StockUserProvider::class)->loadUserByIdentifier('admin@example.test');$engine=static::getContainer()->get(StockMovementEngine::class);
             $seed=function(string $suffix) use($db,$stores,$admin,$engine,$user): array {
                 $article=$db->fetchOne('INSERT INTO articles(sku,name) VALUES(?,?) RETURNING id',[$suffix,$suffix]);$origins=[];

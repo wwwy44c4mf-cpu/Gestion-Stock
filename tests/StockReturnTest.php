@@ -65,9 +65,9 @@ final class StockReturnTest extends WebTestCase
         self::assertSame('/consommations/retours/'.$r['id'],$this->client->getResponse()->headers->get('Location'));$this->client->request('GET','/consommations/'.$c['id']);self::assertResponseIsSuccessful();self::assertSelectorTextContains('main','Retours liés');self::assertStringNotContainsString('Encore à rendre',$this->client->getResponse()->getContent());
         $this->api($c['id'],key:'second-partial-return');self::assertResponseStatusCodeSame(201);self::assertSame(10,$this->balance());$this->client->request('GET','/consommations/'.$c['id']);self::assertStringNotContainsString('Encore à rendre',$this->client->getResponse()->getContent());self::assertSelectorNotExists('a[href="/consommations/'.$c['id'].'/retour"]');$before=$this->snapshot();$this->api($c['id'],['quantity'=>1],key:'excessive-return-key');self::assertResponseStatusCodeSame(409);self::assertSame($before,$this->snapshot());self::assertSame($original,$this->db->fetchAssociative('SELECT * FROM stock_movements WHERE id = ?',[$c['id']]));self::assertSame(4,$before['movements']);self::assertSame(4,$before['events']);self::assertSame(4,$before['audits']);$this->reconciled();
     }
-    public function testOwnReturnSurvivesUnassignmentWithoutGivingStockAccess(): void
+    public function testOwnHistoryRemainsButUnassignedReturnIsDenied(): void
     {
-        $c=$this->consume();$this->db->executeStatement('DELETE FROM user_stores WHERE user_id = ?',[$this->users['user']]);$this->login();$this->client->request('GET','/consommations/retours');self::assertResponseIsSuccessful();self::assertSelectorExists('a[href="/consommations/'.$c['id'].'/retour"]');$r=$this->api($c['id'])['data'];self::assertResponseStatusCodeSame(201);self::assertSame(8,$this->balance());$this->client->request('GET','/consommations/retours/'.$r['id']);self::assertResponseIsSuccessful();self::assertSelectorTextContains('main','2 unités rendues');self::assertSelectorNotExists('a[href="/stocks/'.$this->stores['A'].'/'.$this->article.'"]');self::assertSelectorNotExists('a[href="/stocks/mouvements/'.$r['id'].'/corriger"]');$this->client->request('GET','/api/v1/stores/'.$this->stores['A'].'/stocks');self::assertResponseStatusCodeSame(404);
+        $c=$this->consume();$this->db->executeStatement('DELETE FROM user_stores WHERE user_id = ?',[$this->users['user']]);$this->login();$before=$this->snapshot();$this->client->request('GET','/consommations/'.$c['id']);self::assertResponseIsSuccessful();$this->api($c['id']);self::assertResponseStatusCodeSame(404);self::assertSame($before,$this->snapshot());$this->client->request('GET','/api/v1/stores/'.$this->stores['A'].'/stocks');self::assertResponseStatusCodeSame(404);
     }
     public function testForeignConsumptionAndInactiveOrUnassignedStoresAreDenied(): void
     {
@@ -103,6 +103,7 @@ final class StockReturnTest extends WebTestCase
     }
     public function testExplicitDepositCanDifferFromOriginAndFavoritePrefillsTheDetailedForm(): void
     {
+        $this->db->insert('user_stores',['user_id'=>$this->users['user'],'store_id'=>$this->stores['B']]);
         $c=$this->consume();$this->db->executeStatement('UPDATE users SET favorite_store_id=? WHERE id=?',[$this->stores['B'],$this->users['user']]);$this->login();
         $this->client->request('GET','/consommations/'.$c['id'].'/retour');self::assertSelectorExists('#return-store option[selected][value="'.$this->stores['B'].'"]');
         $return=$this->api($c['id'],['store_id'=>$this->stores['B']])['data'];self::assertResponseStatusCodeSame(201);self::assertSame($this->stores['B'],$return['destination_store_id']);self::assertSame(6,$this->balance());self::assertSame(2,(int)$this->db->fetchOne('SELECT quantity FROM stock_levels WHERE store_id=? AND article_id=?',[$this->stores['B'],$this->article]));$this->reconciled();

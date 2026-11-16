@@ -14,11 +14,15 @@ use Doctrine\DBAL\Connection;
 /** Global descriptive catalogue: never joins stock, movements or private user data. */
 final class CatalogDirectory
 {
-    public function __construct(private readonly Connection $db, private readonly AccessIdentity $identity) {}
+    public function __construct(private readonly Connection $db, private readonly AccessIdentity $identity,private readonly \App\Security\AccessPolicy $policy) {}
     public function listing(StockUser $actor, string $kind, array $filters = []): array
     {
         $this->identity->requireRole($actor, Permission::CATALOG_READ); $table = $this->table($kind);
         $where = [$kind === 'article' ? 'r.deleted_at IS NULL' : 'TRUE']; $parameters = [];
+        if($kind==='article'&&isset($filters['store_id'])) {
+            $this->policy->assert($actor,Permission::STOCK_READ,\App\Security\AccessTarget::store($filters['store_id']));
+            $where[]=StoreArticles::condition('r.id','?');array_push($parameters,$filters['store_id'],$filters['store_id'],$filters['store_id']);
+        }
         if (isset($filters['status'])) {
             if (!in_array($filters['status'], ['active','inactive'], true)) { $this->invalid(); }
             $where[] = $filters['status'] === 'active' ? 'r.active' : 'NOT r.active';

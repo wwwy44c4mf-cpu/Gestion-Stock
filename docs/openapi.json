@@ -2068,6 +2068,16 @@
               ]
             },
             "description": "status"
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": false,
+            "description": "Limiter aux articles déjà utilisés ou configurés dans ce magasin, y compris à zéro.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -6608,7 +6618,7 @@
       "post": {
         "operationId": "createReturnBatch",
         "summary": "Déposer un article dans le magasin choisi, avec rattachement automatique",
-        "description": "Quantité rattachée aux consommations les plus anciennes encore retournables du bénéficiaire, tous magasins de sortie confondus. Crédit du magasin de dépôt seulement. Utilisateur : lui-même, tout magasin actif ; administrateur/gestionnaire : bénéficiaire actif, dépôt autorisé. Quantité excessive ou inventaire du dépôt : 409, opération atomique, concurrence et rejeu idempotent contrôlés.",
+        "description": "Quantité rattachée aux consommations les plus anciennes encore retournables du bénéficiaire, tous magasins de sortie confondus. Crédit du magasin de dépôt seulement. Utilisateur : lui-même, magasin actif attribué ; administrateur/gestionnaire : bénéficiaire actif, dépôt autorisé. Quantité excessive ou inventaire du dépôt : 409, opération atomique, concurrence et rejeu idempotent contrôlés.",
         "tags": [
           "movements"
         ],
@@ -7705,6 +7715,10 @@
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "ca_enabled": {
+            "type": "boolean",
+            "description": "Afficher les opérations Curatif Antennaire de ce magasin."
           }
         },
         "additionalProperties": false,
@@ -7745,6 +7759,10 @@
           "active": {
             "type": "boolean",
             "default": true
+          },
+          "ca_enabled": {
+            "type": "boolean",
+            "description": "Afficher les opérations Curatif Antennaire de ce magasin."
           }
         },
         "additionalProperties": false,
@@ -7774,6 +7792,10 @@
           },
           "active": {
             "type": "boolean"
+          },
+          "ca_enabled": {
+            "type": "boolean",
+            "description": "Afficher les opérations Curatif Antennaire de ce magasin."
           }
         },
         "additionalProperties": false,

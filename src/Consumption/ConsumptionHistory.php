@@ -56,7 +56,7 @@ final class ConsumptionHistory
         return [
             'people'=>$this->db->fetchAllAssociative($sql.' SELECT DISTINCT consumer_id id,consumer_name name FROM visible ORDER BY name,id',$params),
             'articles'=>$this->db->fetchAllAssociative($sql.' SELECT DISTINCT article_id id,article_sku sku,article_name name FROM visible ORDER BY sku,id',$params),
-            'stores'=>$this->db->fetchAllAssociative($sql.' SELECT s.id,s.code,s.name,s.active FROM stores s WHERE ('.$stores->condition.") OR (s.active AND s.id IN(SELECT source_store_id FROM visible)) ORDER BY s.name,s.id",[...$params,...$stores->parameters])
+            'stores'=>$this->db->fetchAllAssociative('SELECT s.id,s.code,s.name,s.active FROM stores s WHERE s.deleted_at IS NULL AND ('.$stores->condition.') ORDER BY s.name,s.id',$stores->parameters)
         ];
     }
 }

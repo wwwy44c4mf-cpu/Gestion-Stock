@@ -24,6 +24,7 @@ final class ReturnBatchTest extends WebTestCase
         foreach(['A','B','C','D'] as $code) { $this->stores[$code]=$this->db->fetchOne('INSERT INTO stores(code,name) VALUES(?,?) RETURNING id',[$code,'Magasin '.$code]); }
         $this->db->executeStatement('UPDATE stores SET active=false WHERE id=?',[$this->stores['D']]);
         $this->db->insert('user_stores',['user_id'=>$this->users['manager'],'store_id'=>$this->stores['C']]);
+        foreach(['A','B','C'] as $store) {$this->db->insert('user_stores',['user_id'=>$this->users['user'],'store_id'=>$this->stores[$store]]);}
         $this->article=$this->db->fetchOne("INSERT INTO articles(sku,name) VALUES('DEPOT','Matériel') RETURNING id");
         foreach(['A','B'] as $store) { $this->move('admin','entry',$store,20); }
         $this->login('user');
@@ -95,7 +96,7 @@ final class ReturnBatchTest extends WebTestCase
     {
         $this->seedConsumptions();$this->db->executeStatement('UPDATE stores SET active=false WHERE id=?',[$this->stores['A']]);$this->db->executeStatement('UPDATE articles SET active=false WHERE id=?',[$this->article]);
         $this->api();self::assertResponseStatusCodeSame(201);
-        $this->client->request('GET','/api/v1/stores/'.$this->stores['C'].'/stocks');self::assertResponseStatusCodeSame(404);
+        $this->client->request('GET','/api/v1/stores/'.$this->stores['C'].'/stocks');self::assertResponseIsSuccessful();
     }
     public function testInventoryAndStockCapacityCannotPartiallyCreditTheDeposit(): void
     {

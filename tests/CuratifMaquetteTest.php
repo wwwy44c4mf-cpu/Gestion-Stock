@@ -20,7 +20,7 @@ final class CuratifMaquetteTest extends WebTestCase
         $this->db->executeStatement("CREATE TABLE messenger_messages(id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,body text NOT NULL,headers text NOT NULL DEFAULT '{}',queue_name text NOT NULL DEFAULT 'notifications',created_at timestamp NOT NULL DEFAULT clock_timestamp(),available_at timestamp NOT NULL DEFAULT clock_timestamp(),delivered_at timestamp)");
         foreach(['admin'=>1,'manager'=>2,'user'=>3,'other'=>3] as $name=>$role) {$this->db->insert('users',['name'=>$name,'email'=>$name.'@example.test','role_id'=>$role,'password_hash'=>password_hash('Fictitious-CA-2026!',PASSWORD_ARGON2ID)]);$this->actors[$name]=static::getContainer()->get(StockUserProvider::class)->loadUserByIdentifier($name.'@example.test');}
         foreach(['A','B'] as $code) {$this->stores[$code]=$this->db->fetchOne('INSERT INTO stores(code,name) VALUES(?,?) RETURNING id',[$code,'Magasin '.$code]);}
-        $this->db->insert('user_stores',['user_id'=>$this->actors['manager']->id,'store_id'=>$this->stores['A']]);$this->db->insert('user_stores',['user_id'=>$this->actors['user']->id,'store_id'=>$this->stores['A']]);
+        $this->db->insert('user_stores',['user_id'=>$this->actors['manager']->id,'store_id'=>$this->stores['A']]);$this->db->insert('user_stores',['user_id'=>$this->actors['user']->id,'store_id'=>$this->stores['A']]);$this->db->insert('user_stores',['user_id'=>$this->actors['other']->id,'store_id'=>$this->stores['A']]);
         $this->article=$this->db->fetchOne("INSERT INTO articles(sku,name) VALUES('NORMAL','Article courant') RETURNING id");
         $cat=$this->db->fetchOne("INSERT INTO categories(name,tracks_reels) VALUES('Touret',true) RETURNING id");$this->cable=$this->db->fetchOne("INSERT INTO articles(sku,name,category_id) VALUES('CABLE','Câble',?) RETURNING id",[$cat]);
         $this->move('entry',5);$this->client->loginUser($this->actors['admin']);
@@ -35,8 +35,9 @@ final class CuratifMaquetteTest extends WebTestCase
         $id=$this->db->fetchOne("SELECT id FROM articles WHERE sku='MANAGER-CREATE'");self::assertNotFalse($id);self::assertSame(0,(int)$this->db->fetchOne('SELECT count(*) FROM article_proposals'));
         $this->client->request('GET','/administration/articles/'.$id.'/modifier');self::assertResponseStatusCodeSame(403);$this->client->request('GET','/administration/categories/nouvelle');self::assertResponseStatusCodeSame(403);
     }
-    public function testUnlinkedReturnCreditsStockForAnyTechnicianWithoutInventedConsumptionAndReplaysOnce(): void
+    public function testUnlinkedReturnCreditsAssignedStoreWithoutInventedConsumptionAndReplaysOnce(): void
     {
+        $this->db->insert('user_stores',['user_id'=>$this->actors['user']->id,'store_id'=>$this->stores['B']]);
         $s=static::getContainer()->get(StockExtensions::class);$key=bin2hex(random_bytes(16));$id=$s->deposit($this->actors['user'],$this->stores['B'],$this->article,3,$key);
         self::assertSame($id,$s->deposit($this->actors['user'],$this->stores['B'],$this->article,3,$key));self::assertSame(3,(int)$this->db->fetchOne('SELECT quantity FROM stock_levels WHERE store_id=? AND article_id=?',[$this->stores['B'],$this->article]));
         self::assertSame(0,(int)$this->db->fetchOne("SELECT count(*) FROM stock_movements WHERE type='consumption'"));self::assertSame(1,(int)$this->db->fetchOne('SELECT count(*) FROM unlinked_returns'));
@@ -78,6 +79,7 @@ final class CuratifMaquetteTest extends WebTestCase
     }
     public function testTechnicianSubmitsUnlinkedReturnFormAndRepeatDoesNotDuplicateIt(): void
     {
+        $this->db->insert('user_stores',['user_id'=>$this->actors['user']->id,'store_id'=>$this->stores['B']]);
         $this->client->loginUser($this->actors['user']);$crawler=$this->client->request('GET','/consommations/retours/nouveau');
         $form=$crawler->selectButton('Enregistrer le retour')->form(['article_id'=>$this->article,'store_id'=>$this->stores['B'],'quantity'=>'2']);
         $this->client->submit($form);self::assertResponseStatusCodeSame(303);$this->client->submit($form);self::assertResponseStatusCodeSame(303);
@@ -109,6 +111,7 @@ final class CuratifMaquetteTest extends WebTestCase
     }
     public function testGroupedToolReturnFormReturnsAllOwnToolsOnlyAndRejectsStaleLists(): void
     {
+        $this->db->insert('user_stores',['user_id'=>$this->actors['user']->id,'store_id'=>$this->stores['B']]);
         $s=static::getContainer()->get(ToolLending::class);$s->add($this->actors['manager'],$this->stores['A'],'Scie','SCIE-GROUPE',2);$items=$s->items($this->actors['user'],$this->stores['A']);
         $s->borrow($this->actors['user'],$this->stores['A'],array_column($items,'id'),bin2hex(random_bytes(16)));
         $loans=$this->db->fetchFirstColumn('SELECT id FROM tool_loans WHERE returned_at IS NULL');
@@ -127,6 +130,7 @@ final class CuratifMaquetteTest extends WebTestCase
     }
     public function testUnifiedReturnSplitsKnownAndUnknownQuantitiesAndReplaysOnce(): void
     {
+        $this->db->insert('user_stores',['user_id'=>$this->actors['user']->id,'store_id'=>$this->stores['B']]);
         $stock=static::getContainer()->get(StockMovementEngine::class);$stock->record($this->actors['user'],'consumption',(object)['store_id'=>$this->stores['A'],'article_id'=>$this->article,'quantity'=>2],bin2hex(random_bytes(16)));
         $service=static::getContainer()->get(\App\Curatif\UnifiedReturns::class);$key=bin2hex(random_bytes(16));$body=(object)['store_id'=>$this->stores['B'],'article_id'=>$this->article,'quantity'=>3,'comment'=>'Retour mélangé'];
         $result=$service->record($this->actors['user'],$body,$key);self::assertSame(2,$result['linked_quantity']);self::assertSame(1,$result['unlinked_quantity']);self::assertSame($result,$service->record($this->actors['user'],$body,$key));
@@ -140,6 +144,7 @@ final class CuratifMaquetteTest extends WebTestCase
     }
     public function testUnifiedReturnRollsBackLinkedPartIfUnlinkedRemainderCannotFit(): void
     {
+        $this->db->insert('user_stores',['user_id'=>$this->actors['user']->id,'store_id'=>$this->stores['B']]);
         $stock=static::getContainer()->get(StockMovementEngine::class);$stock->record($this->actors['user'],'consumption',(object)['store_id'=>$this->stores['A'],'article_id'=>$this->article,'quantity'=>1],bin2hex(random_bytes(16)));
         $stock->record($this->actors['admin'],'entry',(object)['store_id'=>$this->stores['B'],'article_id'=>$this->article,'quantity'=>9007199254740990,'reason'=>'Capacité fictive'],bin2hex(random_bytes(16)));
         $service=static::getContainer()->get(\App\Curatif\UnifiedReturns::class);
@@ -155,6 +160,77 @@ final class CuratifMaquetteTest extends WebTestCase
         self::assertSame(400,(int)$this->db->fetchOne('SELECT remaining_length FROM cable_reels WHERE id=?',[$a]));self::assertSame(300,(int)$this->db->fetchOne('SELECT remaining_length FROM cable_reels WHERE id=?',[$b]));
         $this->denied(fn()=> $s->useLength($this->actors['user'],$this->stores['A'],$a,401,bin2hex(random_bytes(16))),409);
         $s->useLength($this->actors['user'],$this->stores['A'],$a,400,bin2hex(random_bytes(16)));self::assertSame(1,(int)$this->db->fetchOne('SELECT quantity FROM stock_levels WHERE store_id=? AND article_id=?',[$this->stores['A'],$this->cable]));self::assertSame(0,(int)$this->db->fetchOne('SELECT count(*) FROM stock_reconciliation WHERE missing_balance OR difference<>0'));
+    }
+    public function testSelectedStoreFiltersCatalogueAndStocksButKeepsEstablishedZeroRows(): void
+    {
+        $onlyB=$this->db->fetchOne("INSERT INTO articles(sku,name) VALUES('ONLY-B','Seulement magasin B') RETURNING id");
+        static::getContainer()->get(StockMovementEngine::class)->record($this->actors['admin'],'entry',(object)['article_id'=>$onlyB,'store_id'=>$this->stores['B'],'quantity'=>2,'reason'=>'Fictif'],bin2hex(random_bytes(16)));
+        $location=$this->db->fetchOne("INSERT INTO articles(sku,name) VALUES('CASE-A','Casage seul') RETURNING id");
+        static::getContainer()->get(\App\Location\ArticleLocations::class)->save($this->actors['admin'],$this->stores['A'],$location,'Étagère A',0);
+        static::getContainer()->get(StockMovementEngine::class)->record($this->actors['user'],'consumption',(object)['article_id'=>$this->article,'store_id'=>$this->stores['A'],'quantity'=>5],bin2hex(random_bytes(16)));
+        $this->db->executeStatement('UPDATE users SET favorite_store_id=? WHERE id=?',[$this->stores['A'],$this->actors['user']->id]);
+        $this->client->loginUser(static::getContainer()->get(StockUserProvider::class)->loadUserByIdentifier('user@example.test'));
+        $this->client->request('GET','/api/v1/articles?store_id='.$this->stores['A'].'&limit=1');self::assertResponseIsSuccessful();$data=json_decode($this->client->getResponse()->getContent(),true);self::assertSame(2,$data['meta']['total']);self::assertCount(1,$data['data']);
+        $this->client->request('GET','/api/v1/stores/'.$this->stores['A'].'/stocks');self::assertResponseIsSuccessful();$data=json_decode($this->client->getResponse()->getContent(),true);self::assertCount(2,$data['data']);foreach($data['data'] as $row) {self::assertSame(0,$row['quantity']);}
+        $this->client->request('GET','/articles');self::assertResponseIsSuccessful();self::assertSelectorTextContains('main','NORMAL');self::assertSelectorTextContains('main','CASE-A');self::assertStringNotContainsString('ONLY-B',$this->client->getResponse()->getContent());
+        $this->client->request('GET','/api/v1/articles?store_id='.$this->stores['B']);self::assertResponseStatusCodeSame(404);
+    }
+    public function testNewArticleCanBelongToChosenStoreWithoutMandatoryLocationOrFakeEntry(): void
+    {
+        $this->client->loginUser($this->actors['manager']);$before=(int)$this->db->fetchOne('SELECT count(*) FROM stock_movements');
+        $crawler=$this->client->request('GET','/administration/articles/nouveau');
+        $form=$crawler->selectButton('Créer l’article')->form(['sku'=>'NEW-A','name'=>'Article du magasin A','location_store_id'=>$this->stores['A'],'location'=>'']);
+        $this->client->submit($form);self::assertResponseStatusCodeSame(303);$id=$this->db->fetchOne("SELECT id FROM articles WHERE sku='NEW-A'");self::assertNotFalse($id);
+        self::assertSame(0,(int)$this->db->fetchOne('SELECT quantity FROM stock_levels WHERE article_id=? AND store_id=?',[$id,$this->stores['A']]));self::assertSame($before,(int)$this->db->fetchOne('SELECT count(*) FROM stock_movements'));
+        $crawler=$this->client->request('GET','/administration/articles/nouveau');$values=$crawler->selectButton('Créer l’article')->form(['sku'=>'NO-B','name'=>'Magasin interdit'])->getPhpValues();$values['location_store_id']=$this->stores['B'];
+        $this->client->request('POST','/administration/articles/nouveau',$values);self::assertResponseStatusCodeSame(404);self::assertFalse($this->db->fetchOne("SELECT 1 FROM articles WHERE sku='NO-B'"));
+        self::assertSame(0,(int)$this->db->fetchOne('SELECT count(*) FROM stock_reconciliation WHERE missing_balance OR difference<>0'));
+    }
+    public function testTechnicianSelectorsAndDirectWritesAreRestrictedToAssignedStores(): void
+    {
+        $directory=static::getContainer()->get(\App\Access\AccessDirectory::class);$policy=static::getContainer()->get(\App\Security\AccessPolicy::class);
+        foreach([\App\Security\Permission::CONSUMPTION_CREATE,\App\Security\Permission::RETURN_CREATE,\App\Security\Permission::LOCATION_READ] as $permission) {
+            self::assertSame([$this->stores['A']],array_column($directory->storeOptions($this->actors['user'],$permission),'id'));
+            $this->denied(fn()=> $policy->assert($this->actors['user'],$permission,\App\Security\AccessTarget::store($this->stores['B'])),404);
+            self::assertCount(2,$directory->storeOptions($this->actors['admin'],$permission));
+        }
+        $this->db->executeStatement('DELETE FROM user_stores WHERE user_id=?',[$this->actors['user']->id]);self::assertSame([],$directory->storeOptions($this->actors['user'],\App\Security\Permission::CONSUMPTION_CREATE));
+        $this->client->loginUser($this->actors['user']);$this->client->request('GET','/consommations/nouvelle');self::assertResponseIsSuccessful();self::assertSelectorNotExists('#consumption-store option[value="'.$this->stores['A'].'"]');self::assertSelectorNotExists('#magasin option[value="'.$this->stores['B'].'"]');self::assertSelectorNotExists('[data-ca-operation]:not([hidden])');
+    }
+    public function testCuratifTabsFollowStoreConfigurationAndCanBeDisabledForConso(): void
+    {
+        $stores=static::getContainer()->get(\App\Administration\StoreAdministration::class);
+        $stores->update($this->actors['admin'],$this->stores['A'],(object)['ca_enabled'=>true]);$stores->update($this->actors['admin'],$this->stores['B'],(object)['ca_enabled'=>false]);
+        $context=static::getContainer()->get(\App\Ui\StoreContext::class);$this->client->loginUser($this->actors['admin']);
+        foreach(['A'=>true,'B'=>false] as $code=>$visible) {
+            $this->client->request('GET','/articles');$request=$this->client->getRequest();$context->select($request,$this->actors['admin'],$this->stores[$code]);$request->getSession()->save();
+            foreach(['/consommations','/consommations/nouvelle','/consommations/retours/nouveau'] as $path) {
+                $this->client->request('GET',$path);self::assertResponseIsSuccessful();$crawler=$this->client->getCrawler();self::assertSame($visible?1:0,$crawler->filter('a[href="/consommations/outillage-ca"]:not([hidden])')->count(),$path);self::assertSame($visible?1:0,$crawler->filter('a[href="/consommations/tourets"]:not([hidden])')->count(),$path);
+            }
+        }
+    }
+    public function testMovementFormsUseStoreArticlesButEntryAndReturnKeepWholeCatalogue(): void
+    {
+        $foreign=$this->db->fetchOne("INSERT INTO articles(sku,name) VALUES('FOREIGN','Autre magasin') RETURNING id");
+        $this->db->insert('stock_levels',['article_id'=>$foreign,'store_id'=>$this->stores['B'],'quantity'=>0]);
+        $zero=$this->db->fetchOne("INSERT INTO articles(sku,name,active) VALUES('ZERO-INACTIVE','Épuisé désactivé',false) RETURNING id");
+        $this->db->insert('stock_levels',['article_id'=>$zero,'store_id'=>$this->stores['A'],'quantity'=>0]);
+        foreach(['/consommations/nouvelle?store_id=','/stocks/ajustement?store_id=','/stocks/transfert?source_store_id='] as $url) {
+            $this->client->request('GET',$url.$this->stores['A']);self::assertResponseIsSuccessful();
+            self::assertSelectorExists('select[name=article_id] option[value="'.$this->article.'"]');
+            self::assertSelectorNotExists('select[name=article_id] option[value="'.$foreign.'"]');
+        }
+        $crawler=$this->client->request('GET','/stocks/ajustement?store_id='.$this->stores['A']);
+        self::assertSelectorExists('select[name=article_id] option[value="'.$zero.'"]');
+        $values=$crawler->selectButton('Enregistrer l’ajustement')->form(['article_id'=>$this->article,'quantity'=>'1','reason'=>'Essai'])->getPhpValues();
+        $before=(int)$this->db->fetchOne('SELECT count(*) FROM stock_movements');$values['article_id']=$foreign;
+        $this->client->request('POST','/stocks/ajustement',$values);self::assertResponseStatusCodeSame(422);
+        self::assertSame($before,(int)$this->db->fetchOne('SELECT count(*) FROM stock_movements'));
+        self::assertFalse($this->db->fetchOne('SELECT 1 FROM stock_levels WHERE article_id=? AND store_id=?',[$foreign,$this->stores['A']]));
+        foreach(['/stocks/entree','/consommations/retours/nouveau'] as $url) {
+            $this->client->request('GET',$url);self::assertResponseIsSuccessful();
+            self::assertSelectorExists('select[name=article_id] option[value="'.$foreign.'"]');
+        }
     }
     public function testNavigationScannerAndRemovedExportFollowNewRequirements(): void
     {

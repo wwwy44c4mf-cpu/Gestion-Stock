@@ -17,8 +17,7 @@ final class Dashboard
     public function storeOptions(StockUser $actor): array
     {
         $stores = $this->policy->storeScope($actor);
-        $consumptions = $this->policy->consumptionScope($actor);
-        return $this->db->fetchAllAssociative('SELECT s.id,s.code,s.name,s.active FROM stores s WHERE s.deleted_at IS NULL AND (('.$stores->condition.') OR (s.active AND EXISTS (SELECT 1 FROM stock_movements m WHERE m.source_store_id=s.id AND ('.$consumptions->condition.')))) ORDER BY s.name,s.id', [...$stores->parameters, ...$consumptions->parameters]);
+        return $this->db->fetchAllAssociative('SELECT s.id,s.code,s.name,s.active FROM stores s WHERE s.deleted_at IS NULL AND ('.$stores->condition.') ORDER BY s.name,s.id',$stores->parameters);
     }
 
     public function read(StockUser $actor, array $filters = [], bool $personal = false): array

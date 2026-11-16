@@ -51,7 +51,7 @@ final class StoreAdministrationController extends AbstractController
     public function form(Request $request, CsrfTokenManagerInterface $csrf, ?string $id = null): Response
     {
         $isNew = $id === null; $actor = $this->actor();
-        $data = $isNew ? ['code' => '', 'name' => '', 'description' => '', 'address' => null, 'active' => true] : $this->stores->get($actor, $id)['data'];
+        $data = $isNew ? ['code' => '', 'name' => '', 'description' => '', 'address' => null, 'active' => true,'ca_enabled'=>false] : $this->stores->get($actor, $id)['data'];
         $error = null; $status = 200; $key = $isNew ? bin2hex(random_bytes(16)) : '';
         $tokenId = $isNew ? 'store_create' : 'store_edit_'.$id;
         if ($request->isMethod('POST')) {
@@ -59,7 +59,7 @@ final class StoreAdministrationController extends AbstractController
                 if (!$csrf->isTokenValid(new CsrfToken($tokenId, $request->request->getString('_csrf_token')))) { throw new ApiProblem(403, 'invalid_csrf_token', 'Formulaire expiré. Rechargez la page avant de réessayer.'); }
                 if (strlen($request->getContent()) > 65536) { throw new ApiProblem(413, 'payload_too_large', 'Le formulaire est trop volumineux.'); }
                 $key = $isNew ? $request->request->getString('_creation_key') : '';
-                $body = (object) ['name' => $request->request->getString('name'), 'description' => $request->request->getString('description'), 'address' => $request->request->getString('address'), 'active' => $request->request->getBoolean('active')];
+                $body = (object) ['name' => $request->request->getString('name'), 'description' => $request->request->getString('description'), 'address' => $request->request->getString('address'), 'active' => $request->request->getBoolean('active'),'ca_enabled'=>$request->request->getBoolean('ca_enabled')];
                 if ($isNew) { $body->code = $request->request->getString('code'); }
                 $data = array_replace($data, get_object_vars($body));
                 $result = $isNew ? $this->stores->create($actor, $body, $key) : $this->stores->update($actor, $id, $body);

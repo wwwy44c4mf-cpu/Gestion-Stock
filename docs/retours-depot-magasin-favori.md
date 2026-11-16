@@ -40,3 +40,7 @@ La migration additive **Version20261023220000** ajoute `users.favorite_store_id`
 - `POST /api/v1/movements/returns` reste disponible pour le parcours par consommation d’origine.
 
 **Cette livraison met aussi à jour le script privilégié d’anonymisation.** Pour la variante Portainer, prévoir la reconstruction de l’image PostgreSQL de cette livraison, sur la même version majeure 18 et le même volume, afin que `/opt/gestion-stock/retention.sql` contienne la fermeture des liens de regroupement. Une simple mise à jour de l’image applicative laisserait l’ancien script dans le conteneur db. Cette évolution de l’image db doit être préparée par sauvegarde/export, arrêt des écritures, vérification du volume conservé, migration explicite et recette de restauration/retraitement. Ne pas supprimer ni réinitialiser les volumes. Les paramètres exacts de version seront fournis après validation de la livraison.
+
+## Évolution des affectations en maquette — 16 novembre 2026
+
+La [nouvelle règle de magasin](magasins-articles-perimetres.md) limite aussi les techniciens à leurs magasins attribués pour les nouvelles sorties, dépôts, casages et favoris. Elle conserve le périmètre global des administrateurs. Elle sera applicable après validation et installation de cette maquette ; le paragraphe historique autorisant tout magasin actif décrit le comportement antérieur.

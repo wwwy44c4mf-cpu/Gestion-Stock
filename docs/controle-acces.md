@@ -14,15 +14,15 @@ La sélection « Tous mes magasins » ou d’un magasin dans l’en-tête est un
 | Suppression définitive d’un article et de ses historiques | Oui, après avertissement et confirmation | Si tous les magasins concernés sont actifs et affectés | Non |
 | Proposition catalogue | Oui | Oui | Non |
 | Stocks | Tous, désactivés compris | Actifs affectés | Actifs affectés |
-| Lecture du casage | Tous, désactivés compris | Actifs affectés | Tout magasin actif, sans quantité hors affectation |
+| Lecture du casage | Tous, désactivés compris | Actifs affectés | Actifs affectés |
 | Modification du casage | Magasin actif | Actif affecté | Non |
 | Export Excel du magasin | Tous, désactivés compris | Actifs affectés | Non |
-| Saisie de sa consommation | Magasin actif | Actif affecté | Tout magasin actif, même sans affectation |
+| Saisie de sa consommation | Magasin actif | Actif affecté | Actif affecté |
 | Consommation pour autrui | Magasin actif | Actif affecté | Non |
 | Entrées, ajustements, transferts et annulations | Magasins actifs | Actifs affectés | Non |
 | Inventaires, alertes, seuils | Tous en lecture ; actifs en écriture | Actifs affectés | Non |
 | Historique et statistiques de consommation | Tous | Actifs affectés | Ses consommations dans les magasins actifs, affectés ou non |
-| Retour / dépôt | Dépôt actif ; origine historique lisible | Dépôt actif affecté | Ses consommations ; tout dépôt actif, même sans affectation |
+| Retour / dépôt | Dépôt actif ; origine historique lisible | Dépôt actif affecté | Ses consommations ; dépôt actif affecté |
 | Audit | Tous, événements globaux compris | Événements de magasins actifs affectés | Non |
 | Messages d’information | Oui | Non | Non |
 
@@ -30,7 +30,7 @@ Les gestionnaires voient leurs propres propositions de catalogue ; l’administr
 
 La recherche des bénéficiaires est réservée aux administrateurs et aux gestionnaires affectés à au moins un magasin actif. Elle retourne uniquement `id` et `name` des comptes actifs, de tout rôle et tout magasin. Aucun courriel, rôle, affectation ou profil complet n’est exposé. Les comptes de développement restent invisibles hors de l’environnement `dev`.
 
-Les retours restent liés à des consommations réelles, mais leur destination est le magasin de dépôt choisi. Le parcours par article répartit la quantité sur les consommations les plus anciennes encore retournables du bénéficiaire, sans donner accès à leurs magasins de sortie. Un utilisateur peut retirer et déposer dans tout magasin actif, uniquement pour lui-même ; les périmètres de lecture des stocks et des consommations d’autrui restent conservés. Les gestionnaires restent limités aux dépôts affectés pour leurs opérations. Le parcours détaillé exige aussi la lecture de l’origine ; un administrateur peut traiter une origine désactivée en déposant ailleurs. Voir [RET-02 et le magasin favori](retours-depot-magasin-favori.md).
+Les retours restent liés à des consommations réelles, mais leur destination est le magasin de dépôt choisi. Le parcours par article répartit la quantité sur les consommations les plus anciennes encore retournables du bénéficiaire, sans donner accès à leurs magasins de sortie. Un utilisateur peut retirer et déposer dans ses magasins actifs attribués, uniquement pour lui-même ; les périmètres de lecture des stocks et des consommations d’autrui restent conservés. Les gestionnaires restent limités aux dépôts affectés pour leurs opérations. Le parcours détaillé exige aussi la lecture de l’origine ; un administrateur peut traiter une origine désactivée en déposant ailleurs. Voir [RET-02 et le magasin favori](retours-depot-magasin-favori.md).
 
 ## Intégration des services métier
 
@@ -49,3 +49,5 @@ Les API disponibles dans ce lot sont `GET /api/v1/stores`, `GET /api/v1/stores/{
 `AccessControlTest` utilise un schéma PostgreSQL transactionnel isolé : rôles, affectations multiples et révoquées, magasins désactivés, accès direct, stocks inchangés après refus, agrégats filtrés, historique personnel hors affectation, bénéficiaire tiers, inventaires, audit global, propositions, deux magasins d’un transfert, identité périmée ou falsifiée, formulaire de contexte et CSRF. Le schéma est annulé après chaque test.
 
 La permission globale `APP_CATALOG_DELETE` autorise uniquement le retrait d’un article du catalogue. Elle est revérifiée en base après verrouillage et ne donne pas accès aux créations ou modifications administratives. La suppression est possible même si un magasin possède encore du stock ; les règles habituelles de lecture, de retour et d’ajustement restent applicables. Voir [CAT-02](suppression-articles.md).
+
+Les [évolutions de périmètre du 16 novembre](magasins-articles-perimetres.md), encore en maquette, remplacent l’ancienne autorisation de mouvement des techniciens dans tout magasin actif. Les historiques personnels déjà autorisés sont conservés ; les sélecteurs ne proposent que les affectations actuelles.

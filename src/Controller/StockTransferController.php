@@ -27,7 +27,7 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 final class StockTransferController extends AbstractController
 {
     public function __construct(private readonly StockMovementEngine $engine, private readonly AccessIdentity $identity,
-        private readonly AccessPolicy $policy, private readonly AccessDirectory $directory, private readonly CatalogDirectory $catalog) {}
+        private readonly AccessPolicy $policy, private readonly AccessDirectory $directory, private readonly CatalogDirectory $catalog,private readonly \App\Access\StoreArticles $storeArticles) {}
 
     #[Route('/api/v1/movements/transfers', name: 'api_stock_transfers_create', methods: ['POST'])]
     public function create(Request $request, JsonBody $json, IdempotencyKey $key): JsonResponse
@@ -75,12 +75,13 @@ final class StockTransferController extends AbstractController
                 if (!preg_match('/^[1-9][0-9]{0,15}$/D', $data['quantity'])) { throw new ApiProblem(422, 'invalid_quantity', 'Saisissez une quantité entière strictement positive, sans décimale ni exposant.'); }
                 $body = (object) ['article_id'=>$data['article_id'],'source_store_id'=>$data['source_store_id'],'destination_store_id'=>$data['destination_store_id'],'quantity'=>(int)$data['quantity']];
                 if ($data['reason'] !== '') { $body->reason = $data['reason']; }
+                $this->storeArticles->assertMembership($actor,$data['source_store_id'],$data['article_id']);
                 $result = $this->engine->record($actor, 'transfer', $body, $key)['data'];
                 $this->addFlash('success', 'Le transfert de '.$result['quantity'].' unité'.($result['quantity'] > 1 ? 's' : '').' a été enregistré.');
                 return $this->redirectToRoute('stocks_transfer_receipt', ['id'=>$result['id']], 303);
             } catch (ApiProblem $problem) { $error = $problem->getMessage(); $status = $problem->status; }
         }
-        return $this->render('stocks/transfer.html.twig', ['item'=>$data,'movement_key'=>$key,'error'=>$error,'stores'=>$stores,'articles'=>$articles], new Response(status:$status));
+        return $this->render('stocks/transfer.html.twig', ['store_article_ids'=>$this->storeArticles->memberships($actor,$stores),'item'=>$data,'movement_key'=>$key,'error'=>$error,'stores'=>$stores,'articles'=>$articles], new Response(status:$status));
     }
 
     #[Route('/stocks/transferts/{id}', name: 'stocks_transfer_receipt', priority: 10, methods: ['GET'])]

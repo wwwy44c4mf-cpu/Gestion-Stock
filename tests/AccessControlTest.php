@@ -131,16 +131,17 @@ final class AccessControlTest extends WebTestCase
         $this->db->executeStatement('UPDATE users SET active = false WHERE id = ?',[$this->users['outsider']->id]);
         $this->denied(fn()=> $this->policy->assertConsumption($this->users['manager'],$this->stores['A'],$this->users['outsider']->id),422);
     }
-    public function testOwnReturnSurvivesAssignmentRemovalButNotStoreDeactivation(): void
+    public function testPersonalHistorySurvivesButNewReturnsRequireCurrentAssignment(): void
     {
-        $this->policy->assert($this->users['user'], Permission::RETURN_CREATE, AccessTarget::consumption($this->own));
+        $this->denied(fn()=> $this->policy->assert($this->users['user'], Permission::RETURN_CREATE, AccessTarget::consumption($this->own)));
         $this->denied(fn()=> $this->policy->assert($this->users['user'], Permission::RETURN_CREATE, AccessTarget::consumption($this->foreign)));
         $this->denied(fn()=> $this->policy->assert($this->users['manager'], Permission::RETURN_CREATE, AccessTarget::consumption($this->own)));
         $this->denied(fn()=> $this->policy->assert($this->users['user'], Permission::RETURN_CREATE, AccessTarget::movement($this->transfer)));
         $local=$this->movement('consumption','A',null,'user');
         $this->db->executeStatement('DELETE FROM user_stores WHERE user_id = ?',[$this->users['user']->id]);
-        $this->policy->assert($this->users['user'], Permission::RETURN_CREATE, AccessTarget::consumption($local));
-        $this->policy->assert($this->users['user'], Permission::CONSUMPTION_CREATE, AccessTarget::store($this->stores['A']));
+        $this->denied(fn()=> $this->policy->assert($this->users['user'], Permission::RETURN_CREATE, AccessTarget::consumption($local)));
+        $this->denied(fn()=> $this->policy->assert($this->users['user'], Permission::CONSUMPTION_CREATE, AccessTarget::store($this->stores['A'])));
+        $this->policy->assert($this->users['user'], Permission::CONSUMPTION_READ, AccessTarget::consumption($local));
         $this->denied(fn()=> $this->policy->assert($this->users['user'], Permission::STOCK_READ, AccessTarget::store($this->stores['A'])));
         $this->db->executeStatement('UPDATE stores SET active = false WHERE id = ?',[$this->stores['C']]);
         $this->denied(fn()=> $this->policy->assert($this->users['user'], Permission::RETURN_CREATE, AccessTarget::consumption($this->own)));

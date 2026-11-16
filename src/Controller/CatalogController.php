@@ -24,7 +24,7 @@ final class CatalogController extends AbstractController
 {
     public function __construct(private readonly CatalogDirectory $directory,private readonly CatalogAdministration $administration,
         private readonly \App\Location\ArticleLocations $locations,private readonly \App\Access\AccessDirectory $access,
-        private readonly \App\Ui\StoreContext $context,private readonly \Doctrine\DBAL\Connection $db) {}
+        private readonly \App\Ui\StoreContext $context,private readonly \Doctrine\DBAL\Connection $db,private readonly \App\Access\StoreArticles $storeArticles) {}
     #[Route('/api/v1/articles',name:'api_articles_list',methods:['GET'],defaults:['kind'=>'article'])]
     #[Route('/api/v1/categories',name:'api_categories_list',methods:['GET'],defaults:['kind'=>'category'])]
     public function listing(string $kind,Request $request,QueryParameters $query): JsonResponse
@@ -90,8 +90,9 @@ final class CatalogController extends AbstractController
     #[Route('/categories',name:'catalog_categories',methods:['GET'],defaults:['kind'=>'category'])]
     public function index(string $kind,Request $request,QueryParameters $query): Response
     {
-        $filtered=$request->duplicate();foreach (['status','q','category_id'] as $name) { if ($filtered->query->get($name)==='') { $filtered->query->remove($name); } }
+        $filtered=$request->duplicate();foreach (['status','q','category_id','store_id'] as $name) { if ($filtered->query->get($name)==='') { $filtered->query->remove($name); } }
         $filters=$query->read($filtered,$kind==='article'?'listArticles':'listCategories');
+        if($kind==='article'&&!$request->query->has('store_id')&&($store=$this->context->read($request,$this->actor())['selected'])!==null) {$filters['store_id']=$store;}
         return $this->render('catalog/list.html.twig',['kind'=>$kind,'result'=>$this->directory->listing($this->actor(),$kind,$filters),'filters'=>$filters,'categories'=>$this->directory->categoryOptions($this->actor())]);
     }
     #[Route('/articles/{id}',name:'catalog_article',methods:['GET'])]
@@ -142,6 +143,7 @@ final class CatalogController extends AbstractController
                         if($this->db->fetchOne('SELECT 1 FROM stock_movements m JOIN articles a ON a.id=m.article_id WHERE a.category_id=? LIMIT 1',[$categoryId])) {throw new ApiProblem(409,'category_has_history','Ce mode ne peut pas changer sur une catégorie ayant déjà des mouvements. Créez une catégorie dédiée.');}
                         $this->db->executeStatement('UPDATE categories SET tracks_reels=? WHERE id=?',[$requestedReels?'true':'false',$categoryId]);
                     }
+                    if($kind==='article'&&$isNew&&$locationStore!=='') {$this->storeArticles->establish($actor,$locationStore,$result['data']['id']);}
                     if($initialLocation!==null) {$this->locations->save($actor,$locationStore,$result['data']['id'],$initialLocation,0);}
                     return $result;
                 });

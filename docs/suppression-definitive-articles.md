@@ -12,6 +12,8 @@ La liste filtre les articles avant sa limite de recherche. Un accès direct à u
 
 Depuis **Stocks** ou la fiche d’un article, ouvrir **Suppression définitive des articles**, rechercher puis choisir **Vérifier avant d’effacer**. Les administrateurs disposent aussi d’un lien depuis Administration. Un article retiré du catalogue reste accessible à la recherche de suppression définitive.
 
+Pour un article désactivé, l’action **Supprimer définitivement l’article** est également disponible directement dans sa ligne de stock et sur sa fiche de stock. Il n’est pas nécessaire de réactiver l’article. Ce raccourci ouvre le même récapitulatif et conserve les mêmes permissions et confirmations ; il ne se limite pas au stock du magasin affiché.
+
 Le récapitulatif indique les magasins et quantités, mouvements, alertes, lignes d’inventaire et propositions concernés. L’effacement porte sur **un article à la fois, dans tous ses magasins autorisés**, avec sa fiche, ses codes-barres/QR, ses casages, ses seuils et ses historiques : entrées, sorties, retours, transferts et corrections.
 
 Un avertissement visible avant le formulaire précise : **« Attention : suppression définitive et irréversible. La fiche de cet article, tous ses stocks et tout son historique seront effacés dans tous les magasins concernés, même s’il s’agit d’un article réel et qu’il reste du matériel en stock. »**
