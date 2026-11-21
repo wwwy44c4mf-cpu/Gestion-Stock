@@ -1,6 +1,7 @@
 GESTION DE STOCK
 {% if type in ['stock_low','stock_critical'] %}
 {{ type == 'stock_critical' ? 'Stock critique' : 'Stock bas' }}
+Référence : {{ payload.sku }}
 Article : {{ payload.article }}
 Magasin : {{ payload.store }}
 Quantité disponible : {{ payload.quantity }} unités
@@ -24,7 +25,7 @@ Choisir un nouveau mot de passe : {{ base_url ~ payload.path }}
 {% elseif type == 'daily_summary' %}
 Vos alertes de stock
 {% for item in payload.items %}
-{{ item.article }} · {{ item.store }}{% if item.level is defined %} — {{ item.level == 'critical' ? 'Stock critique' : 'Stock bas' }}{% endif %}
+Référence : {{ item.sku }} · Article : {{ item.article }} · {{ item.store }}{% if item.level is defined %} — {{ item.level == 'critical' ? 'Stock critique' : 'Stock bas' }}{% endif %}
 Disponible : {{ item.quantity }} unités · seuil : {{ item.threshold }} unités
 Constaté le {{ item.occurred_at|date('d/m/Y à H:i','Europe/Paris') }}
 Consulter le stock : {{ base_url ~ item.path }}

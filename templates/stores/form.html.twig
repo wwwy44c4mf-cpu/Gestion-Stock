@@ -7,7 +7,7 @@
 <form method="post">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token(token_id) }}">
 {% if is_new %}<input type="hidden" name="_creation_key" value="{{ creation_key }}">{% endif %}
-<div class="field"><label for="store-code">Code (obligatoire)</label><input id="store-code" name="code" value="{{ store.code }}" maxlength="40" required {% if not is_new %}disabled aria-describedby="code-help"{% endif %}>{% if not is_new %}<p id="code-help" class="muted">Le code est conservé pour identifier ce magasin dans la durée.</p>{% endif %}</div>
+<div class="field"><label for="store-code">Code (obligatoire)</label><input id="store-code" name="code" value="{{ store.code }}" maxlength="40" required aria-describedby="code-help"><p id="code-help" class="muted">Code unique, modifiable sans changer les stocks, affectations ou historiques du magasin.</p></div>
 <div class="field"><label for="store-name">Nom (obligatoire)</label><input id="store-name" name="name" value="{{ store.name }}" maxlength="160" required></div>
 <div class="field"><label for="store-description">Description</label><textarea id="store-description" name="description" rows="4" maxlength="5000">{{ store.description }}</textarea></div>
 <div class="field"><label class="checkbox-row"><input type="checkbox" name="ca_enabled" value="1" {% if store.ca_enabled|default(false) %}checked{% endif %}> Magasin Curatif Antennaire</label><p class="muted">Afficher l’outillage CA et les tourets de câble dans Consommations pour ce magasin.</p></div>

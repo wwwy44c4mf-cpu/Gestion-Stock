@@ -995,3 +995,9 @@ Demandes regroupées dans [le cadrage de la maquette](docs/maquette-evolutions.m
 - 16 novembre 2026 : STK-07 prêt en maquette. Recette générale 518 tests / 6 242 assertions et 920 requêtes sans écart ; contrôles ciblés des permissions et des inventaires, puis parcours mobile et refus technicien vérifiés. Exemple DEMO-RETRAIT à zéro dans Blaise Pascal CA. Aucune publication de code ni modification de production pour ce lot.
 
 - 16 novembre 2026 : l’exploitant valide STK-07 et autorise sa mise en production. Publication depuis f65ea02f et contrôles de livraison en cours ; nouvelle migration Version20261116010000, image PostgreSQL conservée.
+
+- 20 novembre 2026 : nouvel essai iPhone/Brave réussi, incident caméra non reproduit et aucun correctif caméra déployé. MAG-03 #132 et NOT-04 #133 préparés en maquette : codes de magasins modifiables par les administrateurs, référence et nom obligatoires dans les alertes (objet, texte, HTML et récapitulatif). Tests en cours ; aucune publication de code ni production pour ce lot.
+
+- 20 novembre 2026 : MAG-03 et NOT-04 prêts en maquette. Recette 520 tests / 6 281 assertions et 920 requêtes, stocks cohérents. Parcours mobile et trois aperçus de mails validés automatiquement. Validation utilisateur attendue avant publication et production.
+
+- 21 novembre 2026 : l’exploitant valide les codes de magasins modifiables et les trois aperçus de mails, puis autorise la production de MAG-03 / NOT-04 (#132, #133). Livraison préparée depuis 97626c5237bf7fe2678f377a9bb46d02d16c5665, sans migration et sans changement d’image de base. Installation Portainer à confirmer après les contrôles de livraison.

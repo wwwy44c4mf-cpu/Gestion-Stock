@@ -60,13 +60,14 @@ final class StoreAdministration
     {
         $this->identity->requireRole($actor, Permission::STORES_ADMIN);
         $this->validate($body, 'StorePatch');
+        try {
         return $this->db->transactional(function () use ($actor, $id, $body): array {
             $this->lockAndAuthorize($actor);
             $before = $this->get($actor, $id)['data'];
             // Shared lock order: users then stores. Future inventory transitions lock their store first.
             $this->db->fetchOne('SELECT id FROM stores WHERE id = ? FOR UPDATE', [$id]);
             $next = array_replace($before, get_object_vars($body));
-            $next['name'] = trim($next['name']); $next['address'] = $this->address($next['address']);
+            $next['code'] = trim($next['code']); $next['name'] = trim($next['name']); $next['address'] = $this->address($next['address']);
             if ($before['active'] && !$next['active'] && $this->db->fetchOne("SELECT 1 FROM inventories WHERE store_id = ? AND status IN ('in_progress', 'pending_validation') LIMIT 1", [$id])) {
                 throw new ApiProblem(409, 'inventory_in_progress', 'Terminez ou annulez l’inventaire avant de désactiver ce magasin.');
             }
@@ -75,14 +76,15 @@ final class StoreAdministration
             foreach (get_object_vars($body) as $field => $value) { if ($before[$field] !== $next[$field]) { $changed[] = $field; } }
             if ($changed !== []) {
                 if(in_array('ca_enabled',$changed,true)) {$this->db->executeStatement('UPDATE stores SET ca_enabled=? WHERE id=?',[$next['ca_enabled'],$id],[\Doctrine\DBAL\ParameterType::BOOLEAN,\Doctrine\DBAL\ParameterType::STRING]);}
-                $this->db->executeStatement('UPDATE stores SET name = ?, description = ?, address = ?, active = ?, updated_at = clock_timestamp() WHERE id = ?',
-                    [$next['name'], $next['description'], $next['address'], $next['active'], $id],
-                    [\Doctrine\DBAL\ParameterType::STRING, \Doctrine\DBAL\ParameterType::STRING, \Doctrine\DBAL\ParameterType::STRING, \Doctrine\DBAL\ParameterType::BOOLEAN, \Doctrine\DBAL\ParameterType::STRING]);
+                $this->db->executeStatement('UPDATE stores SET code = ?, name = ?, description = ?, address = ?, active = ?, updated_at = clock_timestamp() WHERE id = ?',
+                    [$next['code'], $next['name'], $next['description'], $next['address'], $next['active'], $id],
+                    [\Doctrine\DBAL\ParameterType::STRING, \Doctrine\DBAL\ParameterType::STRING, \Doctrine\DBAL\ParameterType::STRING, \Doctrine\DBAL\ParameterType::STRING, \Doctrine\DBAL\ParameterType::BOOLEAN, \Doctrine\DBAL\ParameterType::STRING]);
                 $action = in_array('active', $changed, true) ? ($next['active'] ? 'store.reactivated' : 'store.archived') : 'store.updated';
                 $this->audit($actor, $id, $action, $changed);
             }
             return $this->directory->store($actor, $id);
         });
+        } catch (UniqueConstraintViolationException) {throw new ApiProblem(409,'store_code_already_used','Ce code de magasin est déjà utilisé, y compris par un magasin désactivé.');}
     }
 
     public function delete(StockUser $actor,string $id): void

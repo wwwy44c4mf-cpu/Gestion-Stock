@@ -71,9 +71,26 @@ final class StoreAdministrationTest extends WebTestCase
         self::assertSame(0,(int)$this->db->fetchOne('SELECT count(*) FROM stores'));
         $this->create([],'invalid');self::assertResponseStatusCodeSame(422);
         $result=$this->create();self::assertResponseStatusCodeSame(201);$id=$result['data']['id'];
-        foreach ([(object)[],['code'=>'NEW'],['id'=>$id],['created_at'=>'2026-01-01'],['name'=>' '],['active'=>null]] as $body) { $this->send('PATCH','/api/v1/stores/'.$id,$body);self::assertResponseStatusCodeSame(422); }
+        foreach ([(object)[],['code'=>' '],['code'=>str_repeat('a',41)],['id'=>$id],['created_at'=>'2026-01-01'],['name'=>' '],['active'=>null]] as $body) { $this->send('PATCH','/api/v1/stores/'.$id,$body);self::assertResponseStatusCodeSame(422); }
         foreach (['not-a-uuid','11111111-1111-4111-8111-111111111111'] as $bad) { $this->send('PATCH','/api/v1/stores/'.$bad,['name'=>'New']);self::assertResponseStatusCodeSame(404); }
         self::assertSame('DEPOT-A',$this->db->fetchOne('SELECT code FROM stores'));
+    }
+    public function testCodeChangeKeepsIdentityStockAssignmentsAndRejectsDuplicatesAtomically(): void
+    {
+        $this->login();$id=$this->create()['data']['id'];$other=$this->create(['code'=>'AUTRE'],'other-store-key')['data']['id'];
+        $this->db->insert('user_stores',['user_id'=>$this->ids['user'],'store_id'=>$id]);
+        $article=$this->db->fetchOne("INSERT INTO articles(sku,name) VALUES('CODE-KEEP','Article') RETURNING id");
+        $this->db->insert('stock_levels',['article_id'=>$article,'store_id'=>$id,'quantity'=>9]);
+        $this->db->executeStatement("INSERT INTO stock_movements(type,article_id,destination_store_id,quantity,author_id,reason,idempotency_key) VALUES('entry',?,?,9,?,'Test','rename-code-stock')",[$article,$id,$this->ids['admin']]);
+        $before=[];foreach(['stock_levels','stock_movements','user_stores'] as $table) {$before[$table]=$this->db->fetchAllAssociative('SELECT * FROM '.$table);}
+        $response=$this->send('PATCH','/api/v1/stores/'.$id,['code'=>' NOUVEAU ']);self::assertResponseIsSuccessful();self::assertSame($id,$response['data']['id']);self::assertSame('NOUVEAU',$response['data']['code']);
+        foreach($before as $table=>$rows) {self::assertSame($rows,$this->db->fetchAllAssociative('SELECT * FROM '.$table));}
+        $audit=(int)$this->db->fetchOne('SELECT count(*) FROM audit_logs');
+        $this->send('PATCH','/api/v1/stores/'.$id,['code'=>' autre ','name'=>'Ne pas appliquer']);self::assertResponseStatusCodeSame(409);
+        self::assertSame('Dépôt A',$this->db->fetchOne('SELECT name FROM stores WHERE id=?',[$id]));self::assertSame('NOUVEAU',$this->db->fetchOne('SELECT code FROM stores WHERE id=?',[$id]));self::assertSame($audit,(int)$this->db->fetchOne('SELECT count(*) FROM audit_logs'));
+        $crawler=$this->client->request('GET','/administration/magasins/'.$id.'/modifier');$this->client->submit($crawler->selectButton('Enregistrer les modifications')->form(['code'=>'CODE-UI']));self::assertResponseStatusCodeSame(303);
+        self::assertSame('CODE-UI',$this->db->fetchOne('SELECT code FROM stores WHERE id=?',[$id]));
+        foreach(['manager','user'] as $role) {$this->login($role);$this->send('PATCH','/api/v1/stores/'.$id,['code'=>'INTERDIT']);self::assertResponseStatusCodeSame(403);}
     }
     public function testArchivePreservesHistoryAndAssignmentsAndReactivationRestoresAccess(): void
     {
@@ -125,7 +142,7 @@ final class StoreAdministrationTest extends WebTestCase
         $this->client->submit($form);self::assertResponseStatusCodeSame(303);$this->client->followRedirect();self::assertResponseIsSuccessful();
         self::assertStringContainsString('Magasin &lt;script&gt;test&lt;/script&gt;', $this->client->getResponse()->getContent());
         self::assertSelectorNotExists('main script');
-        self::assertSelectorExists('#store-code[disabled]');self::assertSelectorExists('nav a[aria-current="page"][href="/magasins"]');
+        self::assertSelectorExists('#store-code:not([disabled])');self::assertSelectorExists('nav a[aria-current="page"][href="/magasins"]');
         $form=$this->client->getCrawler()->selectButton('Enregistrer les modifications')->form(['name'=>'Magasin renommé']);$form['active']->untick();$this->client->submit($form);self::assertResponseStatusCodeSame(303);
         $this->client->request('GET','/magasins?status=inactive');self::assertResponseIsSuccessful();self::assertSelectorTextContains('tbody','Magasin renommé');
         $this->client->request('GET','/magasins?sort=invalid');self::assertResponseStatusCodeSame(422);self::assertSelectorExists('main .notice-error');

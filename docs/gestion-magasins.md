@@ -4,7 +4,7 @@ Le menu **Magasins** affiche les magasins autorisés. Les administrateurs dispos
 
 ## Création et modification
 
-- Code obligatoire, 40 caractères maximum ; unique sans distinction de casse ni d’espaces périphériques. Un code de magasin désactivé reste réservé. Le code est conservé après création conformément au contrat API.
+- Code obligatoire, 40 caractères maximum ; unique sans distinction de casse ni d’espaces périphériques. Un code de magasin désactivé reste réservé. Le code est modifiable par un administrateur après création. L’identifiant du magasin reste stable : affectations, favoris, stocks et historiques sont conservés.
 - Nom obligatoire, 160 caractères maximum. Description facultative, 5 000 caractères maximum ; adresse facultative, 1 000 caractères maximum. Une adresse vide est enregistrée comme absente.
 - Statut actif par défaut, modifiable à la création et ensuite. Les champs texte sont validés en UTF-8 ; caractères nuls et valeurs hors limites sont refusés. Les textes saisis sont échappés à l’affichage.
 - Les formulaires fonctionnent sans JavaScript et sont protégés par un jeton CSRF. Un double envoi de création reprend le résultat initial ; une même clé avec un contenu différent produit un conflit.
@@ -28,7 +28,7 @@ Un magasin désactivé reste consultable uniquement par les administrateurs. Tou
 | 403 | Rôle interdit ou jeton CSRF absent/invalide |
 | 404 | Magasin inexistant ou identifiant invalide |
 | 409 | Code déjà utilisé, clé réutilisée avec un autre contenu, inventaire bloquant |
-| 422 | Champs manquants, vides, inconnus ou invalides ; code non modifiable |
+| 422 | Champs manquants, vides, inconnus ou invalides |
 | 405 | Suppression non disponible |
 
 La migration `Version20261018130000` doit être appliquée avant l’utilisation des créations. `StoreAdministration` sérialise les mutations administratives avec les verrous `users` puis `stores` et revérifie l’identité dans la transaction. Une création de magasin, son résultat de rejeu et son audit sont atomiques. Les services d’inventaire verrouillent leur magasin avant le démarrage ou le changement d’état de l’inventaire, comme les autres mutations de stock : ce protocole prévient une course avec l’archivage.

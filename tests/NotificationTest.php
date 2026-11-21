@@ -80,6 +80,23 @@ final class NotificationTest extends WebTestCase
         $renderer=static::getContainer()->get(NotificationRenderer::class);foreach(['stock_low'=>$this->payload(),'stock_critical'=>$this->payload(),'information'=>['subject'=>'Information','body'=>"Ligne 1\nLigne 2",'path'=>'/'],'daily_summary'=>['items'=>[$this->payload()]]] as $type=>$payload) {$id=$this->enqueue('template-'.$type,$type,$payload);$email=$renderer->render($this->event($id),'manager@example.test');self::assertNotEmpty($email->getHtmlBody());self::assertNotEmpty($email->getTextBody());self::assertSame(1,count($email->getTo()));}
         foreach([['quantity'=>1.5],['quantity'=>-1],['path'=>'//evil.test'],['path'=>"/\\evil"],['extra'=>'x'],['article'=>"Injection\r\nBcc: x@y.test"]] as $extra) {try {static::getContainer()->get(NotificationPayload::class)->validate('stock_low',array_replace($this->payload(),$extra));self::fail('Charge invalide acceptée');}catch(\InvalidArgumentException) {self::assertTrue(true);}}
     }
+    public function testReferenceAndNameAreMandatoryForBothAlertLevelsAndSummaries(): void
+    {
+        $this->article=$this->db->fetchOne("INSERT INTO articles(sku,name) VALUES('R<&>','Nom article') RETURNING id");
+        $renderer=static::getContainer()->get(NotificationRenderer::class);
+        foreach(['stock_low','stock_critical','daily_summary'] as $type) {
+            $payload=$type==='daily_summary'?['items'=>[$this->payload()]]:$this->payload();
+            $id=$this->enqueue('identity-'.$type,$type,$payload);$event=$this->event($id);
+            $email=$renderer->render($event,'manager@example.test');
+            self::assertStringContainsString('R<&>',$email->getTextBody());self::assertStringContainsString('Article <script>',$email->getTextBody());
+            self::assertStringContainsString('R&lt;&amp;&gt;',$email->getHtmlBody());self::assertStringContainsString('Article &lt;script&gt;',$email->getHtmlBody());
+            if($type!=='daily_summary') {self::assertStringContainsString('[R<&>] Article <script>',$email->getSubject());}
+            self::assertSame($event['payload'],$this->event($id)['payload'],'Les anciennes notifications ne sont pas réécrites');
+        }
+        $payload=$this->payload();$payload['path']='/stocks/'.$this->stores['A'].'/11111111-1111-4111-8111-111111111111';
+        $id=$this->enqueue('missing-reference','stock_low',$payload);
+        $this->expectException(\InvalidArgumentException::class);$renderer->render($this->event($id),'manager@example.test');
+    }
     public function testRealMessengerWorkerRetriesAndMovesToFailureQueue(): void {
         $id=$this->enqueue();$this->dispatch();$fake=$this->fake(true);static::getContainer()->set(NotificationDeliveryHandler::class,$this->handler($fake));
         $application=new \Symfony\Bundle\FrameworkBundle\Console\Application(self::$kernel);$command=$application->find('messenger:consume');

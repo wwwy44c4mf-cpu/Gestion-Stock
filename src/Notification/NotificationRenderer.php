@@ -12,10 +12,15 @@ final class NotificationRenderer
         #[Autowire('%env(MAIL_FROM_ADDRESS)%')] private readonly string $from,
         #[Autowire('%env(APP_PUBLIC_URL)%')] private readonly string $baseUrl,
         #[Autowire('%kernel.environment%')] private readonly string $environment, private readonly ?\App\Security\PasswordReset $passwordReset=null,
-        #[Autowire('%env(default::MAIL_PUBLIC_URL)%')] private readonly ?string $mailPublicUrl=null) {}
+        #[Autowire('%env(default::MAIL_PUBLIC_URL)%')] private readonly ?string $mailPublicUrl=null,
+        private readonly ?\Doctrine\DBAL\Connection $db=null) {}
     public function render(array $event,string $recipient): Email
     {
         $payload=json_decode($event['payload'],true,flags:JSON_THROW_ON_ERROR);$this->payloads->validate($event['type'],$payload);
+        // SKU is immutable. Resolve it also for events already queued before this release,
+        // without rewriting their quantities, article name or occurrence timestamp.
+        if(in_array($event['type'],['stock_low','stock_critical'],true)) {$payload=$this->withReference($payload);}
+        elseif($event['type']==='daily_summary') {$payload['items']=array_map($this->withReference(...),$payload['items']);}
         if(in_array($event['type'],['password_reset','account_activation'],true)) {
             if($this->passwordReset===null) {throw new \LogicException('password_reset_renderer_unavailable');}
             $payload=['path'=>$this->passwordReset->deliveryPath($payload['reset_id'],$event['recipient_id'],$recipient,$event['type']==='account_activation'?'activation':'reset')];
@@ -23,10 +28,17 @@ final class NotificationRenderer
         $baseUrl=$this->mailPublicUrl?:$this->baseUrl;
         $url=parse_url($baseUrl);
         if(!$url||!isset($url['host'])||isset($url['user'])||isset($url['pass'])||isset($url['query'])||isset($url['fragment'])||!in_array($url['scheme']??'',$this->environment==='prod'?['https']:['https','http'],true)) {throw new \InvalidArgumentException('notification_base_url_invalid');}
-        $subject=match($event['type']) {'stock_low'=>'Stock bas : '.$payload['article'],'stock_critical'=>'Stock critique : '.$payload['article'],'account_activation'=>'Créer votre mot de passe Gestion-Stock','password_reset'=>'Réinitialiser votre mot de passe','information'=>$payload['subject'],'daily_summary'=>'Votre récapitulatif des alertes de stock'};
+        $subject=match($event['type']) {'stock_low'=>'Stock bas : ['.$payload['sku'].'] '.$payload['article'],'stock_critical'=>'Stock critique : ['.$payload['sku'].'] '.$payload['article'],'account_activation'=>'Créer votre mot de passe Gestion-Stock','password_reset'=>'Réinitialiser votre mot de passe','information'=>$payload['subject'],'daily_summary'=>'Votre récapitulatif des alertes de stock'};
         $context=['type'=>$event['type'],'payload'=>$payload,'base_url'=>rtrim($baseUrl,'/')];
         $email=(new Email())->from(new Address($this->from,'Gestion de stock'))->to(new Address($recipient))->subject($subject)->text($this->twig->render('emails/notification.txt.twig',$context))->html($this->twig->render('emails/notification.html.twig',$context));
         $email->getHeaders()->addIdHeader('Message-ID','notification.'.$event['id'].'@'.$url['host']);
         return $email;
+    }
+    private function withReference(array $payload): array
+    {
+        if($this->db===null||!preg_match('~^/stocks/([a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12})/([a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12})$~iD',$payload['path'],$match)) {throw new \InvalidArgumentException('notification_article_reference_unavailable');}
+        $sku=$this->db->fetchOne('SELECT sku FROM articles WHERE id=?',[$match[2]]);
+        if(!is_string($sku)||trim($sku)===''||preg_match('/[\x00-\x1f\x7f]/u',$sku)) {throw new \InvalidArgumentException('notification_article_reference_unavailable');}
+        return [...$payload,'sku'=>$sku];
     }
 }
