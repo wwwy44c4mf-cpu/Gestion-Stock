@@ -60,7 +60,7 @@ final class StoreAdministrationController extends AbstractController
                 if (strlen($request->getContent()) > 65536) { throw new ApiProblem(413, 'payload_too_large', 'Le formulaire est trop volumineux.'); }
                 $key = $isNew ? $request->request->getString('_creation_key') : '';
                 $body = (object) ['name' => $request->request->getString('name'), 'description' => $request->request->getString('description'), 'address' => $request->request->getString('address'), 'active' => $request->request->getBoolean('active'),'ca_enabled'=>$request->request->getBoolean('ca_enabled')];
-                if ($isNew) { $body->code = $request->request->getString('code'); }
+                $body->code = $request->request->getString('code');
                 $data = array_replace($data, get_object_vars($body));
                 $result = $isNew ? $this->stores->create($actor, $body, $key) : $this->stores->update($actor, $id, $body);
                 $this->addFlash('success', $isNew ? 'Le magasin a été créé.' : 'Les modifications ont été enregistrées.');

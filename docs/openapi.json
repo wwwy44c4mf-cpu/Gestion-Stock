@@ -7796,6 +7796,11 @@
           "ca_enabled": {
             "type": "boolean",
             "description": "Afficher les opérations Curatif Antennaire de ce magasin."
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1
           }
         },
         "additionalProperties": false,
